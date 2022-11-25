@@ -19,6 +19,17 @@
 stages:          # List of stages for jobs, and their order of execution
   - build
   - test
+  - .pre
+  - .post
+
+pre-job:
+  stage: .pre
+  script:
+    - echo "Prebuild"
+post-job:
+  stage: .post
+  script:
+    - echo "Postbuild"
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
