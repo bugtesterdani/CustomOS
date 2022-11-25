@@ -23,10 +23,16 @@ stages:          # List of stages for jobs, and their order of execution
   - .pre
   - .post
 
+default:
+  image: debian:latest
+
 pre-job:
   stage: .pre
   script:
+    # Install all needed Programs before building
     - echo "Prebuild"
+    - apt-get install -y nasm bcc
+
 post-job:
   stage: .post
   script:
