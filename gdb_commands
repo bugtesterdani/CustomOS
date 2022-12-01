@@ -1,0 +1,6 @@
+gdb
+target remote localhost:1234
+b *0x7c00
+set disassemble-next-line on
+set architecture i8086
+c
