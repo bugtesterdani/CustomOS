@@ -48,4 +48,4 @@ dd if=boot.bin of=disk.img conv=notrunc
 # to debug we need to use i386
 qemu-system-i386 -s -S -hda disk.img &
 cd ..
-gdb -ix "gdb_init_real_mode.txt" build/stage2.elf -ex "target remote localhost:1234" -ex "br *0x8000" -ex "c"
+gdb -ix "gdb_init_real_mode.txt" build/stage2.elf -ex "target remote localhost:1234" -ex "br *0x7c00" -ex "br *0x8000"

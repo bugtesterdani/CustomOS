@@ -2,14 +2,14 @@ bits 16
 ;org 0x8000
 
 ; 56 50 53 AC ...
-print_string:               dd 0x7D2C
+print_string:               dd 0x7D2A
 ; BE xx 7D E8 09 00 B4 ...
 ; BE xx 7C 01 E8 09 00 B4 ...
-wait_for_key_reboot:        dd 0x7D1D
-; B4 41 BB AA ...
-read_fat32:                 dd 0x7CCD
+wait_for_key_reboot:        dd 0x7D1A
+; F4 56 66 50 66 53 ...
+read_fat32:                 dd 0x7CC3
 ; 10 00 02 00 ...
-DAP:                        dd 0x7CF7
+DAP:                        dd 0x7CF5
 ; 00 00 00 00 ...
 var_32_zeros:               dd 0x7DCE
 
@@ -28,6 +28,7 @@ init:
     pop ax
     mov si, load_msg
     call dword [print_string]
+    pop ax
 
 ; What do we need to do?
 ; - Read the File stage22.bin into the Memory (located from 0x1000)
@@ -66,6 +67,9 @@ start:
     ; continue from start
     mov si, filename_stage2_part2
     call ReadFile
+    mov si, [Result_Read_File]
+    xor si, 1
+    jz file_not_found
     call LoadFile
     jmp Execute
 
@@ -85,7 +89,11 @@ Line:               db ' - ', 0
 ReadFile:
 .read_fat32_interrupt:
     call dword [read_fat32]
+    pop ax
+    ; Backup si
+    mov ax, si
 .compare_file_name:
+    mov si, ax
     mov cx, 11
     push di
     repe cmpsb
@@ -109,10 +117,14 @@ ReadFile:
 .found_file:
     mov si, msg_file_found
     call dword [print_string]
-    mov Result_Read_File, 0x0
+    pop si
+    mov si, [Result_Read_File]
+    mov si, 0x0
     ret
 .file_not_found:
-    mov Result_Read_File, 0x1
+    mov si, [Result_Read_File]
+    pop si
+    mov si, 0x1
     ret
 
 LoadFile:
@@ -178,9 +190,11 @@ LoadFile:
     call print_DAP_Values
 
     call dword [read_fat32]
+    pop si
 .finish_reading:
     mov si, load_msg
     call dword [print_string]
+    pop si
     ret
 
 print_DAP_Values:
@@ -195,6 +209,7 @@ print_DAP_Values:
     mov si, Line
     call dword [print_string]
     pop si
+    pop si
     dec ax
     dec ax
     jnz .testing_print_hex_values
@@ -208,6 +223,7 @@ msg_new_line:       db ENDL, 0
 file_not_found:
     mov si, msg_file_not_found
     call dword [print_string]
+    pop si
     jmp hlt
 
 print_hex_word:

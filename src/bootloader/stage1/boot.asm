@@ -355,7 +355,6 @@ hlt:
 ; Or better setup the Interrupt Values and Parse them back, to check if successfull or not.
 read_fat32:
     push si
-    push di
     push eax
     push ebx
     push ecx
@@ -385,7 +384,6 @@ read_fat32:
     pop ecx
     pop ebx
     pop eax
-    pop di
     pop si
     ret
 
@@ -433,12 +431,12 @@ print_string:
     push bx
 
 ; Now loop through all Characters of the String which was pushed to Register si
-loop:
+.loop:
     lodsb	    	; loads the next character from Register si to Register al
     or al, al		; now verify that the Character is not the 0 / null Character
-    jz done		    ; but if so, jump to done, else print this Character
+    jz .done		    ; but if so, jump to done, else print this Character
 
-print_char:
+.print_char:
     mov ah, 0x0E	; This will set the Mode to Write Character in TTY Mode
     mov bh, 0		; Set the page to actual running Screen 0
         			; We could use Screens from 0-7 in mode 0 and 1, 0-3 in mode 2 and 3
@@ -446,10 +444,10 @@ print_char:
 		        	; screens to the new screen. (for this use case use int 0x10 and ah 0x05
 			        ; while set al to the screen number)
     int 0x10		; Interrupt the Print Function of the Actual Character set in the Register al
-    jmp loop		; Now jump back to the printing Function
+    jmp .loop		; Now jump back to the printing Function
 
 ; Reset all saved Register which are back uped at the beginning of the print_string function
-done:
+.done:
     ; It is also important to know that the order of restoring the registers is reversed
     ; The Stack Pointer will be moved backwards while pop a register
     pop bx
@@ -587,5 +585,3 @@ file_32_zeros:          times 32 db 0
 partition4:             times 16 db 0
 
 dw 0AA55h
-
-buffer:
