@@ -140,7 +140,7 @@
 ; 0x00007E00 - 0x0009FFFF - Unused
 ; ---> Using for Stage2:
 ;      Start ASM to load other parts: 0x7E50 (again only 512Byte)
-;      Other ASM Informations for protected mode etc: 0x1000
+;      Other ASM Informations for protected mode etc: 0xA000
 ; 0x000A0000 - 0x000BFFFF - Video RAM (VRAM) Memory
 ; 0x000B0000 - 0x000B7777 - Monochrome Video Memory
 ; 0x000B8000 - 0x000BFFFF - Color Video Memory
@@ -384,7 +384,7 @@ DAP:
 Size:       db 0x10
 Reserved:   db 0x00
 Sectors:    dw 0x02
-Buff_Off:   dw 0x7E50
+Buff_Off:   dw 0x8000
 Buff_Seg:   dw 0x0000
 LBA1:       dd 0x0B18
 LBA2:       dd 0x0000
@@ -543,7 +543,6 @@ done:
 ; otherwise the Printer wont know where the end is.
 ; msg_loading:            db 'Loading', ENDL, 0
 msg_read_failed:        db 'Failed to read from Partition', ENDL, 0
-msg_stage2_found:       db 'Second Stage File found, booting', ENDL, 0
 msg_stage2_not_found:   db 'Second Stage File not found', ENDL, 0
 msg_print_any_key_to_reboot: db 'PRESS ANY KEY TO REBOOT...', 0
 file_stage2_bin:        db 'STAGE2  BIN'

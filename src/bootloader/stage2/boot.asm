@@ -1,14 +1,14 @@
 bits 16
-org 0x7E50
+org 0x8000
 
 ; 56 50 53 AC ...
-print_string:               dd 0x7D16
-; BE 8B 7D E8 09 ...
-wait_for_key_reboot:        dd 0x7d07
+print_string:               dd 0x7D14
+; BE xx 7D E8 09 00 B4 ...
+wait_for_key_reboot:        dd 0x7d05
 ; B4 41 BB AA ...
-read_fat32:                 dd 0x7CC3
-; 10 00 01 00 ...
-DAP:                        dd 0x7CE3
+read_fat32:                 dd 0x7CC1
+; 10 00 02 00 ...
+DAP:                        dd 0x7CE1
 ; 00 00 00 00 ...
 var_32_zeros:               dd 0x7DCE
 
@@ -17,6 +17,7 @@ var_32_zeros:               dd 0x7DCE
 %define ROOT_DIR_START_LSB      0x18
 %define ROOT_DIR_START_MSB      0x0B
 %define SECTORS_PER_CLUSTER     8
+%define Buff_Off                0x8400
 
 init:
     ; Is needed somewhy, to make the prints without bugs
@@ -54,7 +55,7 @@ read_partition_table:
     call set_in_dap_value
     ; MSB Buffer Offset
     mov al, 5
-    mov ah, 0x90
+    mov ah, 0x84
     call set_in_dap_value
     ; LSB Buffer Offset
     mov al, 6
@@ -89,9 +90,9 @@ read_partition_table:
     mov si, msg_file_found
     call dword [print_string]
 .loading_file:
-    xor eax, eax
-    xor ebx, ebx
-    xor ecx, ecx
+    and eax, 0x00000000
+    and ebx, 0x00000000
+    and ecx, 0x00000000
     mov ecx, SECTORS_PER_CLUSTER        ; => Sectors Per Cluster
     mov eax, [di + 0x14]
     shl eax, 8
@@ -106,9 +107,11 @@ read_partition_table:
     mov al, 8
     mov ah, bl
     call set_in_dap_value
+
     mov al, 9
     mov ah, bh
     call set_in_dap_value
+
     ; Calculate how many Sectors we should be reading
     and eax, 0x00000000
     and ebx, 0x00000000
@@ -133,13 +136,34 @@ read_partition_table:
     inc eax
 
     mov ebx, eax
-    xor eax, eax
+    and eax, 0x00000000
+    and ecx, 0x00000000
     mov al, 2
     mov ah, bl
     call set_in_dap_value
+
+    and eax, 0x00000000
     mov al, 3
     mov ah, bh
     call set_in_dap_value
+
+    push ax
+    mov ax, 16
+.testing_print_hex_values_140:
+    mov si, [DAP]
+    sub si, ax
+    mov si, [si + 16]
+    push si
+    call print_hex_word
+    mov si, Line
+    call dword [print_string]
+    pop si
+    dec ax
+    dec ax
+    jnz .testing_print_hex_values_140
+    mov si, msg_new_line
+    call dword [print_string]
+    pop ax
 
     call dword [read_fat32]
 .finish_reading:
@@ -148,6 +172,9 @@ read_partition_table:
 
 end:
     popa
+    jmp dword [Buff_Off]
+
+Line:               db ' - ', 0
 
 hlt:
     cli
@@ -198,4 +225,4 @@ set_in_dap_value:
 load_msg:                   db 'Loading Bootloader Part 2...', ENDL, 0
 msg_file_not_found:         db 'Bootloader Part 2 could not be found', ENDL, 0
 msg_file_found:             db 'Found Bootloader Part 2. Loading...', ENDL, 0
-filename_stage2_part2:      db '4355954 JPG'
+filename_stage2_part2:      db 'STAGE22 BIN'
