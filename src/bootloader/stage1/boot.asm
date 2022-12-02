@@ -354,6 +354,12 @@ hlt:
 ; We now need to read the file to the offset.
 ; Or better setup the Interrupt Values and Parse them back, to check if successfull or not.
 read_fat32:
+    push si
+    push di
+    push eax
+    push ebx
+    push ecx
+    push edx
     ; We first check the Disk, if we are on the right disk and can get values.
     ; Interrupt 13h with Parameter ah = 0x41 and bx = 0x55AA and dl = [The Drive Number]
     mov ah, 041h
@@ -375,6 +381,12 @@ read_fat32:
     jc floppy_error
     ; Then we save the Offset at Register DI and Return to the previous caller Function.
     mov di, [Buff_Off]
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    pop di
+    pop si
     ret
 
 ; (SIZE) (RESERVED) (SECTORS LSB) (SECTORS MSB)
@@ -398,10 +410,11 @@ LBA4:       dd 0x0000
 stage2_not_found:
    mov si, msg_stage2_not_found
    call print_string
+   jmp wait_for_key_and_reboot_system
 
 floppy_error:
+    mov si, msg_read_failed
     call print_string
-    push msg_read_failed
 
 wait_for_key_and_reboot_system:
     mov si, msg_print_any_key_to_reboot

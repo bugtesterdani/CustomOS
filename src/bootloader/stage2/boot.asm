@@ -2,13 +2,14 @@ bits 16
 ;org 0x8000
 
 ; 56 50 53 AC ...
-print_string:               dd 0x7D14
+print_string:               dd 0x7D2C
 ; BE xx 7D E8 09 00 B4 ...
-wait_for_key_reboot:        dd 0x7d05
+; BE xx 7C 01 E8 09 00 B4 ...
+wait_for_key_reboot:        dd 0x7D1D
 ; B4 41 BB AA ...
-read_fat32:                 dd 0x7CC1
+read_fat32:                 dd 0x7CCD
 ; 10 00 02 00 ...
-DAP:                        dd 0x7CE1
+DAP:                        dd 0x7CF7
 ; 00 00 00 00 ...
 var_32_zeros:               dd 0x7DCE
 
@@ -33,8 +34,6 @@ init:
 ;   (saving space)
 start:
     pusha
-
-read_partition_table:
 .assign_values:
     ; Assign DAP Values
     xor ax, ax
@@ -61,11 +60,28 @@ read_partition_table:
     mov al, 6
     mov ah, 0x00
     call set_in_dap_value
+
+    ; continue from start
+    mov si, filename_stage2_part2
+    call ReadFile
+    call LoadFile
+    jmp Execute
+
+Execute:
+    popa
+    jmp dword [Buff_Off]
+
+hlt:
+    cli
+    hlt
+
+Line:               db ' - ', 0
+
+; Parameter si sollte der Dateiname eingesetzt werden.
+ReadFile:
 .read_fat32_interrupt:
     call dword [read_fat32]
 .compare_file_name:
-    mov si, di
-    mov si, filename_stage2_part2
     mov cx, 11
     push di
     repe cmpsb
@@ -89,6 +105,9 @@ read_partition_table:
 .found_file:
     mov si, msg_file_found
     call dword [print_string]
+    ret
+
+LoadFile:
 .loading_file:
     and eax, 0x00000000
     and ebx, 0x00000000
@@ -148,9 +167,18 @@ read_partition_table:
     mov ah, bh
     call set_in_dap_value
 
+    call print_DAP_Values
+
+    call dword [read_fat32]
+.finish_reading:
+    mov si, load_msg
+    call dword [print_string]
+    ret
+
+print_DAP_Values:
     push ax
     mov ax, 16
-.testing_print_hex_values_140:
+.testing_print_hex_values:
     mov si, [DAP]
     sub si, ax
     mov si, [si + 16]
@@ -161,25 +189,11 @@ read_partition_table:
     pop si
     dec ax
     dec ax
-    jnz .testing_print_hex_values_140
+    jnz .testing_print_hex_values
     mov si, msg_new_line
     call dword [print_string]
     pop ax
-
-    call dword [read_fat32]
-.finish_reading:
-    mov si, load_msg
-    call dword [print_string]
-
-end:
-    popa
-    jmp dword [Buff_Off]
-
-Line:               db ' - ', 0
-
-hlt:
-    cli
-    hlt
+    ret
 
 msg_new_line:       db ENDL, 0
 
