@@ -1,1 +1,0 @@
-src/bootloader/stage4/headers/fat32.h(20): Warning! W202: Symbol 'fat32' has been defined, but not referenced

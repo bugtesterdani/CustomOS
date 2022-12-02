@@ -1,2 +1,0 @@
-src/bootloader/stage4/main.c(5): Warning! W303: Parameter 'bootDrive' has been defined, but not referenced
-src/bootloader/stage4/headers/fat32.h(20): Warning! W202: Symbol 'fat32' has been defined, but not referenced
