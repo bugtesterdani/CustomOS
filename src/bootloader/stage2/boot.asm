@@ -13,6 +13,8 @@ DAP:                        dd 0x7CF7
 ; 00 00 00 00 ...
 var_32_zeros:               dd 0x7DCE
 
+Result_Read_File:           dd 0x0
+
 %define ENDL                    0x0D, 0x0A
 %define ROOT_DIR_START          0x0B18
 %define ROOT_DIR_START_LSB      0x18
@@ -78,6 +80,8 @@ hlt:
 Line:               db ' - ', 0
 
 ; Parameter si sollte der Dateiname eingesetzt werden.
+; Return Value: 0 => Success, 1 => Fail
+; Value of the Readed Array, is in register di
 ReadFile:
 .read_fat32_interrupt:
     call dword [read_fat32]
@@ -100,11 +104,15 @@ ReadFile:
     push di
     repe cmpsb
     pop di
-    je file_not_found
+    je .file_not_found
     jmp .compare_file_name
 .found_file:
     mov si, msg_file_found
     call dword [print_string]
+    mov Result_Read_File, 0x0
+    ret
+.file_not_found:
+    mov Result_Read_File, 0x1
     ret
 
 LoadFile:
