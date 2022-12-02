@@ -150,7 +150,7 @@
 
 ; Set the Origin Address to which the BIOS Loads this file
 ; Default it is 0x7C00
-org 0x7C00
+;org 0x7C00
 
 ; Set the BIT Mode to 16-BIT
 ; This is the default in the first booted mode

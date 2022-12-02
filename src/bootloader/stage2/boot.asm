@@ -1,5 +1,5 @@
 bits 16
-org 0x8000
+;org 0x8000
 
 ; 56 50 53 AC ...
 print_string:               dd 0x7D14
@@ -116,6 +116,7 @@ read_partition_table:
     and eax, 0x00000000
     and ebx, 0x00000000
     and ecx, 0x00000000
+    and edx, 0x00000000
     mov ebx, [di + 0x1F]
     and ebx, 0x000000FF
     mov eax, ebx
@@ -225,4 +226,4 @@ set_in_dap_value:
 load_msg:                   db 'Loading Bootloader Part 2...', ENDL, 0
 msg_file_not_found:         db 'Bootloader Part 2 could not be found', ENDL, 0
 msg_file_found:             db 'Found Bootloader Part 2. Loading...', ENDL, 0
-filename_stage2_part2:      db 'STAGE22 BIN'
+filename_stage2_part2:      db 'STAGE3  BIN'
