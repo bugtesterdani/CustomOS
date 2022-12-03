@@ -23,23 +23,22 @@ stages:          # List of stages for jobs, and their order of execution
   - .pre
   - .post
 
-default:
-  image: debian:latest
-
 pre-job:
   stage: .pre
+  image: debian:latest
   script:
     # Install all needed Programs before building
     - echo "Prebuild"
-    - "uname -a"
     - apt-get install -y nasm bcc
 
 post-job:
+  image: debian:latest
   stage: .post
   script:
     - echo "Postbuild"
 
 build-job:       # This job runs in the build stage, which runs first.
+  image: debian:latest
   stage: build
   script:
     - echo "Compiling the code..."
@@ -47,18 +46,21 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compile complete."
 
 unit-test-job:   # This job runs in the test stage.
+  image: debian:latest
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - echo "Running unit tests... This will take about 60 seconds."
     - echo "Code coverage is 90%"
 
 lint-test-job:   # This job also runs in the test stage.
+  image: debian:latest
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   script:
     - echo "Linting code... This will take about 10 seconds."
     - echo "No lint issues found."
 
 deploy-job:      # This job runs in the deploy stage.
+  image: debian:latest
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
