@@ -31,6 +31,7 @@ pre-job:
   script:
     # Install all needed Programs before building
     - echo "Prebuild"
+    - "uname -a"
     - apt-get install -y nasm bcc
 
 post-job:
