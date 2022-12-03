@@ -23,16 +23,18 @@ stages:          # List of stages for jobs, and their order of execution
   - .pre
   - .post
 
+image: debian:latest
+
 pre-job:
   stage: .pre
-  image: debian:latest
   script:
     # Install all needed Programs before building
     - echo "Prebuild"
+    - docker build -t build-docker debian
+    - docker run build-docker
     - apt-get install -y nasm bcc
 
 post-job:
-  image: debian:latest
   stage: .post
   script:
     - echo "Postbuild"
