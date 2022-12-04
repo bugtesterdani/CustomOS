@@ -1,5 +1,0 @@
-Es gibt noch bei stage2/boot.asm folgende Fehler:
-
-* Die Sector Anzahl und andere Werte enthalten ab und an, bei unterschiedlichen Builds
-unterschiedliche Werte. Was bei einem zum erfolg führt, die anderen aber einen Fehler
-dann aufweisen und REBOOT angezeigt wird.

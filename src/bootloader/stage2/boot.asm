@@ -36,6 +36,7 @@ init:
 ; - Define more usefull Functions, which could be used in stage2 later
 ;   (saving space)
 start:
+    ; STACK => AX, CX, DX, BX, SP, BP, SI, DI (first -> last)
     pusha
 .assign_values:
     ; Assign DAP Values
@@ -65,17 +66,19 @@ start:
     call set_in_dap_value
 
     ; continue from start
-    mov si, filename_stage2_part2
+    mov si, filename_stage3
     call ReadFile
-    mov si, [Result_Read_File]
-    xor si, 1
+    mov si, Result_Read_File
+    mov ax, 1
+    xor [si], ax
     jz file_not_found
     call LoadFile
     jmp Execute
 
 Execute:
     popa
-    jmp dword [Buff_Off]
+    call print_DAP_Values
+    jmp dword Buff_Off
 
 hlt:
     cli
@@ -118,13 +121,16 @@ ReadFile:
     mov si, msg_file_found
     call dword [print_string]
     pop si
-    mov si, [Result_Read_File]
-    mov si, 0x0
+    mov si, Result_Read_File
+    mov ax, 0
+    xor [si], ax
     ret
 .file_not_found:
     mov si, [Result_Read_File]
     pop si
-    mov si, 0x1
+    mov si, Result_Read_File
+    mov ax, 0
+    xor [si], ax
     ret
 
 LoadFile:
@@ -215,6 +221,8 @@ print_DAP_Values:
     jnz .testing_print_hex_values
     mov si, msg_new_line
     call dword [print_string]
+    pop ax                              ; First remove the additional byte, we dont need.
+                                        ; This byte comes from the dword call
     pop ax
     ret
 
@@ -264,4 +272,4 @@ set_in_dap_value:
 load_msg:                   db 'Loading Bootloader Part 2...', ENDL, 0
 msg_file_not_found:         db 'Bootloader Part 2 could not be found', ENDL, 0
 msg_file_found:             db 'Found Bootloader Part 2. Loading...', ENDL, 0
-filename_stage2_part2:      db 'STAGE3  BIN'
+filename_stage3:            db 'STAGE3  BIN'
