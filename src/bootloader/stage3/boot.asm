@@ -3,6 +3,7 @@ bits 16
 
 section .entry
 global entry
+extern _cstart_
 
 %define ENDL 0x0D, 0x0A
 %define Black 0x0
@@ -56,7 +57,8 @@ init:
     mov eax, 1                      ; Print to the 2. Line
     mov si, print_string_second
     call print_to_video_card
-    ;call _cstart_
+    ;call read_input
+    call _cstart_
 hang:
     jmp hang
 
@@ -86,7 +88,6 @@ print_to_video_card:
 
 print_string:           db 'Protected Mode', 0
 print_string_second:    db 'Welcome to DP OS', 0
-
 
 
 ; Following the GDT Descriptions
