@@ -1,14 +1,35 @@
 bits 16
 ; org 0x8400
 
-cli
-lgdt [gdt_desc]
-mov eax, cr0
-or al, 1
-mov cr0, eax
-jmp CODE_SEG:init
-jmp halt
+section .entry
+global entry
 
+%define ENDL 0x0D, 0x0A
+%define Black 0x0
+%define Blue 0x1
+%define Green 0x2
+%define Cyan 0x3
+%define Red 0x4
+%define Purple 0x5
+%define Brown 0x6
+%define Gray 0x7
+%define Dark_Gray 0x8
+%define Light_Blue 0x9
+%define Light_Green 0xA
+%define Light_Cyan 0xB
+%define Light_Red 0xC
+%define Light_Purple 0xD
+%define Yellow 0xE
+%define White 0xF
+
+entry:
+    cli
+    lgdt [gdt_desc]
+    mov eax, cr0
+    or al, 1
+    mov cr0, eax
+    jmp CODE_SEG:init
+    jmp halt
 halt:
     hlt
     jmp halt
@@ -23,12 +44,19 @@ init:
     mov gs, ax
     mov ebp, 0x90000
     mov esp, ebp
+    mov bl, Black
+    shl bl, 4
+    add bl, White
     mov eax, 0                      ; Print to the 1. Line
     mov si, print_string            ; Load the String we want to print
     call print_to_video_card        ; Call the print function
+    mov bl, Black
+    shl bl, 4
+    add bl, Yellow
     mov eax, 1                      ; Print to the 2. Line
     mov si, print_string_second
     call print_to_video_card
+    ;call _cstart_
 hang:
     jmp hang
 
@@ -50,13 +78,11 @@ print_to_video_card:
     add edx, 1
     mov byte [ds:edx], al
     add edx, 1
-    mov byte [ds:edx], 0x1B
+    mov byte [ds:edx], bl
     jmp .loop
 .done:
     pop si
     ret
-
-%define ENDL 0x0D, 0x0A
 
 print_string:           db 'Protected Mode', 0
 print_string_second:    db 'Welcome to DP OS', 0
