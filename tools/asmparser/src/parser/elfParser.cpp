@@ -13,7 +13,6 @@ ElfParser::ElfParser()
 
 ElfParser::~ElfParser()
 {
-    LOG::Info("Delete ElfParser!");
     for (auto const& [key, val] : m_listReadElfFiles) {
         try {
             if (!fs::remove(val)) {

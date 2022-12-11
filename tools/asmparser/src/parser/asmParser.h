@@ -1,5 +1,7 @@
 #include "parser/parseBase.h"
 
+#include <vector>
+
 namespace Parser
 {
 class ASMParser : public ParseBase {
@@ -18,9 +20,13 @@ public:
     bool parse(void);
 
 private:
+    bool doesKeyExist(const std::string&, const std::string& = std::string());
+    void printKeys(void);
+    bool writeFile(const std::vector<std::string>&, const char*);
 
 private:
     const fileListExt& m_parsedReadElf;
     fileList ok;
+    std::vector<std::string> m_outputFile;
 };
 }

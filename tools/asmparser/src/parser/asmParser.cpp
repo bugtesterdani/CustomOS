@@ -11,9 +11,7 @@ ASMParser::ASMParser(const fileListExt& parsedReadElf) :
 {}
     
 ASMParser::~ASMParser()
-{
-    LOG::Info("Delete ASMParser!");
-}
+{}
 
 void
 ASMParser::setSrc(const char* src)
@@ -60,18 +58,113 @@ ASMParser::parse(void)
     std::ifstream readFile(m_src);
 
     //    call dword [print_string]
-    const std::regex strExpr("");
+    const std::regex strExpr(".*call\\sdword\\s\\[[$]?(\\w+)\\.(\\w+)\\].*");
     std::smatch match;
+    bool check = true;
 
     std::string data;
     while (std::getline(readFile, data)) {
-        LOG::Debug(data.c_str());
         if(std::regex_match(data, match, strExpr)) {
-            
+            const std::string key = match[1];
+            const std::string func = match[2];
+
+            if(!doesKeyExist(key, func)) {
+                check = false;
+                printKeys();
+            }
+
+            std::string address = m_parsedReadElf.find(key)->second.find(func)->second;
+
+            std::string newData;
+            for (int i = 0; i < data.length(); i++) {
+                char c = data.at(i);
+
+                if(c == '[') {
+                    newData.push_back('[');
+                    for (int o = 0; o < address.length(); o++) {
+                        newData.push_back(address.at(o));
+                    }
+                    newData.push_back(']');
+                    break;
+                } else {
+                    newData.push_back(c);
+                }
+            }
+            m_outputFile.push_back(newData);
+        } else {
+            m_outputFile.push_back(data);
+        }
+    }
+
+    if(check) {
+        if(!writeFile(m_outputFile, m_src)) {
+            LOG::Error("Failed to write into new file!");
         }
     }
 
     LOG::Info("Parse of .asm files done!");
+    return check;
+}
+
+bool
+ASMParser::doesKeyExist(const std::string& mainKey, const std::string& primKey)
+{
+    fileListExt::const_iterator pos = m_parsedReadElf.find(mainKey);
+    if (pos == m_parsedReadElf.end()) {
+        LOG::Warning(std::string("Key: '" + mainKey + "' does not exist").c_str());
+        return false;
+    } else if(!primKey.empty()) {
+        if (pos->second.find(primKey) == pos->second.end()) {
+            LOG::Warning(std::string("Func key: '" + primKey + "' does not exist").c_str());
+            return false;
+        }
+    }
     return true;
+}
+
+void 
+ASMParser::printKeys(void)
+{
+    LOG::Info("Existing keys:");
+    for(auto const& [key, val] : m_parsedReadElf) {
+        for (auto const& [key1, val1] : val) {
+            LOG::Info(std::string(key + ": " + key1).c_str());
+        }
+    }
+}
+
+bool
+ASMParser::writeFile(const std::vector<std::string>& list, const char* newFile)
+{
+    std::string outFile = m_outDir;
+
+    std::size_t size = outFile.length();
+    if(outFile.at(size -1) != '/') {
+        outFile.push_back('/');
+    }
+
+    int lastIndex;
+    for(int s = 0; s < strlen(newFile); s++) {
+        if (newFile[s] == '/') {
+            lastIndex = s + 1;
+        }
+    }
+
+    for(int o = lastIndex; o < strlen(newFile); o++) {
+        outFile.push_back(newFile[o]);
+    }
+
+    std::ofstream file(outFile.c_str(), std::ofstream::out);
+
+    if(file.is_open())
+    {
+        for (const std::string& line : list) {
+            file << line << std::endl;
+        }
+        file.close();
+
+        return true;
+    }
+    return false;
 }
 }
