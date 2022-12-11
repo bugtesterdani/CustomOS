@@ -9,4 +9,6 @@ target_sources(parser
     ${HEADER}
     elfParser.h
     elfParser.cpp
+    asmParser.h
+    asmParser.cpp
 )

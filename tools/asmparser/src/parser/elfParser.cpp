@@ -1,24 +1,30 @@
 #include "parser/elfParser.h"
 
-#include <fstream>
-#include <filesystem>
 #include <cstring>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <regex>
 #include <iostream>
 
 #include "log/log.h"
 
-namespace fs = std::filesystem;
-
 namespace Parser
 {
-ElfParser::ElfParser(const char* outDir) : m_outDir(outDir)
+ElfParser::ElfParser()
 {}
 
 ElfParser::~ElfParser()
-{}
+{
+    LOG::Info("Delete ElfParser!");
+    for (auto const& [key, val] : m_listReadElfFiles) {
+        try {
+            if (!fs::remove(val)) {
+                LOG::Error(std::string("Failed to remove: " + val).c_str());
+            }   
+        }
+        catch(const fs::filesystem_error& err) {
+                std::cout << "filesystem error: " << err.what() << '\n';
+        }
+    }
+}
 
 void 
 ElfParser::setSrc(const char* src)
@@ -32,11 +38,28 @@ ElfParser::getSrc(void) const
     return m_src;
 }
 
+void 
+ElfParser::setOutDir(const char* outDir)
+{
+    m_outDir = outDir;
+}
+
+const char* const 
+ElfParser::getOutDir(void) const
+{
+    return m_outDir;
+}
+
 bool
 ElfParser::parse(void)
 {
     if(!m_src || !m_outDir) {
         LOG::Warning("Source or out dir is not set!");
+        return false;
+    }
+
+    if(!dirExists(m_src)) {
+        LOG::Error(std::string("Directory: " + std::string(m_src) + " does not exist!").c_str());
         return false;
     }
 
@@ -56,6 +79,7 @@ ElfParser::parse(void)
         return false;
     }
 
+    LOG::Info("Parse of .elf files done!");
         
     return true;
 }
@@ -157,21 +181,5 @@ ElfParser::parseReadElf(const fileList& srcList, fileListExt& target)
     }
 
     return true;
-}
-
-bool 
-ElfParser::dirExists(const char* const path) const
-{
-    struct stat info;
-
-    int statRC = stat( path, &info );
-    if( statRC != 0 )
-    {
-        if (errno == ENOENT)  { return false; } // something along the path does not exist
-        if (errno == ENOTDIR) { return false; } // something in path prefix is not a dir
-        return false; // -1
-    }
-
-    return ( info.st_mode & S_IFDIR ) ? true : false;
 }
 }

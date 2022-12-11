@@ -1,23 +1,21 @@
 #include "parser/parseBase.h"
 
-#include <map>
-#include <string>
-
-using fileList = std::map<std::string, std::string>;
-using fileListExt = std::map<std::string, std::map<std::string, std::string>>;
-
 #define READELF_EXTENSION ".readelf"
 
 namespace Parser
 {
 class ElfParser : public ParseBase {
 public:
-    ElfParser(const char*);
+    ElfParser(void);
     ~ElfParser();
 
     void setSrc(const char*) override;
 
     const char* const getSrc(void) const override;
+
+    void setOutDir(const char*) override;
+
+    const char* const getOutDir(void) const override;
 
     bool parse(void);
 
@@ -38,7 +36,7 @@ private:
 
     bool parseReadElf(const fileList& srcList, fileListExt& target);
 
-    bool dirExists(const char* const) const;
+    
 
 private:
     const char* m_outDir;

@@ -1,37 +1,64 @@
 #include "log/log.h"
 #include "parser/elfParser.h"
+#include "parser/asmParser.h"
 
 #include <string>
+#include <csignal>
+
+static Parser::ElfParser* elfParser;
+static Parser::ASMParser* asmParser;
+
+void cleanup()
+{
+	if(elfParser) {
+		delete elfParser;
+   	}
+
+   	if(asmParser) {
+		delete asmParser;
+   	}
+}
+
+void signalHandler(int signum) {
+
+   cleanup();
+   exit(signum);  
+}
 
 int main(int argc, char** argv)
 {
-	if (argc == 1) {
-		LOG::Error("Missing arguments!\n1. asm File\n2. elf dir");
+	if (argc < 4) {
+		LOG::Error("Missing arguments!\n1. asm File\n2. elf dir\n3. Out dir");
 		return 1;
-	} else if (argc > 3) {
-		LOG::Error("To many arguments!\n1. asm File\n2. elf dir");
+	} else if (argc > 4) {
+		LOG::Error("To many arguments!\n1. asm File\n2. elf dir\n3. Out dir");
 		return 1;
 	}
 
 	const char* srcFile = argv[1];
 	const char* srcDir = argv[2];
-	//LOG::Debug(srcFile);
+	const char* outDir = argv[3];
 
-	Parser::ElfParser ok("out/");
-	ok.setSrc(srcDir);
-	if(!ok.parse()) {
-		LOG::Error("Failed to parse!");
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+
+	elfParser = new Parser::ElfParser;
+	elfParser->setSrc(srcDir);
+	elfParser->setOutDir(outDir);
+	if(!elfParser->parse()) {
+		LOG::Error("Failed to parse .elf files!");
 		return 1;
 	}
 
-	for (auto const& [key, val] : ok.getParsedReadElf())
-    {
-		LOG::Info(std::string("Parsed .efl file: " + key).c_str());
-		for (auto const& [key1, val1] : val)
-    	{
-			LOG::Info(std::string("Func: " + key1 + ", Addr: " + val1).c_str());
-		}
+	asmParser = new Parser::ASMParser(elfParser->getParsedReadElf());
+	asmParser->setSrc(srcFile);
+	asmParser->setOutDir(outDir);
+	if(!asmParser->parse()) {
+		LOG::Error("Failed to parse .asm files");
+		return 1;
 	}
+
+	cleanup();
 
 	return 0;
 }
