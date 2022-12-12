@@ -161,11 +161,7 @@ ASMParser::writeFile(const std::vector<std::string>& list, const char* newFile)
                 file << std::endl;
             }
         }
-        for (const std::string& line : list) {
-            
-        }
         file.close();
-
         return true;
     }
     return false;
