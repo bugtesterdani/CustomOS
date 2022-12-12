@@ -47,6 +47,7 @@ int main(int argc, char** argv)
 	elfParser->setOutDir(outDir);
 	if(!elfParser->parse()) {
 		LOG::Error("Failed to parse .elf files!");
+		cleanup();
 		return 1;
 	}
 
@@ -55,6 +56,7 @@ int main(int argc, char** argv)
 	asmParser->setOutDir(outDir);
 	if(!asmParser->parse()) {
 		LOG::Error("Failed to parse .asm files");
+		cleanup();
 		return 1;
 	}
 
