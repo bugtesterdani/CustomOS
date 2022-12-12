@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#define SIGN '$'
+
 namespace Parser
 {
 class ASMParser : public ParseBase {
@@ -23,6 +25,7 @@ private:
     bool doesKeyExist(const std::string&, const std::string& = std::string());
     void printKeys(void);
     bool writeFile(const std::vector<std::string>&, const char*);
+    inline uint16_t keyValLenght(const std::string&, const std::string&);
 
 private:
     const fileListExt& m_parsedReadElf;

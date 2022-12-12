@@ -57,10 +57,9 @@ ASMParser::parse(void)
 
     std::ifstream readFile(m_src);
 
-    //    call dword [print_string]
-    const std::regex strExpr(".*call\\sdword\\s\\[[$]?(\\w+)\\.(\\w+)\\].*");
+    //[print_string]
+    const std::regex strExpr(".*[$](\\w+)\\.(\\w+).*");
     std::smatch match;
-    bool check = true;
 
     std::string data;
     while (std::getline(readFile, data)) {
@@ -69,41 +68,38 @@ ASMParser::parse(void)
             const std::string func = match[2];
 
             if(!doesKeyExist(key, func)) {
-                check = false;
-                printKeys();
+                goto FILL_DATA;
             }
 
-            std::string address = m_parsedReadElf.find(key)->second.find(func)->second;
+            const std::string address = m_parsedReadElf.find(key)->second.find(func)->second;
 
             std::string newData;
             for (int i = 0; i < data.length(); i++) {
-                char c = data.at(i);
+                const char c = data.at(i);
+                if(c == SIGN) {
+                    std::for_each(address.begin(), address.end(), [&newData] (const char v) {
+                        newData.push_back(v);
+                    });
 
-                if(c == '[') {
-                    newData.push_back('[');
-                    for (int o = 0; o < address.length(); o++) {
-                        newData.push_back(address.at(o));
-                    }
-                    newData.push_back(']');
-                    break;
+                    i += keyValLenght(key, func);
                 } else {
                     newData.push_back(c);
                 }
             }
             m_outputFile.push_back(newData);
         } else {
+FILL_DATA:
             m_outputFile.push_back(data);
         }
     }
 
-    if(check) {
-        if(!writeFile(m_outputFile, m_src)) {
-            LOG::Error("Failed to write into new file!");
-        }
+    if(!writeFile(m_outputFile, m_src)) {
+        LOG::Error("Failed to write into new file!");
+        return false;
     }
 
     LOG::Info("Parse of .asm files done!");
-    return check;
+    return true;;
 }
 
 bool
@@ -158,13 +154,26 @@ ASMParser::writeFile(const std::vector<std::string>& list, const char* newFile)
 
     if(file.is_open())
     {
+        const size_t size = list.size();
+        for(int i = 0; i < size; i++) {
+            file << list.at(i);
+            if(i != size - 1) {
+                file << std::endl;
+            }
+        }
         for (const std::string& line : list) {
-            file << line << std::endl;
+            
         }
         file.close();
 
         return true;
     }
     return false;
+}
+
+inline uint16_t
+ASMParser::keyValLenght(const std::string& key, const std::string& val)
+{
+    return sizeof(SIGN) + key.length() + val.length();
 }
 }

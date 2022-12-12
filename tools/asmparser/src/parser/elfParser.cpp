@@ -161,8 +161,6 @@ ElfParser::parseReadElf(const fileList& srcList, fileListExt& target)
         std::ifstream readFile(file);
 
         //      2: 00008000     4 OBJECT  LOCAL  DEFAULT    1 print_string
-        //const std::regex strExpr("^*\\d:( )?[0-9A-Fa-f]{8}*[0-9]{1,4}*\\w+*\\w+");
-        //const std::regex strExpr("\\s*\\d+:\\s+(\\w+)\\s+\\d+\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\d+\\s+(\\w+)");
         const std::regex strExpr("\\s*\\d+:\\s+([0-9A-Fa-f]{8})\\s+[0-9]{1,4}\\s+\\w+\\s+\\w+\\s+\\w+\\s+\\d+\\s+(\\w+)");
         std::smatch match;
 
@@ -170,7 +168,9 @@ ElfParser::parseReadElf(const fileList& srcList, fileListExt& target)
         while (std::getline(readFile, data)) {
             //LOG::Debug(data.c_str());
             if(std::regex_match(data, match, strExpr)) {
-                pairs.insert(std::make_pair(match[2], match[1]));
+                std::string addr = match[1];
+                parseAddress(addr);
+                pairs.insert(std::make_pair(match[2], addr));
             }
         }
 
@@ -178,6 +178,30 @@ ElfParser::parseReadElf(const fileList& srcList, fileListExt& target)
             target.insert(std::make_pair(key, pairs));
         }
     }
+
+    return true;
+}
+
+bool
+ElfParser::parseAddress(std::string& addr)
+{
+    std::string data("0x");
+
+    if(addr.at(0) == '0' && addr.at(1) == 'x') {
+
+    }
+
+    bool ignore = true;
+    std::for_each(addr.begin(), addr.end(), [&data, &ignore] (const char c) -> void {
+        if (c != '0' || !ignore) {
+            if (ignore) {
+                ignore = false;
+            }
+            data.push_back(c);
+        }
+    });
+
+    addr = data;
 
     return true;
 }

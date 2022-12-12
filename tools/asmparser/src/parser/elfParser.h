@@ -36,7 +36,7 @@ private:
 
     bool parseReadElf(const fileList& srcList, fileListExt& target);
 
-    
+    bool parseAddress(std::string&);
 
 private:
     const char* m_outDir;
