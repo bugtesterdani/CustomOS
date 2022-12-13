@@ -4,6 +4,8 @@
 
 #include <regex>
 
+#include <cstring>
+
 namespace Parser 
 {
 ASMParser::ASMParser(const fileListExt& parsedReadElf) : 

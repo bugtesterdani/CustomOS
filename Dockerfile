@@ -6,18 +6,20 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ARG VersionGCC=11.1.0
 ARG VersionBU=2.37
 ARG TARGETARCH=i686
+ARG PathBuild=Build_ENV
+ARG PathTools=tools
 
 ARG TARGET=${TARGETARCH}-elf
 ARG PREFIX="/root/Toolchain/${TARGET}"
 ARG PATH="${PREFIX}/bin:$PATH"
 
-COPY sources.list /etc/apt/sources.list
+COPY ${PathBuild}/sources.list /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install build-essential nasm mtools qemu-system-x86 -y
 RUN apt-get build-dep gcc-10 -y
 RUN mkdir -p /root/Toolchain
-COPY gcc-${VersionGCC}.tar.gz /root/Toolchain/gcc.tar.gz
-COPY binutils-${VersionBU}.tar.xz /root/Toolchain/binutils.tar.xz
+COPY ${PathBuild}/gcc-${VersionGCC}.tar.gz /root/Toolchain/gcc.tar.gz
+COPY ${PathBuild}/binutils-${VersionBU}.tar.xz /root/Toolchain/binutils.tar.xz
 WORKDIR /root/Toolchain
 RUN apt-get install xz-utils -y
 RUN tar -xvf binutils.tar.xz
@@ -34,5 +36,12 @@ RUN make all-gcc -j 4
 RUN make all-target-libgcc -j 4
 RUN make install-gcc
 RUN make install-target-libgcc
-COPY build.sh /root/build.sh
+RUN apt-get install cmake -y
+COPY ${PathTools}/asmparser /root/Toolchain/asmparser/
+RUN mkdir -p /root/Toolchain/asmparser/build
+WORKDIR /root/Toolchain/asmparser/build
+RUN cmake ..
+RUN make
+RUN cp src/asmparser /root/Toolchain/asmparser/.
+COPY ${PathBuild}/build.sh /root/build.sh
 RUN chmod +x /root/build.sh

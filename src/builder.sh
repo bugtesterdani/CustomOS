@@ -1,14 +1,17 @@
 #!/bin/sh
 
 mkdir -p build
+mkdir -p build_asmparser
 
 # Bootloader Stage 1
-nasm -f elf32 -g3 -F dwarf bootloader/stage1/boot.asm -o build/boot.o
-ld -Ttext=0x7c00 -melf_i386 build/boot.o -o build/boot.elf
-objcopy -O binary build/boot.elf build/boot.bin
+nasm -f elf32 -g3 -F dwarf bootloader/stage1/stage1.asm -o build/stage1.o
+ld -Ttext=0x7c00 -melf_i386 build/stage1.o -o build/stage1.elf
+objcopy -O binary build/stage1.elf build/boot.bin
+
+/root/Toolchain/asmparser/asmparser bootloader/stage2/stage2.asm build build_asmparser
 
 # Build Bootloader Stage 2
-nasm -f elf32 -g3 -F dwarf bootloader/stage2/boot.asm -o build/stage2.o
+nasm -f elf32 -g3 -F dwarf build_asmparser/stage2.asm -o build/stage2.o
 ld -Ttext=0x8000 -melf_i386 build/stage2.o -o build/stage2.elf
 objcopy -O binary build/stage2.elf build/stage2.bin
 

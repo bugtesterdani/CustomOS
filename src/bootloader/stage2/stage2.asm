@@ -27,7 +27,7 @@ init:
     push ax
     pop ax
     mov si, load_msg
-    call dword [print_string]
+    call dword [$stage1.print_string]
     pop ax
 
 ; What do we need to do?
@@ -91,7 +91,7 @@ Line:               db ' - ', 0
 ; Value of the Readed Array, is in register di
 ReadFile:
 .read_fat32_interrupt:
-    call dword [read_fat32]
+    call dword [$stage1.read_fat32]
     pop ax
     ; Backup si
     mov ax, si
@@ -110,7 +110,7 @@ ReadFile:
 .check_if_only_zeros:
     ; This means the end of the Table
     add di, 020h
-    mov si, [var_32_zeros]
+    mov si, [$stage1.var_32_zeros]
     mov cx, 11
     push di
     repe cmpsb
@@ -119,7 +119,7 @@ ReadFile:
     jmp .compare_file_name
 .found_file:
     mov si, msg_file_found
-    call dword [print_string]
+    call dword [$stage1.print_string]
     pop si
     mov si, Result_Read_File
     mov ax, 0
@@ -195,11 +195,11 @@ LoadFile:
 
     call print_DAP_Values
 
-    call dword [read_fat32]
+    call dword [$stage1.read_fat32]
     pop si
 .finish_reading:
     mov si, load_msg
-    call dword [print_string]
+    call dword [$stage1.print_string]
     pop si
     ret
 
@@ -207,20 +207,20 @@ print_DAP_Values:
     push ax
     mov ax, 16
 .testing_print_hex_values:
-    mov si, [DAP]
+    mov si, [$stage1.DAP]
     sub si, ax
     mov si, [si + 16]
     push si
     call print_hex_word
     mov si, Line
-    call dword [print_string]
+    call dword [$stage1.print_string]
     pop si
     pop si
     dec ax
     dec ax
     jnz .testing_print_hex_values
     mov si, msg_new_line
-    call dword [print_string]
+    call dword [$stage1.print_string]
     pop ax                              ; First remove the additional byte, we dont need.
                                         ; This byte comes from the dword call
     pop ax
@@ -230,7 +230,7 @@ msg_new_line:       db ENDL, 0
 
 file_not_found:
     mov si, msg_file_not_found
-    call dword [print_string]
+    call dword [$stage1.print_string]
     pop si
     jmp hlt
 
@@ -258,7 +258,7 @@ set_in_dap_value:
 .start:
     push si
 .setup_loop:
-    mov si, [DAP]
+    mov si, [$stage1.DAP]
 .loop:
     inc si
     dec al
