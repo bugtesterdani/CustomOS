@@ -1,0 +1,35 @@
+#include "parser/parseBase.h"
+
+#include <vector>
+
+#define SIGN '$'
+
+namespace Parser
+{
+class ASMParser : public ParseBase {
+public:
+    ASMParser(const fileListExt&);
+    ~ASMParser();
+
+    void setSrc(const char*) override;
+
+    const char* const getSrc(void) const override;
+
+    void setOutDir(const char*) override;
+
+    const char* const getOutDir(void) const override;
+
+    bool parse(void);
+
+private:
+    bool doesKeyExist(const std::string&, const std::string& = std::string());
+    void printKeys(void);
+    bool writeFile(const std::vector<std::string>&, const char*);
+    inline uint16_t keyValLenght(const std::string&, const std::string&);
+
+private:
+    const fileListExt& m_parsedReadElf;
+    fileList ok;
+    std::vector<std::string> m_outputFile;
+};
+}
