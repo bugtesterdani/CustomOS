@@ -1,18 +1,6 @@
 bits 16
 ;org 0x8000
 
-; 56 50 53 AC ...
-print_string:               dd 0x7D2A
-; BE xx 7D E8 09 00 B4 ...
-; BE xx 7C 01 E8 09 00 B4 ...
-wait_for_key_reboot:        dd 0x7D1A
-; F4 56 66 50 66 53 ...
-read_fat32:                 dd 0x7CC3
-; 10 00 02 00 ...
-DAP:                        dd 0x7CF5
-; 00 00 00 00 ...
-var_32_zeros:               dd 0x7DCE
-
 Result_Read_File:           dd 0x0
 
 %define ENDL                    0x0D, 0x0A
@@ -110,7 +98,7 @@ ReadFile:
 .check_if_only_zeros:
     ; This means the end of the Table
     add di, 020h
-    mov si, [$stage1.var_32_zeros]
+    mov si, [$stage1.file_32_zeros]
     mov cx, 11
     push di
     repe cmpsb
