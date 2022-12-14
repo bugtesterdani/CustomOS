@@ -41,6 +41,7 @@ int main(int argc, char** argv)
 
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
+	signal(SIGSEGV, signalHandler);
 
 	elfParser = new Parser::ElfParser;
 	elfParser->setSrc(srcDir);
