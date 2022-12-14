@@ -3,6 +3,7 @@
 #include "log/log.h"
 
 #include <regex>
+#include <cstring>
 
 namespace Parser 
 {
@@ -55,42 +56,9 @@ ASMParser::parse(void)
         return false;
     }
 
-    std::ifstream readFile(m_src);
-
-    //[print_string]
-    const std::regex strExpr(".*[$](\\w+)\\.(\\w+).*");
-    std::smatch match;
-
-    std::string data;
-    while (std::getline(readFile, data)) {
-        if(std::regex_match(data, match, strExpr)) {
-            const std::string key = match[1];
-            const std::string func = match[2];
-
-            if(!doesKeyExist(key, func)) {
-                goto FILL_DATA;
-            }
-
-            const std::string address = m_parsedReadElf.find(key)->second.find(func)->second;
-
-            std::string newData;
-            for (int i = 0; i < data.length(); i++) {
-                const char c = data.at(i);
-                if(c == SIGN) {
-                    std::for_each(address.begin(), address.end(), [&newData] (const char v) {
-                        newData.push_back(v);
-                    });
-
-                    i += keyValLenght(key, func);
-                } else {
-                    newData.push_back(c);
-                }
-            }
-            m_outputFile.push_back(newData);
-        } else {
-FILL_DATA:
-            m_outputFile.push_back(data);
-        }
+    if(!parseAsm(m_parsedReadElf, m_outputFile, m_src)) {
+        LOG::Error(std::string("Failed to parse asm!").c_str());
+        return false;
     }
 
     if(!writeFile(m_outputFile, m_src)) {
@@ -100,6 +68,111 @@ FILL_DATA:
 
     LOG::Info("Parse of .asm files done!");
     return true;;
+}
+
+bool
+ASMParser::parseAsm(const fileListExt& list, std::vector<std::string>& output, const char* const file)
+{
+    std::ifstream readFile(file);
+
+    //[print_string]
+    const std::regex strExprFunc(".*[$](\\w+)\\.(\\w+).*");
+    const std::regex strExprPoint(".*[*](\\w+)\\.(\\w+).*");
+    std::smatch match;
+    std::string data;
+    std::string newData;
+    uint32_t lineCount = 0;
+    uint32_t posCount = 0;
+
+    
+    while (std::getline(readFile, data)) {
+        lineCount++;
+        newData.clear();
+
+        Option option = NONE;
+        if(std::regex_match(data, match, strExprFunc)) {
+            option = FUNCTION;
+        } else if (std::regex_match(data, match, strExprPoint)) {
+            option = POINTER;
+        } else {
+            output.push_back(data);
+            continue;
+        }
+
+        const std::string key = match[1];
+        const std::string func = match[2];
+
+        if(!doesKeyExist(key, func)) {
+            output.push_back(data);
+            continue;
+        }
+
+        const std::string address = list.find(key)->second.find(func)->second;
+
+        if(option == ASMParser::FUNCTION) {
+            for(int i = 0; i < data.length(); i++) {
+                const char c = data.at(i);
+                if(c == DOLLAR) {
+                    if (data.at(i-1) == SQUARE_BRACKET_OPEN) {
+                        newData.pop_back();
+                    } else {
+                        LOG::Warning(std::string("($) Missing '[' at line: " + std::to_string(lineCount) + ", pos: " + std::to_string(i+1)).c_str());
+                    }
+
+                    std::for_each(address.begin(), address.end(), [&newData] (const char v) {
+                        newData.push_back(v);
+                    });
+
+                    i += sizeof(DOLLAR) + key.length() + func.length();
+                   
+                    if((i + 1) < data.length()) {
+                        if(data.at(i + 1) == SQUARE_BRACKET_CLOSED) {
+                            i++;
+                        } else {
+                            LOG::Warning(std::string("($) Missing ']' at line: " + std::to_string(lineCount) + ", pos: " + std::to_string(i+2)).c_str());
+                        }
+                    } else {
+                        LOG::Warning(std::string("($) Missing ']' at line: " + std::to_string(lineCount) + ", pos: " + std::to_string(i+2)).c_str());
+                    }
+                } else {
+                    newData.push_back(c);
+                }
+            }
+            m_outputFile.push_back(newData);
+        } else if(option == ASMParser::POINTER) {
+            for(int i = 0; i < data.length(); i++) {
+                const char c = data.at(i);
+                if(c == ASTERIKS) {
+                    if (data.at(i-1) != SQUARE_BRACKET_OPEN) {
+                        newData.push_back(SQUARE_BRACKET_OPEN);
+                        LOG::Warning(std::string("(*) Missing '[' at line: " + std::to_string(lineCount) + ", pos: " + std::to_string(i + 1)).c_str());
+                    } 
+
+                    std::for_each(address.begin(), address.end(), [&newData] (const char v) {
+                        newData.push_back(v);
+                    });
+
+                    i += sizeof(ASTERIKS) + key.length() + func.length();
+                    
+                    if ((i+1) < data.length()) {
+                        if (data.at(i + 1) != SQUARE_BRACKET_CLOSED) {
+                            newData.push_back(SQUARE_BRACKET_CLOSED);
+                            LOG::Warning(std::string("(*) Missing ']' at line: " + std::to_string(lineCount) + ", pos: " + std::to_string(i + 2)).c_str());
+                        }
+                    } else {
+                        newData.push_back(SQUARE_BRACKET_CLOSED);
+                        LOG::Warning(std::string("(*) Missing ']' at line: " + std::to_string(lineCount) + ", pos: " + std::to_string(i + 2)).c_str());
+                    }
+                } else {
+                    newData.push_back(c);
+                }
+            }
+            m_outputFile.push_back(newData);
+        } else {
+            m_outputFile.push_back(data);
+        }
+    }
+    return true;
 }
 
 bool
@@ -165,11 +238,5 @@ ASMParser::writeFile(const std::vector<std::string>& list, const char* newFile)
         return true;
     }
     return false;
-}
-
-inline uint16_t
-ASMParser::keyValLenght(const std::string& key, const std::string& val)
-{
-    return sizeof(SIGN) + key.length() + val.length();
 }
 }

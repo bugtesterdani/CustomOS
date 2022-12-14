@@ -138,7 +138,7 @@ ElfParser::generateReadElf(const char* const path)
         std::string cmd("readelf -s --wide ");
         cmd.append(val);
         cmd.append(" > ");
-        cmd.append(path);
+        cmd.append(path[strlen(path) -1] == '/' ? path : std::string(std::string(path) + '/'));
         cmd.append(key);
         cmd.append(READELF_EXTENSION);
 
@@ -188,7 +188,7 @@ ElfParser::parseAddress(std::string& addr)
     std::string data("0x");
 
     if(addr.at(0) == '0' && addr.at(1) == 'x') {
-
+        return false;
     }
 
     bool ignore = true;
