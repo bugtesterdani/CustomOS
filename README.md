@@ -4,6 +4,12 @@
 https://en.wikipedia.org/wiki/BIOS_interrupt_call
 
 
+# Protected Mode
+## Interrupts Descriptor Table (IDT)
+https://alex.dzyoba.com/blog/os-interrupts/
+http://www.osdever.net/
+
+
 # Making custom Tools
 ## Python3 Script to parse the elf files of previous asm builds, to combine together
 
@@ -59,6 +65,8 @@ Symbol table '.symtab' contains 44 entries:
     42: 00009000     0 NOTYPE  GLOBAL DEFAULT    1 _edata
     43: 00009000     0 NOTYPE  GLOBAL DEFAULT    1 _end
 </code>
+
+To read the full name, use --wide as parameter.
 
 This was a really good sample, and there should be maybe a elf parser Python Script. I want to use Python, cause Python is a fast and good modifieable customizable script.
 

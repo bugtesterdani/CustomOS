@@ -13,3 +13,7 @@ void putchar(char character, uint8_t color);
 void setcursor(int x, int y);
 void clearscreen();
 void scrollDown();
+void updatePos();
+uint8_t getXPos();
+uint8_t getYPos();
+uint8_t getColor(int x, int y);
