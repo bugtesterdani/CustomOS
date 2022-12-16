@@ -48,9 +48,9 @@
 #define    KMETA_SCRL    0x4000                                // ScrollLock is on
 
 // Other keys
-#define    KPRNT    ( KRT + 1 )
+#define    KPRNT    ( KRDEL + 1 )
 #define    KPAUSE   ( KPRNT + 1 )
-#define    KLWIN    ( KPAUSE + 1 )
+#define    KLWIN    0x5B
 #define    KRWIN    ( KLWIN + 1 )
 #define    KMENU    ( KRWIN + 1 )
 
@@ -74,20 +74,20 @@
 
 // Non-Shifted scan codes to ASCII:
 static unsigned char asciiNonShift[] = {
-NULL, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', BACKSPACE,
-TAB, 'q', 'w',   'e', 'r', 't', 'z', 'u', 'i', 'o', 'p',   '[', ']', ENTER, 0,
-'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\',
-'y', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, 0, 0, ' ', 0,
-KF1, KF2, KF3, KF4, KF5, KF6, KF7, KF8, KF9, KF10, 0, 0,
-KHOME, KUP, KPGUP,'-', KLEFT, '5', KRIGHT, '+', KEND, KDOWN, KPGDN, KINS, KDEL, 0, 0, 0, KF11, KF12 };
+NULL, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 159, 180, BACKSPACE, TAB,  // 0x00 -> 0x0F
+'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 188, '+', ENTER, 0, 'a', 's',         // 0x10 -> 0x1F
+'d', 'f', 'g', 'h', 'j', 'k', 'l', 182, 164, '^', 0, '#', 'y', 'x', 'c', 'v',           // 0x20 -> 0x2F
+'b', 'n', 'm', ',', '.', '-', 0, '*', 0, ' ', 0, 0, KF1, KF2, KF3, KF4, KF5,            // 0x30 -> 0x3F
+KF6, KF7, KF8, KF9, KF10, 0, 0, KHOME, KUP, KPGUP,'-', KLEFT, '5', KRIGHT, '+', KEND,   // 0x40 -> 0x4F
+KDOWN, KPGDN, KINS, KDEL, 0, 0, '<', KF11, KF12, 0, 0, 0, 0, 0, 0, 0 };                 // 0x50 -> 0x5F
 
 // Shifted scan codes to ASCII:
 static unsigned char asciiShift[] = {
-NULL, ESC, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', BACKSPACE,
-TAB, 'Q', 'W',   'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P',   '{', '}', ENTER, 0,
-'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '\"', '~', 0, '|',
-'Y', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', 0, 0, 0, ' ', 0,
-KF1,   KF2, KF3, KF4, KF5, KF6, KF7, KF8, KF9, KF10, 0, 0,
-KHOME, KUP, KPGUP, '-', KLEFT, '5',   KRIGHT, '+', KEND, KDOWN, KPGDN, KINS, KDEL, 0, 0, 0, KF11, KF12 };
+NULL, ESC, '!', '"', 167, '$', '%', '&', '/', '(', ')', '=', '?', '`', BACKSPACE, TAB,  // 0x00 -> 0x0F
+'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 156, '*', ENTER, 0, 'A', 'S',         // 0x10 -> 0x1F
+'D', 'F', 'G', 'H', 'J', 'K', 'L', 150, 132, 176, 0, '\'', 'Y', 'X', 'C', 'V',          // 0x20 -> 0x2F
+'B', 'N', 'M', ';', ':', '_', 0, '*', 0, ' ', 0, 0, KF1, KF2, KF3, KF4, KF5,            // 0x30 -> 0x3F
+KF6, KF7, KF8, KF9, KF10, 0, 0, KHOME, KUP, KPGUP, '-', KLEFT, '5', KRIGHT, '+', KEND,  // 0x40 -> 0x4F
+KDOWN, KPGDN, KINS, KDEL, 0, 0, '>', KF11, KF12, 0, 0, 0, 0, 0, 0, 0 };                 // 0x50 -> 0x5F
 
 #endif

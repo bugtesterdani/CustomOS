@@ -4,7 +4,7 @@
 
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
-#define DEFAULT_COLOR 0xF0
+#define DEFAULT_COLOR 0x00
 
 #define SCREEN_ADDR 0xB8000
 

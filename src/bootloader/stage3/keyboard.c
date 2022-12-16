@@ -36,16 +36,16 @@ unsigned int FetchAndAnalyzeScancode()
         {
             scancode &= 0x7F; // Key was released, compare only low seven bits: 01111111b = 0x7F
             if ( scancode == KRLEFT_SHIFT || scancode == KRRIGHT_SHIFT ) // A key was released, shift key up?
-                ShiftKeyDown = 0;
+                ShiftKeyDown = 0x00;
             continue;
         }
 
         if ( scancode == KRLEFT_SHIFT || scancode == KRRIGHT_SHIFT )
         {
-            ShiftKeyDown = 1;
+            ShiftKeyDown = 0x80;
             continue;
         }
-        return scancode;
+        return scancode | ShiftKeyDown;
     }
 }
 
@@ -57,7 +57,11 @@ void ReadLine(char* buff, unsigned int length)
     while (KeyGot != 28)
     {
         char printstr[2];
-        char variable = asciiNonShift[KeyGot];
+        char variable = asciiShift[KeyGot];
+        if ((KeyGot & 0x80) == 0x80)
+        {
+            variable = asciiNonShift[KeyGot];
+        }
         switch (parseKey(variable))
         {
             case 0:
