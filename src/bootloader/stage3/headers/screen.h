@@ -11,6 +11,8 @@
 void putcharp(int x, int y, char character, uint8_t color);
 void putchar(char character, uint8_t color);
 void setcursor(int x, int y);
+void setcursorX(int x);
+void setcursornewline();
 void clearscreen();
 void scrollDown();
 void updatePos();

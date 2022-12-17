@@ -75,8 +75,11 @@ void ReadLine(char* buff, unsigned int length)
                 }
                 break;
             case 1:
-                counter--;
-                buff[counter] = 0;
+                if (counter != 0)
+                {
+                    counter--;
+                    buff[counter] = 0;
+                }
                 break;
             default:
                 break;

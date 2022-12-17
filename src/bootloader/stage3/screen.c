@@ -52,6 +52,23 @@ void setcursor(int x, int y)
     updatePos();
 }
 
+void setcursorX(int x)
+{
+    ScreenX = x;
+    updatePos();
+}
+
+void setcursornewline()
+{
+    ScreenX = 0;
+    ScreenY++;
+    if (ScreenY == 25)
+    {
+        scrollDown();
+    }
+    updatePos();
+}
+
 void updatePos()
 {
     unsigned short    position=(ScreenY*80) + ScreenX;

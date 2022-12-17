@@ -9,20 +9,22 @@
 void _cstart_()
 {
     initScreen();
-    print("Hello from C Code", 3, White, Black);
-    setcursor(0, 5);
+    printString("Hello from C Code", White, Black);
+    setcursornewline();
     printString("Hello World", White, Black);
-    setcursor(0,7);
+    setcursornewline();
 
     while (1)
     {
         char Buff[60];
+        clearArray(Buff, 60, 0x00);
+        printString("> ", White, Black);
+        setcursorX(2);
         ReadLine(Buff, 60);
-        setcursor(0,8);
+        setcursornewline();
         ParseCommand(Buff);
-        setcursor(0,7);
+        setcursornewline();
     }
-
 
     // endless loop
     for (;;);
