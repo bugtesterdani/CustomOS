@@ -28,7 +28,6 @@ $(BUILD_DIR)/stage3/asm/%.obj: %.asm always
 
 always:
 	mkdir -p $(BUILD_DIR)/stage3/c
-	mkdir -p $(BUILD_DIR)/stage3/c/CRC
 	mkdir -p $(BUILD_DIR)/stage3/asm
 
 clean:

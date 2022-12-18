@@ -2,7 +2,7 @@
 
 #include "stdint.h"
 
-typedef struct
+struct FAT32
 {
     uint64_t OEM_ID;
     uint16_t BytesPerSector;
@@ -23,7 +23,9 @@ typedef struct
     uint32_t RootDirectoryStart;
     uint16_t FSInfoSector;
     uint16_t BackupBootSector;
-} FAT32_t;
+} __attribute__((packed));
+
+typedef struct FAT32 FAT32_t;
 
 void ReadAddress(uint8_t *buffer, unsigned long int address, unsigned long int amount_chars);
 void ReadParameter(FAT32_t *fat32);
