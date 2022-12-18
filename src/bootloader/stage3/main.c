@@ -1,7 +1,6 @@
 #include "headers/stdio.h"
 #include "headers/stdint.h"
 #include "headers/screen.h"
-#include "headers/util.h"
 #include "headers/keyboard.h"
 #include "headers/colors.h"
 #include "headers/commands.h"
