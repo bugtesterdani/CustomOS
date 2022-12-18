@@ -17,12 +17,11 @@ void putchar(char character, uint8_t color)
     g_ScreenBuffer[2 * (ScreenY * SCREEN_WIDTH + ScreenX)] = character;
     g_ScreenBuffer[2 * (ScreenY * SCREEN_WIDTH + ScreenX) + 1] = color;
     ScreenX++;
-    if (ScreenX == 80)
+    if (ScreenX < 80)
     {
-        ScreenX = 0;
-        ScreenY++;
+        return;
     }
-    updatePos();
+    setcursornewline();
 }
 
 char getchar(int x, int y)
