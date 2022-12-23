@@ -57,16 +57,14 @@ void ParseCommand(char* commandline)
         uint8_t charArrayLength = 50;
         uint8_t outputint[charArrayLength];
         clearArray(outputint, charArrayLength, 0x00);
-        pci_dev devices[20];
+        pci_dev *devices;
         pci_init(devices);
-        for (uint8_t i = 0; i < 20; i++)
+        for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
         {
             pci_dev dev = devices[i];
             clearArray(outputint, charArrayLength, 0x00);
             ConvertToChar(i, 10, outputint, 0);
             uint8_t _lastindex = lastIndex(outputint, charArrayLength);
-            ConvertToChar(test, 16, outputint, _lastindex);
-            _lastindex = lastIndex(outputint, charArrayLength);
             outputint[_lastindex]     = 'B';
             outputint[_lastindex + 1] = 'x';
             ConvertToChar(dev.bus, 16, outputint, _lastindex + 2);

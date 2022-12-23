@@ -21,7 +21,7 @@ void _pciConfigWriteDword(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offse
     outl(CONFIG_DATA, value);
 }
 
-uint32_t pciMakeAddress(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset)
+uint32_t _pciMakeAddress(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset)
 {
     return (uint32_t)
             (

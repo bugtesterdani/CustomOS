@@ -4,8 +4,7 @@
 
 #define CONFIG_ADDRESS 0xCF8
 #define CONFIG_DATA 0xCFC
-
-static uint8_t test = 0;
+#define PCI_DEV_COUNT 20
 
 typedef struct
 {
