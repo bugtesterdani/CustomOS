@@ -17,6 +17,11 @@ sudo docker stop compile_runner
 
 sudo docker rm compile_runner
 
+# Compile for VirtualBox
+rm build/disk.vdi
+vboxmanage convertfromraw --format VDI --uuid=220868a3-515d-4693-875f-491f7bf30660 build/disk.img build/disk.vdi
+chmod +w build/disk.vdi
+
 # Start debugging Instance
 qemu-system-x86_64 -s -S -hda build/disk.img &
 #gdb -ix "gdb_init_real_mode.txt" build/stage3.elf -ex "target remote localhost:1234" -ex "br *0x7c00" -ex "br *0x8000" -ex "br *0x8400" -ex "c"

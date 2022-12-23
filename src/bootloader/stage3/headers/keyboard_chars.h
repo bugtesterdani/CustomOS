@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef KEYBOARD_H
-#define KEYBOARD_H
-
 #define NULL 0
 #define ESC    27
 #define BACKSPACE '\b'
@@ -89,5 +86,3 @@ NULL, ESC, '!', '"', 167, '$', '%', '&', '/', '(', ')', '=', '?', '`', BACKSPACE
 'B', 'N', 'M', ';', ':', '_', 0, '*', 0, ' ', 0, 0, KF1, KF2, KF3, KF4, KF5,            // 0x30 -> 0x3F
 KF6, KF7, KF8, KF9, KF10, 0, 0, KHOME, KUP, KPGUP, '-', KLEFT, '5', KRIGHT, '+', KEND,  // 0x40 -> 0x4F
 KDOWN, KPGDN, KINS, KDEL, 0, 0, '>', KF11, KF12, 0, 0, 0, 0, 0, 0, 0 };                 // 0x50 -> 0x5F
-
-#endif

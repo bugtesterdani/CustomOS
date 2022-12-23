@@ -4,10 +4,18 @@
 #include "headers/keyboard.h"
 #include "headers/colors.h"
 #include "headers/commands.h"
+#include "headers/gdt.h"
+#include "headers/idt.h"
+#include "headers/isr.h"
 
 void _cstart_()
 {
     initScreen();
+    init_gdt();
+    isr_init();
+    irq_init();
+    init_idt();
+    enable_interrupts();
     printString("Hello from C Code", White, Black);
     setcursornewline();
     printString("Hello World", White, Black);

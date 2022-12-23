@@ -2,30 +2,29 @@
 
 #include "stdint.h"
 
-struct FAT32
+typedef struct FAT32
 {
-    uint64_t OEM_ID;
-    uint16_t BytesPerSector;
+    uint8_t OEM_ID[8];
+    uint8_t BytesPerSector[2];
     uint8_t SectorsPerCluster;
-    uint16_t ReservedSectors;
-    uint16_t TotalFATs;
-    uint16_t MaxRootEntries;
-    uint16_t NumberOfSectors;
+    uint8_t ReservedSectors[2];
+    uint8_t TotalFATs[2];
+    uint8_t MaxRootEntries[2];
+    uint8_t NumberOfSectors[2];
     uint8_t MediaDescriptor;
-    uint16_t SectorsPerFAT;
-    uint16_t SectorsPerTrack;
-    uint16_t SectorsPerHead;
-    uint32_t HiddenSectors;
-    uint32_t TotalSectors;
-    uint32_t BigSectorsPerFAT;
-    uint16_t Flags;
-    uint16_t FSVersion;
-    uint32_t RootDirectoryStart;
-    uint16_t FSInfoSector;
-    uint16_t BackupBootSector;
-} __attribute__((packed));
+    uint8_t SectorsPerFAT[2];
+    uint8_t SectorsPerTrack[2];
+    uint8_t SectorsPerHead[2];
+    uint8_t HiddenSectors[4];
+    uint8_t TotalSectors[4];
+    uint8_t BigSectorsPerFAT[4];
+    uint8_t Flags[2];
+    uint8_t FSVersion[2];
+    uint8_t RootDirectoryStart[4];
+    uint8_t FSInfoSector[2];
+    uint8_t BackupBootSector[2];
+} __attribute__((packed)) FAT32_t;
 
-typedef struct FAT32 FAT32_t;
-
-void ReadAddress(uint8_t *buffer, unsigned long int address, unsigned long int amount_chars);
 void ReadParameter(FAT32_t *fat32);
+void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest);
+uint8_t lastIndex(char *tmp, uint8_t max);

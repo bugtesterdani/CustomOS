@@ -8,6 +8,8 @@ https://en.wikipedia.org/wiki/BIOS_interrupt_call
 ## Interrupts Descriptor Table (IDT)
 https://alex.dzyoba.com/blog/os-interrupts/
 http://www.osdever.net/
+## PCI
+https://wiki.osdev.org/PCI
 
 
 # Making custom Tools
