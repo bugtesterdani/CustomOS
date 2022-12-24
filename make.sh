@@ -11,6 +11,8 @@ sudo docker exec -it compile_runner /bin/bash /root/build.sh
 
 mkdir -p build
 sudo docker cp compile_runner:/root/src/build/disk.img build/disk.img
+sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.map build/stage3.map
+sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.bin build/stage3.bin
 sudo chown $USER:$USER build/disk.img
 
 sudo docker stop compile_runner
@@ -25,4 +27,4 @@ chmod +w build/disk.vdi
 # Start debugging Instance
 qemu-system-x86_64 -s -S -hda build/disk.img &
 #gdb -ix "gdb_init_real_mode.txt" build/stage3.elf -ex "target remote localhost:1234" -ex "br *0x7c00" -ex "br *0x8000" -ex "br *0x8400" -ex "c"
-gdb -ix "gdb_init_test.txt" -ex "target remote localhost:1234" -ex "br *0x8459" -ex "c"
+gdb -ix "gdb_init_test.txt" -ex "target remote localhost:1234" -ex "br *0x8459" -ex "br *0x91D8" -ex "c" -ex "c"

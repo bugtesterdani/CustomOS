@@ -1,4 +1,4 @@
-Aktuelle Ausgabe:
+...:
 
 0BxF8 DxFF Fx8
 1BxB4 DxFF Fx8
@@ -9,6 +9,18 @@ Aktuelle Ausgabe:
 ...
 0xB0  Dx0  Fx0
 
+
+...:
+
+0BxF8 DxFF Fx08 Hx08 BCx00 SCx00
+1BxC8 DxBE Fx00 Hx00 BCx00 SCx00
+2Bx00 Dx00 Fx00 Hx00 BCx00 SCx00
+3Bx00 Dx00 Fx00 Hx00 BCx00 SCx00
+4Bx00 Dx00 Fx00 Hx09 BCx00 SCx00
+5Bx5E Dx84 Fx00 Hx00 BCx00 SCx00
+6Bx00 Dx00 Fx00 Hx00 BCx00 SCx00
+...
+0xB00 Dx00 Fx00 Hx00 BCx00 SCx00
 
 Neue Ausgabe dieser Commit:
 

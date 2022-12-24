@@ -4,7 +4,7 @@ ASMFLAGS?=-f elf
 CC=i686-elf-gcc
 CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib
 LD=i686-elf-gcc
-LDFLAGS?=-T linker.ld -nostdlib
+LDFLAGS?=-g -T linker.ld -nostdlib
 
 SOURCES_C=$(wildcard *.c)
 SOURCES_ASM=$(wildcard *.asm)
