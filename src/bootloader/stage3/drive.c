@@ -9,14 +9,14 @@ uint16_t _pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t off
 
 uint32_t _pciConfigReadDword(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset)
 {
-    uint32_t address = pciMakeAddress(bus, slot, func, offset);
+    uint32_t address = _pciMakeAddress(bus, slot, func, offset);
     outl(CONFIG_ADDRESS, address);
     return inl(CONFIG_DATA);
 }
 
 void _pciConfigWriteDword(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset, uint32_t value)
 {
-    uint32_t address = pciMakeAddress(bus, slot, func, offset);
+    uint32_t address = _pciMakeAddress(bus, slot, func, offset);
     outl(CONFIG_ADDRESS, address);
     outl(CONFIG_DATA, value);
 }

@@ -125,21 +125,39 @@ void checkBus(uint8_t bus)
 
 void checkFunction(uint8_t bus, uint8_t device, uint8_t function)
 {
-	uint8_t baseClass, subClass, secondaryBus;
-	baseClass = getBaseClass(bus,device,function);
-	subClass = getSubClass(bus,device,function);
-	uint16_t vendorId, deviceId;
+	uint8_t revisionid, progif, subclass, classcode,
+			cachelinesize, latencytimer, headertype, bist;
+	revisionid = getRevisionID(bus, device, function);
+	progif = getProgIf(bus, device, function);
+	subclass = getSubClass(bus,device,function);
+	classcode = getBaseClass(bus,device,function);
+	cachelinesize = getCacheLineSize(bus, device, function);
+	latencytimer = getLatencyTimer(bus, device, function);
+	headertype = getHeaderType(bus, device, function);
+	bist = getBIST(bus, device, function);
+	uint16_t vendorId, deviceId, command, status;
 	vendorId=getVendorId(bus,device,function);
 	deviceId=getDeviceId(bus,device,function);
+	command = getCommand(bus,device,function);
+	status = getStatus(bus,device,function);
 	pcidevs[numdevs].bus=bus;
 	pcidevs[numdevs].device=device;
 	pcidevs[numdevs].function=function;
 	pcidevs[numdevs].vendorID=vendorId;
 	pcidevs[numdevs].deviceID=deviceId;
+	pcidevs[numdevs].Command=command;
+	pcidevs[numdevs].Status=status;
+	pcidevs[numdevs].ProgIF=progif;
+	pcidevs[numdevs].Subclass=subclass;
+	pcidevs[numdevs].ClassCode=classcode;
+	pcidevs[numdevs].CacheLineSize=cachelinesize;
+	pcidevs[numdevs].LatencyTimer=latencytimer;
+	pcidevs[numdevs].HeaderType=headertype;
+	pcidevs[numdevs].BIST=bist;
 	++numdevs;
 	//printFunction(bus,device,function);
-	if((baseClass==0x06) && (subClass==0x04)) {
-		secondaryBus = getSecondaryBus(bus,device,function);
+	if((classcode==0x06) && (subclass==0x04)) {
+		uint8_t secondaryBus = getSecondaryBus(bus,device,function);
 		checkBus(secondaryBus);
 	}
 }

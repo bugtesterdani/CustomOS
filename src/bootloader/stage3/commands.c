@@ -54,7 +54,7 @@ void ParseCommand(char* commandline)
     // }
     else if (strcmp(PartSplit, "partid"))
     {
-        uint8_t charArrayLength = 50;
+        uint8_t charArrayLength = 80;
         uint8_t outputint[charArrayLength];
         clearArray(outputint, charArrayLength, 0x00);
         pci_dev *devices;
@@ -78,6 +78,23 @@ void ParseCommand(char* commandline)
             outputint[_lastindex + 1] = 'F';
             outputint[_lastindex + 2] = 'x';
             ConvertToChar(dev.function, 16, outputint, _lastindex + 3);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'H';
+            outputint[_lastindex + 2] = 'x';
+            ConvertToChar(dev.HeaderType, 16, outputint, _lastindex + 3);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'B';
+            outputint[_lastindex + 2] = 'C';
+            outputint[_lastindex + 3] = 'x';
+            ConvertToChar(dev.ClassCode, 16, outputint, _lastindex + 4);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'S';
+            outputint[_lastindex + 2] = 'C';
+            outputint[_lastindex + 3] = 'x';
+            ConvertToChar(dev.Subclass, 16, outputint, _lastindex + 4);
             _lastindex = lastIndex(outputint, charArrayLength);
             outputint[_lastindex]     = ' ';
             printString(outputint, White, Black);

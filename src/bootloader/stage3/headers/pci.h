@@ -8,8 +8,11 @@
 
 typedef struct
 {
-    uint8_t bus, device, function;
-    uint16_t vendorID, deviceID;
+    uint8_t     bus, device, function;
+    uint16_t    vendorID, deviceID,
+                Command, Status;
+    uint8_t     RevisionID, ProgIF, Subclass, ClassCode,
+                CacheLineSize, LatencyTimer, HeaderType, BIST;
 } pci_dev;
 
 uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
