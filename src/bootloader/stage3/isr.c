@@ -332,7 +332,7 @@ void asm_functions(isr_handler(registers_t* regs))
     else 
     {
         printString("KERNEL PANIC! ", Red, Black);
-        char outputint[20];
+        char outputint[0x14];
         clearArray(outputint, 20, 0x00);
         ConvertToChar(regs->int_no, 16, outputint, 0);
         printString(outputint, White, Black);

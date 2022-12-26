@@ -1,0 +1,94 @@
+VirtualBox PCI Devices:
+
+Intel 440FX PMC
+Bus 0
+Device 0
+Function 0
+Vendor 8086
+Device 1237
+Subsys 00000000
+Revision 02
+
+Intel PIIX3 PCI to ISA Bridge
+Bus 0
+Device 1
+Function 0
+Vendor 8086
+Device 7000
+Subsys 00000000
+Revision 00
+
+Intel PIIX4 ATA Controller
+Bus 0
+Device 1
+Function 1
+Vendor 8086
+Device 7111
+Subsys 00000000
+Revision 01
+
+VGA Graphics card
+Bus 0
+Device 2
+Function 0
+Vendor 80EE
+Device BEEF
+Subsys 00000000
+Revision 00
+
+AMD PCnet Ethernet
+Bus 0
+Device 3
+Function 0
+Vendor 1022
+Device 2000
+Subsys 20001022
+Revision 40
+
+System device
+Bus 0
+Device 4
+Function 0
+Vendor 80EE
+Device CAFE
+Subsys 00000000
+Revision 00
+
+Multimedia Audio
+Bus 0
+Device 5
+Function 0
+Vendor 8086
+Device 2415
+Subsys 00008086
+Revision 01
+
+OHCI USB Controller
+Bus 0
+Device 6
+Function 0
+Vendor 106B
+Device 003F
+Subsys 00000000
+Revision 00
+
+Intel 82371AB Powermanagement
+Bus 0
+Devie 7
+Function 0
+Vendor 8086
+Device 7113
+Subsys 00000000
+Revision 08
+
+EHCI USB Controller
+Bus 0
+Device 11
+Function 0
+Vendor 8086
+Device 265C
+Subsys 00000000
+Revision 00
+
+IDE Channel Primary Channel (ATA/ATAPI)
+IDE Channel Secondary Channel (ATA/ATAPI)

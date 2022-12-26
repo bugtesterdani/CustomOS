@@ -2,7 +2,7 @@
 #include "headers/pci.h"
 #include "headers/io.h"
 
-pci_dev pcidevs[PCI_DEV_COUNT];
+pci_dev_t pcidevs[PCI_DEV_COUNT];
 uint16_t numdevs=0;
 
 uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset)
@@ -164,7 +164,7 @@ void checkFunction(uint8_t bus, uint8_t device, uint8_t function)
 
 void checkAllBuses(void)
 {
-	uint8_t function, bus;
+	uint8_t function;
 	if((getHeaderType(0,0,0)&0x80)==0) {
 		checkBus(0);
 	} else {
@@ -175,8 +175,12 @@ void checkAllBuses(void)
 	}
 }
 
-void pci_init(pci_dev *devs)
+void pci_init(pci_dev_t devs[PCI_DEV_COUNT])
 {
     checkAllBuses();
-    devs = pcidevs;
+	for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
+	{
+		devs[i] = pcidevs[i];
+	}
+    // devs = pcidevs;
 }

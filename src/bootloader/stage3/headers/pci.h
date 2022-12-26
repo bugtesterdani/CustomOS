@@ -6,14 +6,16 @@
 #define CONFIG_DATA 0xCFC
 #define PCI_DEV_COUNT 20
 
-typedef struct
+struct pci_dev
 {
     uint8_t     bus, device, function;
     uint16_t    vendorID, deviceID,
                 Command, Status;
     uint8_t     RevisionID, ProgIF, Subclass, ClassCode,
                 CacheLineSize, LatencyTimer, HeaderType, BIST;
-} pci_dev;
+} __attribute__((packed));
+
+typedef struct pci_dev pci_dev_t;
 
 uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 
@@ -47,4 +49,4 @@ void checkDevice(uint8_t bus, uint8_t device);
 void checkBus(uint8_t bus);
 void checkFunction(uint8_t bus, uint8_t device, uint8_t function);
 void checkAllBuses(void);
-void pci_init(pci_dev *devs);
+void pci_init(pci_dev_t devs[PCI_DEV_COUNT]);

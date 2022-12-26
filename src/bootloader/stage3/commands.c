@@ -8,6 +8,7 @@
 #include "headers/keyboard.h"
 #include "headers/drive.h"
 #include "headers/pci.h"
+#include "headers/pci_definitions.h"
 
 void ParseCommand(char* commandline)
 {
@@ -56,12 +57,43 @@ void ParseCommand(char* commandline)
     {
         uint8_t charArrayLength = 80;
         uint8_t outputint[charArrayLength];
-        clearArray(outputint, charArrayLength, 0x00);
-        pci_dev *devices;
+        pci_dev_t devices[PCI_DEV_COUNT];
         pci_init(devices);
         for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
         {
-            pci_dev dev = devices[i];
+            pci_dev_t dev = devices[i];
+            if (dev.bus == 0 &&
+                dev.device == 0 &&
+                dev.function == 0 &&
+                dev.ClassCode == 0 &&
+                dev.Subclass == 0)
+            {
+                continue;
+            }
+            clearArray(outputint, charArrayLength, 0x00);
+            ConvertToChar(i, 10, outputint, 0);
+            uint8_t _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex] = ' ';
+            ConvertToChar(dev.vendorID, 16, outputint, _lastindex + 1);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex] = ':';
+            ConvertToChar(dev.deviceID, 16, outputint, _lastindex + 1);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex] = ' ';
+            strapp(outputint, pci_returnDetails(&dev), (_lastindex + 1), (charArrayLength - _lastindex - 1));
+            printString(outputint, White, Black);
+            setcursornewline();
+        }
+    }
+    else if (strcmp(PartSplit, "partidall"))
+    {
+        uint8_t charArrayLength = 80;
+        uint8_t outputint[charArrayLength];
+        pci_dev_t devices[PCI_DEV_COUNT];
+        pci_init(devices);
+        for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
+        {
+            pci_dev_t dev = devices[i];
             clearArray(outputint, charArrayLength, 0x00);
             ConvertToChar(i, 10, outputint, 0);
             uint8_t _lastindex = lastIndex(outputint, charArrayLength);
@@ -80,29 +112,36 @@ void ParseCommand(char* commandline)
             ConvertToChar(dev.function, 16, outputint, _lastindex + 3);
             _lastindex = lastIndex(outputint, charArrayLength);
             outputint[_lastindex]     = ' ';
-            // outputint[_lastindex + 1] = 'H';
-            // outputint[_lastindex + 2] = 'x';
-            // ConvertToChar(dev.HeaderType, 16, outputint, _lastindex + 3);
-            // _lastindex = lastIndex(outputint, charArrayLength);
-            // outputint[_lastindex]     = ' ';
-            // outputint[_lastindex + 1] = 'B';
-            // outputint[_lastindex + 2] = 'C';
-            // outputint[_lastindex + 3] = 'x';
-            // ConvertToChar(dev.ClassCode, 16, outputint, _lastindex + 4);
-            // _lastindex = lastIndex(outputint, charArrayLength);
-            // outputint[_lastindex]     = ' ';
-            // outputint[_lastindex + 1] = 'S';
-            // outputint[_lastindex + 2] = 'C';
-            // outputint[_lastindex + 3] = 'x';
-            // ConvertToChar(dev.Subclass, 16, outputint, _lastindex + 4);
-            // _lastindex = lastIndex(outputint, charArrayLength);
-            // outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'H';
+            outputint[_lastindex + 2] = 'x';
+            ConvertToChar(dev.HeaderType, 16, outputint, _lastindex + 3);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'B';
+            outputint[_lastindex + 2] = 'C';
+            outputint[_lastindex + 3] = 'x';
+            ConvertToChar(dev.ClassCode, 16, outputint, _lastindex + 4);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'S';
+            outputint[_lastindex + 2] = 'C';
+            outputint[_lastindex + 3] = 'x';
+            ConvertToChar(dev.Subclass, 16, outputint, _lastindex + 4);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'V';
+            outputint[_lastindex + 2] = 'x';
+            ConvertToChar(dev.vendorID, 16, outputint, _lastindex + 3);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
+            outputint[_lastindex + 1] = 'D';
+            outputint[_lastindex + 2] = 'x';
+            ConvertToChar(dev.deviceID, 16, outputint, _lastindex + 3);
+            _lastindex = lastIndex(outputint, charArrayLength);
+            outputint[_lastindex]     = ' ';
             printString(outputint, White, Black);
             setcursornewline();
         }
-        outputint[0] = '0';
-        outputint[1] = 'x';
-        printString(outputint, White, Black);
     }
     else if (strcmp(PartSplit, "checkPart"))
     {

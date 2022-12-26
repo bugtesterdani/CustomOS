@@ -1,0 +1,12 @@
+
+Lese Stackpointer (ESP) Adresse: 
+
+p $sp
+
+Lese 40 HEX-Word Werte vom Stackpointer adresse:
+
+x/40x $sp
+
+Lese 40 HEX-Word Werte von Adresse 0x74c:
+
+x/40x 0x74c
