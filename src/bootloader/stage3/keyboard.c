@@ -18,7 +18,7 @@
 unsigned int FetchScancode()
 {
     // port 0x60 -> scancode + shift key -> ASCII
-    return( inportb(0x60)); // get scan code from the keyboard
+    return( inb(0x60)); // get scan code from the keyboard
 }
 
 int ShiftKeyDown;
@@ -29,7 +29,7 @@ unsigned int FetchAndAnalyzeScancode()
     while(1) // Loop until a key to be pressed
     {
         // Wait for the key
-        while ( !(inportb(0x64)&1) ); // 0x64: read keyboard µC status register
+        while ( !(inb(0x64)&1) ); // 0x64: read keyboard µC status register
         scancode = FetchScancode();
 
         if ( scancode & 0x80 ) // Key released? Check bit 7 (10000000b = 0x80) of scan code for this

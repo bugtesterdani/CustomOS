@@ -27,4 +27,4 @@ chmod +w build/disk.vdi
 # Start debugging Instance
 qemu-system-x86_64 -s -S -hda build/disk.img &
 #gdb -ix "gdb_init_real_mode.txt" build/stage3.elf -ex "target remote localhost:1234" -ex "br *0x7c00" -ex "br *0x8000" -ex "br *0x8400" -ex "c"
-gdb -ix "gdb_init_test.txt" -ex "target remote localhost:1234" -ex "br *0x8459" -ex "br *0xc6d1" -ex "br *0x9194" -ex "c"
+gdb -ix "gdb_init_test.txt" -ex "target remote localhost:1234" -ex "br *0x8459" -ex "c"

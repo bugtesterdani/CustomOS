@@ -20,7 +20,7 @@
 unsigned int tmp_FetchScancode()
 {
     // port 0x60 -> scancode + shift key -> ASCII
-    return( inportb(0x60)); // get scan code from the keyboard
+    return( inb(0x60)); // get scan code from the keyboard
 }
 
 int tmp_ShiftKeyDown;
@@ -31,7 +31,7 @@ unsigned int tmp_FetchAndAnalyzeScancode()
     while(1) // Loop until a key to be pressed
     {
         // Wait for the key
-        while ( !(inportb(0x64)&1) ); // 0x64: read keyboard µC status register
+        while ( !(inb(0x64)&1) ); // 0x64: read keyboard µC status register
         scancode = tmp_FetchScancode();
 
         if ( scancode & 0x80 ) // Key released? Check bit 7 (10000000b = 0x80) of scan code for this
@@ -54,7 +54,7 @@ unsigned int tmp_FetchAndAnalyzeScancode()
 static void tmp_keyboard_callback(registers_t* regs)
 {
     char KeyGot = 0;
-    if (inportb(0x64) & 0x01)
+    if (inb(0x64) & 0x01)
     {
         KeyGot = tmp_ReadChar();
     }
@@ -68,8 +68,8 @@ static void tmp_keyboard_callback(registers_t* regs)
 
 void tmp_keyboard_init()
 {
-    uint8_t newvalue = inportb(0x21) & ~(IQ_KEYBOARD - IRQ_OFFSET);
-    outportb(0x21, newvalue);
+    uint8_t newvalue = inb(0x21) & ~(IQ_KEYBOARD - IRQ_OFFSET);
+    outb(0x21, newvalue);
     enable_interrupts();
 }
 

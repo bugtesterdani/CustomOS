@@ -72,11 +72,11 @@ void updatePos()
 {
     unsigned short    position=(ScreenY*80) + ScreenX;
     // cursor LOW port to vga INDEX register
-    outportb(0x3D4, 0x0F);
-    outportb(0x3D5, (unsigned char)(position&0xFF));
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (unsigned char)(position&0xFF));
     // cursor HIGH port to vga INDEX register
-    outportb(0x3D4, 0x0E);
-    outportb(0x3D5, (unsigned char)((position>>8)&0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (unsigned char)((position>>8)&0xFF));
 }
 
 void clearscreen()

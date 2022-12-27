@@ -109,19 +109,19 @@ void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count,
     {
         drive |= 0x10;
     }
-    outportb(base + 2, sector_count);
-    outportb(base + 3, (uint8_t)((start_lba >> 0)  & 0xFF));
-    outportb(base + 4, (uint8_t)((start_lba >> 8)  & 0xFF));
-    outportb(base + 5, (uint8_t)((start_lba >> 16) & 0xFF));
-    outportb(base + 6, (uint8_t)((start_lba >> 24) & 0x0F) | drive);
-    outportb(base + 7, 0x20);
+    outb(base + 2, sector_count);
+    outb(base + 3, (uint8_t)((start_lba >> 0)  & 0xFF));
+    outb(base + 4, (uint8_t)((start_lba >> 8)  & 0xFF));
+    outb(base + 5, (uint8_t)((start_lba >> 16) & 0xFF));
+    outb(base + 6, (uint8_t)((start_lba >> 24) & 0x0F) | drive);
+    outb(base + 7, 0x20);
 
-    while ((uint8_t)inportb(base + 7) & 0x80) ;
+    while ((uint8_t)inb(base + 7) & 0x80) ;
     
     max = (sector_count * (512 / 2));
     for (index = 0; index < max; index++)
     {
-        uint16_t value = inportw(base + 0);
+        uint16_t value = inw(base + 0);
         buffer[index] = (((value & 0xFF) << 8) | ((value >> 8) & 0xFF));
     }
 }

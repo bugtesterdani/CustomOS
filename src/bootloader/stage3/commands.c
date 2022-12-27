@@ -9,6 +9,7 @@
 #include "headers/drive.h"
 #include "headers/pci.h"
 #include "headers/pci_definitions.h"
+#include "headers/ata.h"
 
 void ParseCommand(char* commandline)
 {
@@ -53,6 +54,39 @@ void ParseCommand(char* commandline)
     //     ConvertToChar((value >> 0)  & 0xFFFF, 16, outputint, _lastindex);
     //     printString(outputint, White, Black);
     // }
+    else if (strcmp(PartSplit, "ata"))
+    {
+        uint8_t buffer[2048];
+        channel_t channel[2];
+        ide_device_t device[4];
+        InitializeATA(channel, device, buffer);
+        uint8_t charArrayLength = 80;
+        uint8_t outputint[charArrayLength];
+        strapp(outputint, "Found all devices", 0, charArrayLength);
+        printString(outputint, White, Black);
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            if (device[i].reseerved == 1)
+            {
+                clearArray(outputint, charArrayLength, 0x00);
+                ConvertToChar(i, 10, outputint, 0);
+                uint8_t _lastindex = lastIndex(outputint, charArrayLength);
+                strapp(outputint, "Found ", (_lastindex), (charArrayLength - _lastindex));
+                _lastindex = lastIndex(outputint, charArrayLength);
+                strapp(outputint, (char *[]){"ATA", "ATAPI"}[device[i].type], (_lastindex), (charArrayLength - _lastindex));
+                _lastindex = lastIndex(outputint, charArrayLength);
+                strapp(outputint, " Drive ", (_lastindex), (charArrayLength - _lastindex));
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(device[i].size / 1024 / 1024 / 2, 10, outputint, _lastindex);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                strapp(outputint, "GB - ", (_lastindex), (charArrayLength - _lastindex));
+                _lastindex = lastIndex(outputint, charArrayLength);
+                strapp(outputint, device[i].model, (_lastindex), (charArrayLength - _lastindex));
+                printString(outputint, White, Black);
+                setcursornewline();
+            }
+        }
+    }
     else if (strcmp(PartSplit, "partid"))
     {
         uint8_t charArrayLength = 80;
@@ -62,11 +96,8 @@ void ParseCommand(char* commandline)
         for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
         {
             pci_dev_t dev = devices[i];
-            if (dev.bus == 0 &&
-                dev.device == 0 &&
-                dev.function == 0 &&
-                dev.ClassCode == 0 &&
-                dev.Subclass == 0)
+            if (dev.vendorID == 0 &&
+                dev.deviceID == 0)
             {
                 continue;
             }

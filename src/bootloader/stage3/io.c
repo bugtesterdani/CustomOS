@@ -1,51 +1,38 @@
 #include "headers/io.h"
 #include "headers/asm.h"
 
-uint8_t asm_functions(io_inportb(uint16_t port));
-void asm_functions(io_outportb(uint16_t port, uint8_t value));
-uint16_t asm_functions(io_inportw(uint16_t port));
-void asm_functions(io_outportw(uint16_t port, uint16_t value));
-uint32_t asm_functions(io_inportd(uint16_t port));
-void asm_functions(io_outportd(uint16_t port, uint32_t value));
-
-void outportb(uint16_t port, uint8_t value)
+void outb(uint16_t port, uint8_t value)
 {
-    io_outportb(port, value);
+    __asm__ __volatile__ ("outb %0, %1" : : "a"(value), "Nd"(port));
 }
 
-void outportw(uint16_t port, uint16_t value)
+uint8_t inb(uint16_t port)
 {
-    io_outportw(port, value);
+    uint8_t value;
+    __asm__ __volatile__ ("inb %1, %0" : "=a"(value) : "Nd"(port));
+    return value;
 }
 
-void outportd(uint16_t port, uint32_t value)
+void outw(uint16_t port, uint16_t value)
 {
-    io_outportd(port, value);
+    __asm__ __volatile__ ("outw %0, %1" : : "a"(value), "Nd"(port));
 }
 
-uint8_t inportb(uint16_t port)
+uint16_t inw(uint16_t port)
 {
-    return io_inportb(port);
+    uint16_t value;
+    __asm__ __volatile__ ("inw %1, %0" : "=a"(value) : "Nd"(port));
+    return value;
 }
 
-uint16_t inportw(uint16_t port)
-{
-    return io_inportw(port);
-}
-
-uint32_t inportd(uint16_t port)
-{
-    return io_inportd(port);
-}
-
-void outl(unsigned short port, unsigned int value)
+void outl(uint16_t port, uint32_t value)
 {
     __asm__ __volatile__ ("outl %0, %1" : : "a"(value), "Nd"(port));
 }
 
-unsigned int inl(unsigned short port)
+uint32_t inl(uint16_t port)
 {
-    unsigned int value;
+    uint32_t value;
     __asm__ __volatile__ ("inl %1, %0" : "=a"(value) : "Nd"(port));
     return value;
 }
