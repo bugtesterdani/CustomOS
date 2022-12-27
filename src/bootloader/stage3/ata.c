@@ -11,233 +11,238 @@
 
 
 // andere methode zum testen
+uint16_t returned[256];
+ATA_t ATADevices[4];
+uint8_t count = 0;
 
-channel_t channels[2];
-ide_device_t devices[4];
-uint8_t ide_buffer[2048];
-
-void InitializeATA(channel_t channel[2], ide_device_t device[4], uint8_t ide_buff[2048])
+void ATA_Init(ATA_t loc_ATADevices[4], uint8_t *loc_count)
 {
-    // get IDE Devices
-    ata_GetIDE();
-    // get SATA Devices
-    ata_GetSATA();
-    for (uint8_t i = 0; i < 2; i++)
-    {
-        channel[i] = channels[i];
-    }
+    count = 0;
+    ata_detect_devices();
+    *loc_count = count;
     for (uint8_t i = 0; i < 4; i++)
     {
-        device[i] = devices[i];
-    }
-    for (uint16_t i = 0; i < 2048; i++)
-    {
-        ide_buff[i] = ide_buffer[i];
+        loc_ATADevices[i] = ATADevices[i];
     }
 }
 
-void ata_GetIDE()
+void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit)
 {
-    pci_dev_t devices[PCI_DEV_COUNT];
-    pci_init(devices);
-    for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
+    outb(port + 6, ATA_MASTER_PORT | ((slavebit & ATA_SLAVE_PORT_BIT) << 4));
+    outb(port + 2, 0);
+    outb(port + 3, 0);
+    outb(port + 4, 0);
+    outb(port + 5, 0);
+    outb(port + 7, ATA_CMD_IDENTIFY);
+    uint8_t x = inb(port + 7);
+    while (x & 0x08 != 0)
     {
-        pci_dev_t dev = devices[i];
-        if (dev.vendorID == 0 && dev.deviceID == 0)
+        x = inb(port + 7);
+        if (x & 0x01 != 0)
         {
-            return;
+            break;
         }
-        ata_checkDevice(&dev);
     }
-}
-
-void ata_GetSATA()
-{
-
-}
-
-void ata_checkDevice(pci_dev_t *dev)
-{
-    pci_baddress_t baseaddresses;
-    // Not a Mass Storage Device
-    if ((*dev).ClassCode != 0x01)
+    if (x == 0 || x == 1)
     {
         return;
     }
-    // No implementation for this whole Part
-    if ((*dev).HeaderType != 0x00)
+    for (uint16_t i = 0; i < 256; i++)
     {
-        return;
+        returned[i] = inw(port);
     }
-    pci_getBaseAddresses(dev, &baseaddresses);
-    if (baseaddresses.BaseAddress0 <= 0x01)
+    ATADevices[count].port = port;
+    ATADevices[count].slavebit = slavebit;
+    if (returned[83] & 1 << 10 != 0)
     {
-        baseaddresses.BaseAddress0 = 0x1F0;
-    }
-    if (baseaddresses.BaseAddress1 <= 0x01)
-    {
-        baseaddresses.BaseAddress1 = 0x3F6;
-    }
-    if (baseaddresses.BaseAddress2 <= 0x01)
-    {
-        baseaddresses.BaseAddress2 = 0x170;
-    }
-    if (baseaddresses.BaseAddress3 <= 0x01)
-    {
-        baseaddresses.BaseAddress3 = 0x376;
-    }
-    ata_ide_initialize(dev, &baseaddresses);
-}
-
-void ata_ide_initialize(pci_dev_t *dev, pci_baddress_t *baddress)
-{
-    channels[ATA_PRIMARY  ].base  = ((*baddress).BaseAddress0 & 0xFFFFFFFC) + 0x1F0 * (!(*baddress).BaseAddress0);
-    channels[ATA_PRIMARY  ].ctrl  = ((*baddress).BaseAddress1 & 0xFFFFFFFC) + 0x3F6 * (!(*baddress).BaseAddress1);
-    channels[ATA_SECONDARY].base  = ((*baddress).BaseAddress2 & 0xFFFFFFFC) + 0x170 * (!(*baddress).BaseAddress2);
-    channels[ATA_SECONDARY].ctrl  = ((*baddress).BaseAddress3 & 0xFFFFFFFC) + 0x376 * (!(*baddress).BaseAddress3);
-    channels[ATA_PRIMARY  ].bmide = ((*baddress).BaseAddress4 & 0xFFFFFFFC) + 0;
-    channels[ATA_SECONDARY].bmide = ((*baddress).BaseAddress4 & 0xFFFFFFFC) + 8;
-
-    ata_ide_write(ATA_PRIMARY  , ATA_REG_CONTROL, 2);
-    ata_ide_write(ATA_SECONDARY, ATA_REG_CONTROL, 2);
-    
-    #define IMax 2
-    
-    for (uint8_t i = 0; i < IMax; i++)
-    {
-        for (uint8_t j = 0; j < 2; j++)
-        {
-            ata_parseIDEDevice(i, j, IMax);
-        }
-    }
-}
-
-void ata_parseIDEDevice(uint8_t i, uint8_t j, uint8_t imax)
-{
-    uint8_t count = (i * 2 + j);
-    devices[count].reseerved = 0;
-    ata_ide_write(i, ATA_REG_HDDEVSEL, 0xA0 | (j << 4));
-    ata_ide_write(i, ATA_REG_COMMAND, ATA_CMD_IDENTIFY);
-    if (ata_ide_read(i, ATA_REG_STATUS) == 0)
-    {
-        return;
-    }
-    uint8_t status, err = 2;
-    while (err == 2)
-    {
-        status = ata_ide_read(i, ATA_REG_STATUS);
-        if ((status & ATA_SR_ERR))
-        {
-            err = 1;
-        }
-        if (!(status & ATA_SR_BSY) && (status & ATA_SR_DRQ))
-        {
-            err = 0;
-        }
-    }
-
-    ata_ide_read_buffer(i, ATA_REG_DATA, (uint32_t) ide_buffer, 128);
-    devices[count].reseerved = 1;
-    devices[count].type = IDE_ATA;
-    devices[count].channel = i;
-    devices[count].drive = j;
-    devices[count].sign = *((uint16_t *)(ide_buffer + ATA_IDENT_DEVICETYPE));
-    devices[count].capabilities = *((uint16_t *)(ide_buffer + ATA_IDENT_CAPABILITIES));
-    devices[count].commandsets = *((uint32_t *)(ide_buffer + ATA_IDENT_COMMANDSETS));
-    if (devices[count].commandsets & (1 << 26))
-    {
-        devices[count].size = *((uint32_t *)(ide_buffer + ATA_IDENT_MAX_LBA_EXT));
+        ATADevices[count].isLBA48Supported = 1;
+        ATADevices[count].LBA48 = (returned[103] << 48) + (returned[102] << 32) + (returned[101] << 16) + returned[100];
     }
     else
     {
-        devices[count].size = *((uint32_t *)(ide_buffer + ATA_IDENT_MAX_LBA));
+        ATADevices[count].isLBA48Supported = 0;
+        ATADevices[count].LBA28 = (returned[61] << 16) + returned[60];
+        if (ATADevices[count].LBA28 == 0)
+        {
+            return;
+        }
+    }
+    count++;
+    return;
+}
+
+void ataRead(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr)
+{
+    if (ATADevices[drive_id].isLBA48Supported == 1)
+    {
+        ataRead48(drive_id, LBA, cnt, addr);
+    }
+    else
+    {
+        ataRead28(drive_id, LBA, cnt, addr);
     }
 }
 
-void ata_400nsdelay()
+void ataWrite(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr)
 {
-    for (uint8_t i = 0; i < 15; i++)
+    if (ATADevices[drive_id].isLBA48Supported == 1)
     {
-        ata_ide_read(0, 0);
+        ataWrite48(drive_id, LBA, cnt, addr);
+    }
+    else
+    {
+        ataWrite28(drive_id, LBA, cnt, addr);
     }
 }
 
-void ata_cache_flush_write(uint8_t channel, uint8_t reg)
+void ataRead28(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr)
 {
-    ata_ide_write(channel, reg, 0xE7);
-}
-
-void ata_ide_write(uint8_t channel, uint8_t reg, uint8_t data)
-{
-    if (reg > 0x07 && reg < 0x0C)
+    ATA_t device = ATADevices[drive_id];
+    uint16_t port = device.port;
+    uint8_t slavebit = device.slavebit;
+    outb(port + 6, 0xE0 | ((slavebit << 4) & ATA_SLAVE_PORT_BIT) | ((LBA >> 24) & 0x0F));
+    outb(port + 2, cnt);
+    outb(port + 3, LBA & 0xFF);
+    outb(port + 4, (LBA >> 8) & 0xFF);
+    outb(port + 5, (LBA >> 16) & 0xFF);
+    outb(port + 7, ATA_CMD_READ_PIO);
+    uint16_t dcr = 0x3F6;
+    if (port == 0x170)
     {
-        ata_ide_write(channel, ATA_REG_CONTROL, 0x80 | channels[channel].nIEN);
+        dcr = 0x376;
     }
-    if (reg < 0x08)
+    uint8_t x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    while (x & 0x80)
     {
-        outb(data, channels[channel].base  + reg - 0x00);
+        x = inb(port + 7);
     }
-    else if (reg < 0x0C)
+    for (uint32_t i = 0; i < 256 * cnt; i++)
     {
-        outb(data, channels[channel].base  + reg - 0x06);
-    }
-    else if (reg < 0x0E)
-    {
-        outb(data, channels[channel].ctrl  + reg - 0x0A);
-    }
-    else if (reg < 0x16)
-    {
-        outb(data, channels[channel].bmide + reg - 0x0E);
-    }
-    if (reg > 0x07 && reg < 0x0C)
-    {
-        ata_ide_write(channel, ATA_REG_CONTROL, channels[channel].nIEN);
-    }
-}
-
-uint8_t ata_ide_read(uint8_t channel, uint8_t reg)
-{
-    uint8_t result;
-    if (reg > 0x07 && reg < 0x0C)
-    {
-        ata_ide_write(channel, ATA_REG_CONTROL, 0x80 | channels[channel].nIEN);
-    }
-    if (reg < 0x08)
-    {
-        inb(channels[channel].base  + reg - 0x00);
-    }
-    else if (reg < 0x0C)
-    {
-        inb(channels[channel].base  + reg - 0x06);
-    }
-    else if (reg < 0x0E)
-    {
-        inb(channels[channel].ctrl  + reg - 0x0A);
-    }
-    else if (reg < 0x16)
-    {
-        inb(channels[channel].bmide + reg - 0x0E);
-    }
-    if (reg > 0x07 && reg < 0x0C)
-    {
-        ata_ide_write(channel, ATA_REG_CONTROL, channels[channel].nIEN);
+        uint16_t h = inw(port);
+        *((uint8_t*)addr + (i * 2)) = (h & 0xFF);
+        *((uint8_t*)addr + (i * 2) + 1) = ((h >> 8) & 0xFF);
     }
 }
 
-void ata_ide_read_buffer(uint8_t channel, uint8_t reg, uint32_t buffer, uint32_t quads)
+void ataWrite28(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr)
 {
-    if (reg > 0x07 && reg < 0x0C)
+    ATA_t device = ATADevices[drive_id];
+    uint16_t port = device.port;
+    uint8_t slavebit = device.slavebit;
+    outb(port + 6, 0xE0 | ((slavebit << 4) & ATA_SLAVE_PORT_BIT) | ((LBA >> 24) & 0x0F));
+    outb(port + 2, cnt);
+    outb(port + 3, LBA & 0xFF);
+    outb(port + 4, (LBA >> 8) & 0xFF);
+    outb(port + 5, (LBA >> 16) & 0xFF);
+    outb(port + 7, ATA_CMD_WRITE_PIO);
+    uint16_t dcr = 0x3F6;
+    if (port == 0x170)
     {
-        ata_ide_write(channel, ATA_REG_CONTROL, 0x80 | channels[channel].nIEN);
+        dcr = 0x376;
     }
-    
-    __asm__ __volatile__ ("pushw %es");
-    __asm__ __volatile__ ("movw %ds, %ax");
-    __asm__ __volatile__ ("movw %ax, %es");
-    __asm__ __volatile__ ("popw %es");
+    uint8_t x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    while (x & 0x80)
+    {
+        x = inb(port + 7);
+    }
+    for (uint32_t i = 0; i < 256 * cnt; i++)
+    {
+        outw(port, ((*((uint8_t*)addr + i * 2 + 1)) << 8) + (*((uint8_t*)addr + i * 2)));
+        outb(port + 7, ATA_CMD_CACHE_FLUSH);
+        x = inb(port + 7);
+        while (x & 0x80)
+        {
+            x = inb(port + 7);
+        }
+    }
+}
 
-    if (reg > 0x07 && reg < 0x0C)
+void ataWrite48(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr)
+{
+    ATA_t device = ATADevices[drive_id];
+    uint16_t port = device.port;
+    uint8_t slavebit = device.slavebit;
+    outb(port + 6, 0x40 | ((slavebit << 4) & ATA_SLAVE_PORT_BIT));
+    outb(port + 2, 0);
+    outb(port + 3, (LBA >> 24) & 0xFF);
+    outb(port + 4, (LBA >> 32) & 0xFF);
+    outb(port + 5, (LBA >> 40) & 0xFF);
+    outb(port + 2, cnt);
+    outb(port + 3, (LBA >>  0) & 0xFF);
+    outb(port + 4, (LBA >>  8) & 0xFF);
+    outb(port + 5, (LBA >> 16) & 0xFF);
+    outb(port + 7, ATA_CMD_WRITE_PIO_EXT);
+    uint16_t dcr = 0x3F6;
+    if (port == 0x170)
     {
-        ata_ide_write(channel, ATA_REG_CONTROL, channels[channel].nIEN);
+        dcr = 0x376;
     }
+    uint8_t x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    while (x & 0x80)
+    {
+        x = inb(port + 7);
+    }
+    for (uint32_t i = 0; i < 256 * cnt; i++)
+    {
+        outw(port, ((*((uint8_t*)addr + i * 2 + 1)) << 8) + (*((uint8_t*)addr + i * 2)));
+        outw(port + 7, ATA_CMD_CACHE_FLUSH);
+        x = inb(port + 7);
+        while (x & 0x80)
+        {
+            x = inb(port + 7);
+        }
+    }
+}
+
+void ataRead48(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr)
+{
+    ATA_t device = ATADevices[drive_id];
+    uint16_t port = device.port;
+    uint8_t slavebit = device.slavebit;
+    outb(port + 6, 0x40 | ((slavebit << 4) & ATA_SLAVE_PORT_BIT));
+    outb(port + 2, 0);
+    outb(port + 3, (LBA >> 24) & 0xFF);
+    outb(port + 4, (LBA >> 32) & 0xFF);
+    outb(port + 5, (LBA >> 40) & 0xFF);
+    outb(port + 2, cnt);
+    outb(port + 3, (LBA >>  0) & 0xFF);
+    outb(port + 4, (LBA >>  8) & 0xFF);
+    outb(port + 5, (LBA >> 16) & 0xFF);
+    outb(port + 7, ATA_CMD_READ_PIO_EXT);
+    uint16_t dcr = 0x3F6;
+    if (port == 0x170)
+    {
+        dcr = 0x376;
+    }
+    uint8_t x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    x = inb(port + 7);
+    while (x & 0x80)
+    {
+        x = inb(port + 7);
+    }
+    for (uint32_t i = 0; i < 256 * cnt; i++)
+    {
+        uint16_t h = inw(port);
+        *((uint8_t*)addr + i*2) = (h & 0xFF);
+        *((uint8_t*)addr + i*2 + 1) = ((h >> 8) & 0xFF);
+    }
+}
+
+void ata_detect_devices()
+{
+    ATA_Detect_Devtype(0x1F0, 0);
+    ATA_Detect_Devtype(0x1F0, 1);
+    ATA_Detect_Devtype(0x170, 0);
+    ATA_Detect_Devtype(0x170, 1);
 }

@@ -56,36 +56,19 @@ void ParseCommand(char* commandline)
     // }
     else if (strcmp(PartSplit, "ata"))
     {
-        uint8_t buffer[2048];
-        channel_t channel[2];
-        ide_device_t device[4];
-        InitializeATA(channel, device, buffer);
+        ATA_t ATA[4];
+        uint8_t counter;
+        ATA_Init(ATA, &counter);
         uint8_t charArrayLength = 80;
         uint8_t outputint[charArrayLength];
-        strapp(outputint, "Found all devices", 0, charArrayLength);
+        strapp(outputint, "Found ", 0, charArrayLength);
+        uint8_t _lastindex = lastIndex(outputint, charArrayLength);
+        ConvertToChar(counter, 10, outputint, _lastindex);
+        _lastindex = lastIndex(outputint, charArrayLength);
+        strapp(outputint, " Hard Drive Disks", _lastindex, charArrayLength - _lastindex);
+        printString("ATA Exiteted", White, Black);
+        setcursornewline();
         printString(outputint, White, Black);
-        for (uint8_t i = 0; i < 4; i++)
-        {
-            if (device[i].reseerved == 1)
-            {
-                clearArray(outputint, charArrayLength, 0x00);
-                ConvertToChar(i, 10, outputint, 0);
-                uint8_t _lastindex = lastIndex(outputint, charArrayLength);
-                strapp(outputint, "Found ", (_lastindex), (charArrayLength - _lastindex));
-                _lastindex = lastIndex(outputint, charArrayLength);
-                strapp(outputint, (char *[]){"ATA", "ATAPI"}[device[i].type], (_lastindex), (charArrayLength - _lastindex));
-                _lastindex = lastIndex(outputint, charArrayLength);
-                strapp(outputint, " Drive ", (_lastindex), (charArrayLength - _lastindex));
-                _lastindex = lastIndex(outputint, charArrayLength);
-                ConvertToChar(device[i].size / 1024 / 1024 / 2, 10, outputint, _lastindex);
-                _lastindex = lastIndex(outputint, charArrayLength);
-                strapp(outputint, "GB - ", (_lastindex), (charArrayLength - _lastindex));
-                _lastindex = lastIndex(outputint, charArrayLength);
-                strapp(outputint, device[i].model, (_lastindex), (charArrayLength - _lastindex));
-                printString(outputint, White, Black);
-                setcursornewline();
-            }
-        }
     }
     else if (strcmp(PartSplit, "partid"))
     {
