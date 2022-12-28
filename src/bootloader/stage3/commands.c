@@ -61,6 +61,7 @@ void ParseCommand(char* commandline)
         ATA_Init(ATA, &counter);
         uint8_t charArrayLength = 80;
         uint8_t outputint[charArrayLength];
+        clearArray(outputint, charArrayLength, 0x00);
         strapp(outputint, "Found ", 0, charArrayLength);
         uint8_t _lastindex = lastIndex(outputint, charArrayLength);
         ConvertToChar(counter, 10, outputint, _lastindex);
@@ -96,10 +97,61 @@ void ParseCommand(char* commandline)
             outputint[_lastindex] = ' ';
             strapp(outputint, pci_returnDetails(&dev), (_lastindex + 1), (charArrayLength - _lastindex - 1));
             printString(outputint, White, Black);
-            setcursornewline();
+            if (i + 1 < PCI_DEV_COUNT)
+            {
+                setcursornewline();
+            }
+            if (dev.ClassCode == 0x01 && dev.Subclass == 0x01)
+            {
+                pci_baddress_t baseaddr;
+                pci_getBaseAddress(dev.bus, dev.device, dev.function, &baseaddr);
+                clearArray(outputint, charArrayLength, 0x00);
+                outputint[0] = '0';
+                outputint[1] = 'x';
+                ConvertToChar(((baseaddr.BaseAddress0 >> 16) & 0xFFFF), 16, outputint, 2);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(((baseaddr.BaseAddress0 >>  0) & 0xFFFF), 16, outputint, _lastindex);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                outputint[_lastindex] = ' ';
+                outputint[_lastindex + 1] = '0';
+                outputint[_lastindex + 2] = 'x';
+                ConvertToChar(((baseaddr.BaseAddress1 >> 16) & 0xFFFF), 16, outputint, _lastindex + 3);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(((baseaddr.BaseAddress1 >>  0) & 0xFFFF), 16, outputint, _lastindex);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                outputint[_lastindex] = ' ';
+                outputint[_lastindex + 1] = '0';
+                outputint[_lastindex + 2] = 'x';
+                ConvertToChar(((baseaddr.BaseAddress2 >> 16) & 0xFFFF), 16, outputint, _lastindex + 3);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(((baseaddr.BaseAddress2 >>  0) & 0xFFFF), 16, outputint, _lastindex);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                outputint[_lastindex] = ' ';
+                outputint[_lastindex + 1] = '0';
+                outputint[_lastindex + 2] = 'x';
+                ConvertToChar(((baseaddr.BaseAddress3 >> 16) & 0xFFFF), 16, outputint, _lastindex + 3);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(((baseaddr.BaseAddress3 >>  0) & 0xFFFF), 16, outputint, _lastindex);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                outputint[_lastindex] = ' ';
+                outputint[_lastindex + 1] = '0';
+                outputint[_lastindex + 2] = 'x';
+                ConvertToChar(((baseaddr.BaseAddress4 >> 16) & 0xFFFF), 16, outputint, _lastindex + 3);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(((baseaddr.BaseAddress4 >>  0) & 0xFFFF), 16, outputint, _lastindex);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                outputint[_lastindex] = ' ';
+                outputint[_lastindex + 1] = '0';
+                outputint[_lastindex + 2] = 'x';
+                ConvertToChar(((baseaddr.BaseAddress5 >> 16) & 0xFFFF), 16, outputint, _lastindex + 3);
+                _lastindex = lastIndex(outputint, charArrayLength);
+                ConvertToChar(((baseaddr.BaseAddress5 >>  0) & 0xFFFF), 16, outputint, _lastindex);
+                printString(outputint, White, Black);
+                setcursornewline();
+            }
         }
     }
-    else if (strcmp(PartSplit, "partidall"))
+    else if (strcmp(PartSplit, "partiall"))
     {
         uint8_t charArrayLength = 80;
         uint8_t outputint[charArrayLength];

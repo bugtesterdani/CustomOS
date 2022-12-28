@@ -43,4 +43,5 @@ void ataRead28(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr);
 void ataWrite28(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr);
 void ataWrite48(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr);
 void ataRead48(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr);
+void ata_detect_addresses();
 void ata_detect_devices();

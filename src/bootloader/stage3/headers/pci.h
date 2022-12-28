@@ -45,4 +45,3 @@ void pci_checkBus(uint8_t bus);
 void pci_checkFunction(uint8_t bus, uint8_t device, uint8_t function);
 void pci_checkAllBuses(void);
 void pci_init(pci_dev_t devs[PCI_DEV_COUNT]);
-void pci_getBaseAddresses(pci_dev_t *dev, pci_baddress_t *base_address);

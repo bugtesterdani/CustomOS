@@ -195,9 +195,3 @@ void pci_init(pci_dev_t devs[PCI_DEV_COUNT])
 	}
     // devs = pcidevs;
 }
-
-void pci_getBaseAddresses(pci_dev_t *dev, pci_baddress_t *base_address)
-{
-	pci_dev_t device = *dev;
-	pci_getBaseAddress(device.bus, device.device, device.function, base_address);
-}
