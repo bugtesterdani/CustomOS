@@ -10,6 +10,7 @@
 #include "headers/pci.h"
 #include "headers/pci_definitions.h"
 #include "headers/ata.h"
+#include "headers/RAM.h"
 
 void ParseCommand(char* commandline)
 {
@@ -54,6 +55,10 @@ void ParseCommand(char* commandline)
     //     ConvertToChar((value >> 0)  & 0xFFFF, 16, outputint, _lastindex);
     //     printString(outputint, White, Black);
     // }
+    else if (strcmp(PartSplit, "ram"))
+    {
+        RAM_Init();
+    }
     else if (strcmp(PartSplit, "ata"))
     {
         ATA_t ATA[4];
