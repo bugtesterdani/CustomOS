@@ -187,6 +187,7 @@ void pci_checkAllBuses(void)
 
 void pci_init(pci_dev_t devs[PCI_DEV_COUNT])
 {
+	numdevs = 0;
     pci_checkAllBuses();
 	for (uint8_t i = 0; i < PCI_DEV_COUNT; i++)
 	{
