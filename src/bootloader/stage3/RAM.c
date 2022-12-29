@@ -45,20 +45,21 @@ void RAM_Init()
     RAM_t RValues[size];
     for (int i = 0; i < size; i++) {   // 6 Einträge in der Map
         // Lese Eintrag aus Speicher
-        RValues[i].BaseAddress = *(uint64_t*)(0x7E04 + i * 0x1C);
-        RValues[i].Size = *(uint64_t*)(0x7E0C + i * 0x1C);
-        RValues[i].Type = *(uint32_t*)(0x7E14 + i * 0x1C);
-        RValues[i].ExtendedPart = *(uint32_t*)(0x7E18 + i * 0x1C);
+        RValues[i].BaseAddress = *(uint64_t*)(0x7E04 + i * 0x18);
+        RValues[i].Size = *(uint64_t*)(0x7E0C + i * 0x18);
+        RValues[i].Type = *(uint32_t*)(0x7E14 + i * 0x18);
+        RValues[i].ExtendedPart = *(uint32_t*)(0x7E18 + i * 0x18);
         // Verarbeite Eintrag ...
     }
 
-    for (uint8_t i = 0; i < size + 1; i++)
+    for (uint8_t i = 0; i < size; i++)
     {
         // RAM_t RAM = RAM_Values[i];
         RAM_t RAM = RValues[i];
         ram_subPrint(64, RAM.BaseAddress);
         ram_subPrint(64, RAM.Size);
         ram_subPrint(32, RAM.Type);
+        ram_subPrint(32, RAM.ExtendedPart);
         setcursornewline();
     }
 }
@@ -129,7 +130,7 @@ void ram_parseToCharArr(char *str, uint16_t value, uint8_t charmax)
     uint8_t _lastindex = lastIndex(str, charmax);
     clearArray(tmp_char, 5, 0x00);
     ConvertToChar(value, 16, tmp_char, 0);
-    FillStrSize(tmp_char, '0', 4);
+    FillStrSize(tmp_char, '0', 2);
     strapp(str, tmp_char, _lastindex, charmax);
 }
 
@@ -142,9 +143,9 @@ void ram_subPrint(uint8_t size, uint64_t value)
     clearArray(outputint, CHARARRAYMAX, 0x00);
     outputint[0] = '0';
     outputint[1] = 'x';
-    for (uint8_t i = size; i >= 16; i -= 16)
+    for (uint8_t i = size; i >= 8; i -= 8)
     {
-        ram_parseToCharArr(outputint, ((value >> (i - 16)) & 0xFFFF), CHARARRAYMAX);
+        ram_parseToCharArr(outputint, ((value >> (i - 8)) & 0xFF), CHARARRAYMAX);
     }
     _lastindex = lastIndex(outputint, CHARARRAYMAX);
     outputint[_lastindex] = ' ';
