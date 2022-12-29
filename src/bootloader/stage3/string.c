@@ -29,3 +29,26 @@ void strapp(char *str1, char *str2, uint8_t offset, uint8_t size)
         str1[i + offset] = str2[i];
     }
 }
+
+void FillStrSize(char *str, char fillchar, uint8_t size)
+{
+    uint8_t counter = 0;
+    size--;
+    while (*str)
+    {
+        counter++;
+        str++;
+    }
+
+    if (counter <= size)
+    {
+        for (uint8_t i = size; i > (size - counter); i--)
+        {
+            str[i] = str[(counter - (size - i) - 1)];
+        }
+        for (uint8_t i = 0; i <= (size - counter); i++)
+        {
+            str[i] = fillchar;
+        }
+    }
+}
