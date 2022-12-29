@@ -7,6 +7,7 @@ struct RAM
     uint64_t BaseAddress;
     uint64_t Size;
     uint32_t Type;
+    uint32_t ExtendedPart;
 } __attribute__((packed));
 
 typedef struct RAM RAM_t;
