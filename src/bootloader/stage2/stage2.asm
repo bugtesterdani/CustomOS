@@ -8,7 +8,7 @@ Result_Read_File:           dd 0x0
 %define ROOT_DIR_START_LSB      0x18
 %define ROOT_DIR_START_MSB      0x0B
 %define SECTORS_PER_CLUSTER     8
-%define Buff_Off                0x8400
+%define Buff_Off                0x0A00
 
 init:
     ; Is needed somewhy, to make the prints without bugs
@@ -46,7 +46,7 @@ start:
     call set_in_dap_value
     ; MSB Buffer Offset
     mov al, 5
-    mov ah, 0x84
+    mov ah, 0x0A
     call set_in_dap_value
     ; LSB Buffer Offset
     mov al, 6

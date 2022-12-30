@@ -24,6 +24,7 @@ extern _cstart_
 %define White 0xF
 
 entry:
+    mov sp, 0x9000
     call do_e820
     cli
     lgdt [gdt_desc]
@@ -44,7 +45,7 @@ init:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    mov ebp, 0x90000
+    mov ebp, 0x9000
     mov esp, ebp
     mov bl, Black
     shl bl, 4
@@ -97,9 +98,9 @@ bits 16
 ;       The consequence of overwriting the BIOS code will lead to problems like getting stuck in `int 0x15`
 ; inputs: es:di -> destination buffer for 24 byte entries
 ; outputs: bp = entry count, trashes all registers except esi
-mmap_ent equ 0x7E00             ; the number of entries will be stored at 0x8000
+mmap_ent equ 0x0500             ; the number of entries will be stored at 0x8000
 do_e820:
-    mov di, 0x7E04          ; Set di to 0x8004. Otherwise this code will get stuck in `int 0x15` after some entries are fetched 
+    mov di, 0x0504          ; Set di to 0x8004. Otherwise this code will get stuck in `int 0x15` after some entries are fetched 
 	xor ebx, ebx		; ebx must be 0 to start
 	xor bp, bp		; keep an entry count in bp
 	mov edx, 0x0534D4150	; Place "SMAP" into edx
