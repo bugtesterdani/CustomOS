@@ -5,30 +5,31 @@ CC=i686-elf-gcc
 CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib
 LD=i686-elf-gcc
 LDFLAGS?=-g -T linker.ld -nostdlib
+STAGEFILENAME=stage3
 
 SOURCES_C=$(wildcard *.c)
 SOURCES_ASM=$(wildcard *.asm)
-OBJECTS_C=$(patsubst %.c, $(BUILD_DIR)/stage3/c/%.obj, $(SOURCES_C))
-OBJECTS_ASM=$(patsubst %.asm, $(BUILD_DIR)/stage3/asm/%.obj, $(SOURCES_ASM))
+OBJECTS_C=$(patsubst %.c, $(BUILD_DIR)/${STAGEFILENAME}/c/%.obj, $(SOURCES_C))
+OBJECTS_ASM=$(patsubst %.asm, $(BUILD_DIR)/${STAGEFILENAME}/asm/%.obj, $(SOURCES_ASM))
 
-.PHONY: all stage3 clean always
+.PHONY: all ${STAGEFILENAME} clean always
 
-all: stage3
+all: ${STAGEFILENAME}
 
-stage3: $(BUILD_DIR)/stage3.bin
+${STAGEFILENAME}: $(BUILD_DIR)/stage3.bin
 
-$(BUILD_DIR)/stage3.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(LD) $(LDFLAGS) -Wl,-Map=$(BUILD_DIR)/stage3.map -o $@ $^ $(TARGET_LIBS)
+$(BUILD_DIR)/${STAGEFILENAME}.bin: $(OBJECTS_ASM) $(OBJECTS_C)
+	$(LD) $(LDFLAGS) -Wl,-Map=$(BUILD_DIR)/${STAGEFILENAME}.map -o $@ $^ $(TARGET_LIBS)
 
-$(BUILD_DIR)/stage3/c/%.obj: %.c always
+$(BUILD_DIR)/${STAGEFILENAME}/c/%.obj: %.c always
 	$(CC) $(CCFLAGS) -c -o $@ $<
 
-$(BUILD_DIR)/stage3/asm/%.obj: %.asm always
+$(BUILD_DIR)/${STAGEFILENAME}/asm/%.obj: %.asm always
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
 always:
-	mkdir -p $(BUILD_DIR)/stage3/c
-	mkdir -p $(BUILD_DIR)/stage3/asm
+	mkdir -p $(BUILD_DIR)/${STAGEFILENAME}/c
+	mkdir -p $(BUILD_DIR)/${STAGEFILENAME}/asm
 
 clean:
-	rm -f $(BUILD_DIR)/stage3.bin
+	rm -f $(BUILD_DIR)/${STAGEFILENAME}.bin
