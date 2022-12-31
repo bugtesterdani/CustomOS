@@ -31,7 +31,7 @@ set $REAL_MODE = 1
 set $ADDRESS_MASK = 0x1FFFFF
 
 # nb of instructions to display
-set $CODE_SIZE = 10
+set $CODE_SIZE = 20
 
 define enable-a20
   set $ADDRESS_MASK = 0x1FFFFF

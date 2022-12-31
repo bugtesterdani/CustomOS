@@ -23,8 +23,15 @@ extern _cstart_
 %define Yellow 0xE
 %define White 0xF
 
+StackPointer_Value:         dd 0x0
+
 entry:
-    mov sp, 0x9000
+.calc_sp:
+    mov ecx, 0x400
+    mov eax, [0x413]
+    mul ecx
+    mov [StackPointer_Value], eax
+    mov sp, 0xA00
     call do_e820
     cli
     lgdt [gdt_desc]

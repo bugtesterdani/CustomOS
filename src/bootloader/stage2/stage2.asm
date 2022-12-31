@@ -8,7 +8,7 @@ Result_Read_File:           dd 0x0
 %define ROOT_DIR_START_LSB      0x18
 %define ROOT_DIR_START_MSB      0x0B
 %define SECTORS_PER_CLUSTER     8
-%define Buff_Off                0x0A00
+%define Buff_Off                0x0600
 
 init:
     ; Is needed somewhy, to make the prints without bugs
@@ -46,7 +46,7 @@ start:
     call set_in_dap_value
     ; MSB Buffer Offset
     mov al, 5
-    mov ah, 0x0A
+    mov ah, 0x06
     call set_in_dap_value
     ; LSB Buffer Offset
     mov al, 6
@@ -71,6 +71,64 @@ Execute:
 hlt:
     cli
     hlt
+
+Exec_750:
+    mov sp, 0x700
+    call 0x770
+    jmp dword 0xA00
+times 20-($-Exec_750) db 0
+read_fat_760:
+    mov ah, 0x41
+    mov bx, 0x55AA
+    mov dl, [0x730]
+    int 13h
+    jc .error
+    mov ah, 0x42
+    lea si, 0x700
+    mov dl, [0x730]
+    int 13h
+    jc .error
+    ret
+.error:
+    jmp [$stage1.floppy_error]
+
+Finish_read:
+    ; Setze den neuen Stackpointer auf Addresse 0x700
+    ; DAP Wird an Addresse 0x700 kopiert
+    ; Dieser Teil hier zum jmp und der rest wird zur Addresse
+    ; 0x750 kopiert und von dort dann ausgeführt. (maximal bis 0xA00)
+    ; An Addresse 0xA00 wird Stage 3 geladen.
+.copyFunction:
+    mov ecx, Exec_750               ; Start Address of executing Function in this file
+    mov si, 0x750
+.loop1:
+    mov ax, [ecx]
+    mov [si], ax
+    inc ecx
+    inc si
+    cmp ecx, Finish_read - 0x01     ; Check if it reaches this Function.
+    jle .loop1
+.copyDAP:
+    mov ecx, [$stage1.DAP]
+    mov edx, 0
+    mov si, 0x700
+.loop3:
+    mov ax, [ecx]
+    mov [si], ax
+    inc ecx
+    inc si
+    inc edx
+    cmp edx, 24
+    jle .loop3
+    ; Copy also DriveNumber from stage1 to Address: 0x730
+.copyDriveNumber:
+    mov ecx, [$stage1.DriveNumber]
+    mov ax, [ecx]
+    mov si, 0x730
+    mov [si], ax
+
+    ; Now jump to the copied Address
+    jmp 0x750
 
 Line:               db ' - ', 0
 
@@ -183,6 +241,10 @@ LoadFile:
 
     call print_DAP_Values
 
+    ; Things after this, will be obsolete, so we jump to the copy
+    ; Function.
+    jmp Finish_read
+
     call dword [$stage1.read_fat32]
     pop si
 .finish_reading:
@@ -257,7 +319,7 @@ set_in_dap_value:
     pop si
     ret
 
-load_msg:                   db 'Loading Bootloader Part 2...', ENDL, 0
-msg_file_not_found:         db 'Bootloader Part 2 could not be found', ENDL, 0
-msg_file_found:             db 'Found Bootloader Part 2. Loading...', ENDL, 0
+load_msg:                   db 'Loading Bootloader Part 3...', ENDL, 0
+msg_file_not_found:         db 'Bootloader Part 3 could not be found', ENDL, 0
+msg_file_found:             db 'Found Bootloader Part 3. Loading...', ENDL, 0
 filename_stage3:            db 'STAGE3  BIN'
