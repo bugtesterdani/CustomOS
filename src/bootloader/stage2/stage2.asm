@@ -82,12 +82,12 @@ read_fat_760:
     mov bx, 0x55AA
     mov dl, [0x730]
     int 13h
-    jc .error
+    jc .error - Exec_750 + 0x750
     mov ah, 0x42
     lea si, 0x700
     mov dl, [0x730]
     int 13h
-    jc .error
+    jc .error - Exec_750 + 0x750
     ret
 .error:
     jmp [$stage1.floppy_error]

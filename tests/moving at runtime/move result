@@ -7,9 +7,9 @@ real-mode-gdb$ x/50x 0x700
 0x730:  0x00000080      0x00000000      0x00000000      0x00000000
 0x740:  0x00000000      0x00000000      0x00000000      0x00000000
 0x750:  0xe80700bc      0xe966830a      0xffff8594      0x00000000
-0x760:  0x00000000      0xaabb41b4      0x30168a55      0x7213cd07
-0x770:  0x8d42b40f      0x8a070036      0xcd073016      0xc3017213
-0x780:  0x66f882e9      0x00000000      0x00000000      0x00000000
+0x760:  0x00000000      0xaabb41b4      0x30168a55      0x0f13cd07
+0x770:  0xb4830182      0x00368d42      0x30168a07      0x0f13cd07
+0x780:  0xc382f182      0x66f87ee9      0x00000000      0x00000000
 0x790:  0x00000000      0x00000000      0x00000000      0x00000000
 0x7a0:  0x00000000      0x00000000      0x00000000      0x00000000
 0x7b0:  0x00000000      0x00000000      0x00000000      0x00000000
@@ -17,60 +17,61 @@ real-mode-gdb$ x/50x 0x700
 
 real-mode-gdb$ x/40x 0x8460
 0x8460: 0xe80700bc      0xe966830a      0xffff8594      0x00000000
-0x8470: 0x00000000      0xaabb41b4      0x30168a55      0x7213cd07
-0x8480: 0x8d42b40f      0x8a070036      0xcd073016      0xc3017213
-0x8490: 0x66f882e9      0x008460b9      0x0750be00      0x89018b67
-0x84a0: 0x46416604      0x92f98166      0x7e000084      0xf5b966ef
-0x84b0: 0x6600007c      0x000000ba      0x0700be00      0x89018b67
-0x84c0: 0x46416604      0x83664266      0xf07e18fa      0x7c40b966
-0x84d0: 0x8b670000      0x0730be01      0x73e90489      0x202d2082
-0x84e0: 0xdce86600      0x58fffff7      0xc689f089      0x57000bb9
-0x84f0: 0x745fa6f3      0x20c78311      0xb97dcebe      0xf357000b
+0x8470: 0x00000000      0xaabb41b4      0x30168a55      0x0f13cd07
+0x8480: 0xb4830182      0x00368d42      0x30168a07      0x0f13cd07
+0x8490: 0xc382f182      0x66f87ee9      0x008460b9      0x0750be00
+0x84a0: 0x89018b67      0x46416604      0x96f98166      0x7e000084
+0x84b0: 0xf5b966ef      0x6600007c      0x000000ba      0x0700be00
+0x84c0: 0x89018b67      0x46416604      0x83664266      0xf07e18fa
+0x84d0: 0x7c40b966      0x8b670000      0x0730be01      0x6fe90489
+0x84e0: 0x202d2082      0xd8e86600      0x58fffff7      0xc689f089
+0x84f0: 0x57000bb9      0x745fa6f3      0x20c78311      0xb97dcebe
 
 
 vor dem kopieren:
+2. Commit:
 ---------------------------[ STACK ]---
-8452 8400 865E 0000 7C00 0000 0006 0008 
+8452 8400 8662 0000 7C00 0000 0002 0008 
 0000 5AEB 4490 4E41 2D49 534F 0020 0802 
 ---------------------------[ DS:SI ]---
-0000861E: 0D 0A 00 BE 7D 86 66 E8 00 F7 FF FF 5E E9 30 FE  ....}.f.....^.0.
-0000862E: 60 89 E5 B9 04 04 8B 56 12 8B 5E 14 D3 C2 B8 0F  `......V..^.....
-0000863E: 0E 20 D0 04 90 27 14 40 27 CD 10 FE CD 75 ED 61  .....'.@'....u.a
-0000864E: C3 56 BE F5 7C 46 FE C8 84 C0 75 F9 88 24 5E C3  .V..|F....u..$^.
+00008622: 0D 0A 00 BE 81 86 66 E8 FC F6 FF FF 5E E9 2C FE  ......f.....^.,.
+00008632: 60 89 E5 B9 04 04 8B 56 12 8B 5E 14 D3 C2 B8 0F  `......V..^.....
+00008642: 0E 20 D0 04 90 27 14 40 27 CD 10 FE CD 75 ED 61  .....'.@'....u.a
+00008652: C3 56 BE F5 7C 46 FE C8 84 C0 75 F9 88 24 5E C3  .V..|F....u..$^.
 ---------------------------[ ES:DI ]---
-00000640: 53 54 41 47 45 33 20 20 42 49 4E 20 18 00 D9 95  STAGE3..BIN.....
-00000650: 9F 55 9F 55 00 00 D9 95 9F 55 05 00 F4 80 00 00  .U.U.....U......
-00000660: 53 54 41 47 45 34 20 20 42 49 4E 20 18 00 D9 95  STAGE4..BIN.....
-00000670: 9F 55 9F 55 00 00 D9 95 9F 55 0E 00 D4 80 00 00  .U.U.....U......
+00000640: 53 54 41 47 45 33 20 20 42 49 4E 20 18 00 57 A2  STAGE3..BIN...W.
+00000650: 9F 55 9F 55 00 00 57 A2 9F 55 05 00 F4 80 00 00  .U.U..W..U......
+00000660: 53 54 41 47 45 34 20 20 42 49 4E 20 18 00 57 A2  STAGE4..BIN...W.
+00000670: 9F 55 9F 55 00 00 57 A2 9F 55 0E 00 D4 80 00 00  .U.U..W..U......
 ----------------------------[ CPU ]----
 AX: 0000 BX: 0041 CX: 0000 DX: 00F4
-SI: 861E DI: 0640 SP: 7BEE BP: 0000
+SI: 8622 DI: 0640 SP: 7BEE BP: 0000
 CS: 0000 DS: 0000 ES: 0000 SS: 0000
 
-IP: 8493 EIP:00008493
-CS:IP: 0000:8493 (0x08493)
+IP: 8497 EIP:00008497
+CS:IP: 0000:8497 (0x08497)
 SS:SP: 0000:7BEE (0x07BEE)
 SS:BP: 0000:0000 (0x00000)
 OF <0>  DF <0>  IF <1>  TF <0>  SF <0>  ZF <1>  AF <0>  PF <1>  CF <0>
 ID <0>  VIP <0> VIF <0> AC <0>  VM <0>  RF <0>  NT <0>  IOPL <0>
 ---------------------------[ CODE ]----
-=> 0x8493:      mov    cx,0x8460
-   0x8497:      add    BYTE PTR [eax],al
-   0x8499:      mov    esi,0x8b670750
-   0x849e:      add    DWORD PTR [ecx+0x46416604],ecx
-   0x84a4:      cmp    cx,0x8492
-   0x84a9:      add    BYTE PTR [eax],al
-   0x84ab:      jle    0x849c
-   0x84ad:      mov    cx,0x7cf5
-   0x84b1:      add    BYTE PTR [eax],al
-   0x84b3:      mov    dx,0x0
-   0x84b7:      add    BYTE PTR [eax],al
-   0x84b9:      mov    esi,0x8b670700
-   0x84be:      add    DWORD PTR [ecx+0x46416604],ecx
-   0x84c4:      inc    dx
-   0x84c6:      cmp    dx,0x18
-   0x84ca:      jle    0x84bc
-   0x84cc:      mov    cx,0x7c40
-   0x84d0:      add    BYTE PTR [eax],al
-   0x84d2:      mov    eax,DWORD PTR [bx+di]
-   0x84d5:      mov    esi,0x4890730
+=> 0x8497:      mov    cx,0x8460
+   0x849b:      add    BYTE PTR [eax],al
+   0x849d:      mov    esi,0x8b670750
+   0x84a2:      add    DWORD PTR [ecx+0x46416604],ecx
+   0x84a8:      cmp    cx,0x8496
+   0x84ad:      add    BYTE PTR [eax],al
+   0x84af:      jle    0x84a0
+   0x84b1:      mov    cx,0x7cf5
+   0x84b5:      add    BYTE PTR [eax],al
+   0x84b7:      mov    dx,0x0
+   0x84bb:      add    BYTE PTR [eax],al
+   0x84bd:      mov    esi,0x8b670700
+   0x84c2:      add    DWORD PTR [ecx+0x46416604],ecx
+   0x84c8:      inc    dx
+   0x84ca:      cmp    dx,0x18
+   0x84ce:      jle    0x84c0
+   0x84d0:      mov    cx,0x7c40
+   0x84d4:      add    BYTE PTR [eax],al
+   0x84d6:      mov    eax,DWORD PTR [bx+di]
+   0x84d9:      mov    esi,0x4890730
