@@ -26,12 +26,23 @@ extern _cstart_
 StackPointer_Value:         dd 0x0
 
 entry:
+.clear_registers_0500_0900:
+    ; Setze den Wert von BX auf 0x500
+    mov bx, 0x500
+    ; Setze den Wert von CX auf 0x400 (0x900 - 0x500)
+    mov cx, 0x400
+    ; Fülle die Register von 0x500 bis 0x900 mit dem Wert 0x00
+.fillloop:
+    mov byte [bx], 0x00 ; Fülle das aktuelle Register mit 0x00
+    inc bx ; Inkrementiere BX
+    dec cx ; Decrementiere CX
+    jnz .fillloop ; Wiederhole die Schleife, solange CX nicht 0 ist
 .calc_sp:
     mov ecx, 0x400
     mov eax, [0x413]
     mul ecx
     mov [StackPointer_Value], eax
-    mov sp, 0xA00
+    mov sp, ax
     call do_e820
     cli
     lgdt [gdt_desc]
@@ -52,7 +63,7 @@ init:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    mov ebp, 0x9000
+    mov ebp, [StackPointer_Value]
     mov esp, ebp
     mov bl, Black
     shl bl, 4

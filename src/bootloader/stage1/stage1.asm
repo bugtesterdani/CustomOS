@@ -393,7 +393,7 @@ read_fat32:
 DAP:
 Size:       db 0x10
 Reserved:   db 0x00
-Sectors:    dw 0x02
+Sectors:    dw 0x04
 Buff_Off:   dw 0x8400
 Buff_Seg:   dw 0x0000
 LBA1:       dd 0x0B18

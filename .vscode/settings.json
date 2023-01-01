@@ -12,6 +12,7 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "asm.h": "c"
+        "asm.h": "c",
+        "stdio.h": "c"
     }
 }

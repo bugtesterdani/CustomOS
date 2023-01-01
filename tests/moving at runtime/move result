@@ -27,6 +27,10 @@ real-mode-gdb$ x/40x 0x8460
 0x84e0: 0x202d2082      0xd8e86600      0x58fffff7      0xc689f089
 0x84f0: 0x57000bb9      0x745fa6f3      0x20c78311      0xb97dcebe
 
+entschlüsselt:
+bc 00 07 e8 0a => mov sp, 0x700
+???
+
 
 vor dem kopieren:
 2. Commit:

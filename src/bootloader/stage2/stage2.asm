@@ -46,7 +46,7 @@ start:
     call set_in_dap_value
     ; MSB Buffer Offset
     mov al, 5
-    mov ah, 0x06
+    mov ah, 0x0A
     call set_in_dap_value
     ; LSB Buffer Offset
     mov al, 6
@@ -74,31 +74,58 @@ hlt:
 
 Exec_750:
     mov sp, 0x700
-    call 0x770
-    jmp dword 0xA00
-times 20-($-Exec_750) db 0
-read_fat_760:
+    mov si, 0x732
+    mov ecx, 0x790
+    mov [si], ecx
+    call [si]
+    mov ecx, 0xA00
+    mov si, 0x732
+    mov [si], ecx
+    jmp dword [si]
+times 64-($-Exec_750) db 0         ; 0x40 => 64
+read_fat_790:
     mov ah, 0x41
     mov bx, 0x55AA
     mov dl, [0x730]
     int 13h
-    jc .error - Exec_750 + 0x750
+paste_jc8501:
+    jc .paste_jc8501_error
+    mov ecx, 0x7D0
+    mov si, 0x732
+    mov [si], ecx
+    jmp [si]
+.paste_jc8501_error:
+    mov ecx, [$stage1.floppy_error]
+    mov si, 0x732
+    mov [si], ecx
+    jmp [si]
+times 64-($-read_fat_790) db 0     ; 0x40 => 64
+read_fat_7D0:
     mov ah, 0x42
     lea si, 0x700
     mov dl, [0x730]
     int 13h
-    jc .error - Exec_750 + 0x750
+paste_jc8502:
+    jc .paste_jc8502_error
     ret
-.error:
-    jmp [$stage1.floppy_error]
+.paste_jc8502_error:
+    mov ecx, [$stage1.floppy_error]
+    mov si, 0x732
+    mov [si], ecx
+    jmp [si]
+times 64-($-read_fat_7D0) db 0     ; 0x40 => 64
+
+Finish_750_8a0:
+times 16 db 0          ; So dass die nächste Funktion bei 0x8A0 anfängt.
 
 Finish_read:
+    ; jmp test_jc_stc
     ; Setze den neuen Stackpointer auf Addresse 0x700
     ; DAP Wird an Addresse 0x700 kopiert
     ; Dieser Teil hier zum jmp und der rest wird zur Addresse
     ; 0x750 kopiert und von dort dann ausgeführt. (maximal bis 0xA00)
     ; An Addresse 0xA00 wird Stage 3 geladen.
-.copyFunction:
+.copyFunction1:
     mov ecx, Exec_750               ; Start Address of executing Function in this file
     mov si, 0x750
 .loop1:
@@ -106,20 +133,20 @@ Finish_read:
     mov [si], ax
     inc ecx
     inc si
-    cmp ecx, Finish_read - 0x01     ; Check if it reaches this Function.
+    cmp ecx, Finish_750_8a0 - 0x01     ; Check if it reaches the first paste Function ( => 0x84f2)
     jle .loop1
 .copyDAP:
     mov ecx, [$stage1.DAP]
     mov edx, 0
     mov si, 0x700
-.loop3:
+.loop4:
     mov ax, [ecx]
     mov [si], ax
     inc ecx
     inc si
     inc edx
     cmp edx, 24
-    jle .loop3
+    jle .loop4
     ; Copy also DriveNumber from stage1 to Address: 0x730
 .copyDriveNumber:
     mov ecx, [$stage1.DriveNumber]
