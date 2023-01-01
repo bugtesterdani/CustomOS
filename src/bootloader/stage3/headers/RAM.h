@@ -25,7 +25,5 @@ struct RAM
 
 typedef struct RAM RAM_t;
 
-void RAM_Init();
+void RAM_FullInit();
 void ram_printSize(char *str, uint64_t size);
-void ram_parseToCharArr(char *str, uint16_t value, uint8_t charmax);
-void ram_subPrint(uint8_t size, uint64_t value);

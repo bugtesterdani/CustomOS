@@ -7,10 +7,12 @@
 #include "headers/gdt.h"
 #include "headers/idt.h"
 #include "headers/isr.h"
+#include "headers/RAM.h"
 
 void _cstart_()
 {
     initScreen();
+    RAM_FullInit();
     init_gdt();
     isr_init();
     irq_init();

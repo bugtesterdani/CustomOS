@@ -30,9 +30,9 @@ cd bootloader/stage3
 make
 cd ../..
 
-cd bootloader/stage4
-make
-cd ../..
+# cd bootloader/stage4
+# make
+# cd ../..
 
 # Build Image file to boot
 cd build
@@ -42,6 +42,6 @@ mcopy -i disk.img stage2.bin ::
 mcopy -i disk.img stage2.bin ::/stage22.bin
 # mcopy -i disk.img stage3.bin ::
 mcopy -i disk.img ../bootloader/stage3/build/stage3.bin ::
-mcopy -i disk.img ../bootloader/stage4/build/stage4.bin ::
+# mcopy -i disk.img ../bootloader/stage4/build/stage4.bin ::
 # mcopy -i disk.img stage4.bin ::
 dd if=boot.bin of=disk.img conv=notrunc

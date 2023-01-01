@@ -1,12 +1,31 @@
 #include "headers/fat32.h"
+#include "headers/memory_management.h"
+
 #include "headers/stdio.h"
-#include "headers/colors.h"
 #include "headers/isr.h"
 #include "headers/io.h"
-#include "headers/commands.h"
 
-void ReadParameter(FAT32_t* fat32)
+static uint64_t fat32_unique_ident = 0x10200000000;
+
+uint64_t ReadParameter()
 {
+    uint64_t memory_addr;
+    if ((fat32_unique_ident & 0xFFFF) == 0x00)
+    {
+        uint32_t memory_count = request_memory(50, &fat32_unique_ident);
+    }
+    else
+    {
+        return memory_get_addr(&fat32_unique_ident);
+    }
+    memory_addr = memory_get_addr(&fat32_unique_ident);
+    // Something went wrong
+    if (memory_addr == 0)
+    {
+        return 0;
+    }
+
+    FAT32_t* fat32 = (FAT32_t*)memory_addr;
     uint8_t sector_amount = 1;
     uint16_t outp[256 * sector_amount];
     ReadSectorsLBA(0, 0, sector_amount, outp);
@@ -81,6 +100,8 @@ void ReadParameter(FAT32_t* fat32)
 
     fat32->BackupBootSector[0] = ((outp[offset_fat32 + 24] >> 0) & 0xFF);
     fat32->BackupBootSector[1] = ((outp[offset_fat32 + 25] >> 8) & 0xFF);
+
+    return memory_addr;
 }
 
 void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest)

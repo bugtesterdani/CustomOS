@@ -39,9 +39,16 @@ void ParseCommand(char* commandline)
     }
     else if (strcmp(PartSplit, "oem"))
     {
-        FAT32_t fat32;
-        ReadParameter(&fat32);
-        printString(fat32.OEM_ID, White, Black);
+        uint64_t addr = ReadParameter();
+        if (addr != 0)
+        {
+            FAT32_t *fat32 = (FAT32_t*)addr;
+            printString(fat32->OEM_ID, White, Black);
+        }
+        else
+        {
+            printString("Something went wrong", White, Black);
+        }
     }
     // else if (strcmp(PartSplit, "devid"))
     // {
@@ -55,9 +62,19 @@ void ParseCommand(char* commandline)
     //     ConvertToChar((value >> 0)  & 0xFFFF, 16, outputint, _lastindex);
     //     printString(outputint, White, Black);
     // }
-    else if (strcmp(PartSplit, "ram"))
+    else if (strcmp(PartSplit, "lsfs"))
     {
-        RAM_Init();
+    }
+    else if (strcmp(PartSplit, "outpmem"))
+    {
+        uint8_t output[80];
+        clearArray(output, 80, 0x00);
+        uint32_t* memspace_counter = (uint32_t*)0x500;
+        uint32_t count = memspace_counter[0];
+        ConvertToChar((count >> 16) & 0xFFFF, 16, output, 0);
+        uint8_t _lastindex = lastIndex(output, 80);
+        ConvertToChar((count >> 0)  & 0xFFFF, 16, output, _lastindex);
+        printString(output, White, Black);
     }
     else if (strcmp(PartSplit, "ata"))
     {
@@ -214,44 +231,9 @@ void ParseCommand(char* commandline)
             setcursornewline();
         }
     }
-    else if (strcmp(PartSplit, "checkPart"))
-    {
-        uint8_t found = 0;
-        for (uint16_t i = 0; i < 32; i++)
-        {
-            for (uint16_t j = 0; j < 256; j++)
-            {
-                uint16_t value = pciCheckVendor(i, j);
-                if (value != 0xFFFF)
-                {
-                    found = 1;
-                    char outputint[20];
-                    clearArray(outputint, 20, 0x00);
-                    outputint[0] = 'F';
-                    outputint[1] = 'o';
-                    outputint[2] = 'u';
-                    outputint[3] = 'n';
-                    outputint[4] = 'd';
-                    outputint[5] = ' ';
-                    outputint[6] = '0';
-                    outputint[7] = 'x';
-                    ConvertToChar(i, 16, outputint, 8);
-                    uint8_t _lastindex = lastIndex(outputint, 20);
-                    ConvertToChar(j, 16, outputint, _lastindex);
-                    _lastindex = lastIndex(outputint, 20);
-                    outputint[_lastindex] = ' ';
-                    printString(outputint, White, Black);
-                }
-            }
-        }
-        if (found == 0)
-        {
-            printString("Nothing found", White, Black);
-        }
-    }
     else if (strcmp(PartSplit, "register"))
     {
-        // register_keyboard_callback();
+        //register_keyboard_callback();
     }
     else
     {

@@ -25,6 +25,6 @@ typedef struct FAT32
     uint8_t BackupBootSector[2];
 } __attribute__((packed)) FAT32_t;
 
-void ReadParameter(FAT32_t *fat32);
+uint64_t ReadParameter();
 void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest);
 uint8_t lastIndex(char *tmp, uint8_t max);
