@@ -4,7 +4,8 @@
 
 struct gdt_entry_struct
 {
-   uint16_t limit_low;        // Segment Size (Bits 15-6)
+   // Segment Size (Bits 15-6)
+   uint16_t limit_low;
    uint16_t base_low;         // Segment Base (/Offset) Address (Bits 15-0)
    uint8_t  base_middle;      // Segment Base (/Offset) Address (Bits 23-16)
    // Access:

@@ -64,6 +64,15 @@ void ParseCommand(char* commandline)
     // }
     else if (strcmp(PartSplit, "lsfs"))
     {
+        FAT_Folder_t *FolderStruct;
+        uint64_t count_folders;
+        GetListOfFiles(FolderStruct, &count_folders);
+        for (uint8_t i = 0; i < count_folders; i++)
+        {
+            uint8_t output[80];
+            printString(FolderStruct[i].NAME, White, Black);
+            setcursornewline();
+        }
     }
     else if (strcmp(PartSplit, "outpmem"))
     {

@@ -73,7 +73,7 @@ gdt_ptr_t g_GDTDescriptor = { sizeof(g_GDT) - 1, g_GDT};
 
 void asm_functions(gdt_flush(gdt_ptr_t* descriptor, uint16_t codeSegment, uint16_t dataSegment));
 
-void init_gdt()
+void init_gdt(uint64_t memory)
 {
     gdt_flush(&g_GDTDescriptor, 0x08, 0x10);
 }

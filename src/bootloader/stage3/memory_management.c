@@ -28,6 +28,17 @@ uint64_t memory_get_addr(uint64_t *unique_identifier)
     return memory[count].memory_start;
 }
 
+void unblock_memory(uint64_t *unique_identifier)
+{
+    uint32_t count = unique_identifier[0] & 0xFFFFFFFF;
+    if (memory[count].unique_identifier!= unique_identifier)
+    {
+        return;
+    }
+    memory[count].unique_identifier = 0x00;
+    memory[count].parameter = 0x00;
+}
+
 void freeup_memory(uint64_t *unique_identifier)
 {
     uint32_t count = unique_identifier[0] & 0xFFFFFFFF;
@@ -83,7 +94,7 @@ uint64_t request_memory(uint64_t size_request, uint64_t *unique_identifier)
         memory[counter].unique_identifier = unique_identifier;
         memspace_counter[0] = counter + 1;
         freeup_memory(unique_identifier);
-        return counter;
+        return memory[counter].memory_start;
     }
     return 0;
 }

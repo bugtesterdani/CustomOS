@@ -12,22 +12,21 @@ uint64_t ReadParameter()
     uint64_t memory_addr;
     if ((fat32_unique_ident & 0xFFFF) == 0x00)
     {
-        uint32_t memory_count = request_memory(50, &fat32_unique_ident);
+        memory_addr = request_memory(50, &fat32_unique_ident);
+        // Something went wrong
+        if (memory_addr == 0)
+        {
+            return 0;
+        }
     }
     else
     {
         return memory_get_addr(&fat32_unique_ident);
     }
-    memory_addr = memory_get_addr(&fat32_unique_ident);
-    // Something went wrong
-    if (memory_addr == 0)
-    {
-        return 0;
-    }
 
     FAT32_t* fat32 = (FAT32_t*)memory_addr;
     uint8_t sector_amount = 1;
-    uint16_t outp[256 * sector_amount];
+    uint64_t outp[256 * sector_amount];
     ReadSectorsLBA(0, 0, sector_amount, outp);
 
     uint8_t offset_fat32 = 1;
@@ -104,9 +103,46 @@ uint64_t ReadParameter()
     return memory_addr;
 }
 
-void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest)
+void GetListOfFiles(FAT_Folder_t *folderstruct, uint64_t *amount)
 {
-    uint16_t index, max, base, *buffer = (uint16_t *)dest;
+    uint64_t short_unique_ident = 0x10300000000;
+    uint64_t short_addr = request_memory(200, &short_unique_ident);
+    FAT32_t* fat32 = (FAT32_t*)ReadParameter();
+    uint32_t lba = 
+                    fat32->RootDirectoryStart[0] << 24 |
+                    fat32->RootDirectoryStart[1] << 16 |
+                    fat32->RootDirectoryStart[2] <<  8 |
+                    fat32->RootDirectoryStart[3] <<  0;
+    ReadSectorsLBA(0, lba, 1, &short_addr);
+    for (uint8_t i = 0; i < 200; i++)
+    {
+        uint8_t* values_addr = (uint8_t*)short_addr;
+        uint16_t byte_read = values_addr[i * 20 + 0];
+        if (byte_read == 0)
+        {
+            i = 200;
+            continue;
+        }
+        folderstruct[i].NAME[0] = byte_read;
+        folderstruct[i].NAME[1] = values_addr[i * 20 + 1];
+        folderstruct[i].NAME[2] = values_addr[i * 0x20 + 2];
+        folderstruct[i].NAME[3] = values_addr[i * 0x20 + 3];
+        folderstruct[i].NAME[4] = values_addr[i * 0x20 + 4];
+        folderstruct[i].NAME[5] = values_addr[i * 0x20 + 5];
+        folderstruct[i].NAME[6] = values_addr[i * 0x20 + 6];
+        folderstruct[i].NAME[7] = values_addr[i * 0x20 + 7];
+        folderstruct[i].NAME[8] = values_addr[i * 0x20 + 8];
+        folderstruct[i].NAME[9] = values_addr[i * 0x20 + 9];
+        folderstruct[i].NAME[10] = values_addr[i * 0x20 + 10];
+        *amount = i;
+    }
+    unblock_memory(&short_unique_ident);
+}
+
+void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint64_t *dest)
+{
+    uint16_t index, max, base;
+    uint64_t *buffer = (uint64_t *)dest;
     uint8_t drive = 0x40;
 
     switch (drive_num)
