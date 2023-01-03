@@ -5,3 +5,6 @@ https://www.henkessoft.de/OS_Dev/OS_Dev1.htm
 https://wiki.osdev.org/AHCI
 
 https://www.cs.princeton.edu/courses/archive/fall12/cos318/projects/project1/1.html
+
+http://www.techhelpmanual.com
+

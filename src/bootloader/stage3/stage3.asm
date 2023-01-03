@@ -43,7 +43,13 @@ entry:
     mul ecx
     mov [StackPointer_Value], eax
     mov sp, ax
+.load_ram_part:
     call do_e820
+; .change_vga_resolution:
+;     mov ah, 0x00
+;     mov al, 0x12
+;     int 0x10
+.change_to_protected_mode:
     cli
     lgdt [gdt_desc]
     mov eax, cr0

@@ -8,6 +8,7 @@
 #include "headers/idt.h"
 #include "headers/isr.h"
 #include "headers/RAM.h"
+#include "headers/monitor.h"
 
 void _cstart_()
 {
@@ -18,10 +19,19 @@ void _cstart_()
     irq_init();
     init_idt();
     enable_interrupts();
-    printString("Hello from C Code", White, Black);
-    setcursornewline();
-    printString("Hello World", White, Black);
-    setcursornewline();
+    setupmode(320, 200, 256);
+    for (uint32_t x = 0; x < 320; x++)
+    {
+        for (uint32_t y = 0; y < 200; y++)
+        {
+            putpixel(x, y, 0x01);
+        }
+    }
+
+    DrawRectAngle(10, 10, 300, 180, 1, 0x34);
+    FillRectangle(20, 20, 30, 30, 0x04);
+    FillRectangle(80, 20, 30, 30, 0x0A);
+    FillRectangle(80, 80, 30, 30, 0x0E);
 
     while (1)
     {
