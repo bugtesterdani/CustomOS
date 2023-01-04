@@ -1,5 +1,6 @@
 #include "headers/ata.h"
 #include "headers/io.h"
+#include "headers/pci.h"
 
 #include "headers/colors.h"
 #include "headers/screen.h"
@@ -7,7 +8,6 @@
 #include "headers/stdio.h"
 #include "headers/commands.h"
 #include "headers/fat32.h"
-#include "headers/pci.h"
 
 // Chat von OpenGPT zum Thema ATA
 // Ohne Zugriff auf Standardbibliotheken oder Betriebssystemfunktionen wäre es schwierig, auf ATA-Geräte zuzugreifen und Informationen darüber abzurufen. Um direkt auf die Hardware-Schnittstelle des Computers zuzugreifen und Befehle und Daten an das ATA-Gerät zu senden, müssten Sie tiefes Wissen über die Hardware-Schnittstelle des Computers und das ATA-Protokoll haben. Hier sind einige Schritte, die Sie unternehmen könnten, um auf diese Weise auf ATA-Geräte zuzugreifen:
@@ -65,12 +65,12 @@ void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit)
     if (returned[83] & 1 << 10 != 0)
     {
         ATADevices[count].isLBA48Supported = 1;
-        ATADevices[count].LBA48 = (returned[103] << 48) + (returned[102] << 32) + (returned[101] << 16) + returned[100];
+        ATADevices[count].LBA48 = ((uint64_t)returned[103] << 48) + ((uint64_t)returned[102] << 32) + ((uint64_t)returned[101] << 16) + (uint64_t)returned[100];
     }
     else
     {
         ATADevices[count].isLBA48Supported = 0;
-        ATADevices[count].LBA28 = (returned[61] << 16) + returned[60];
+        ATADevices[count].LBA28 = ((uint64_t)returned[61] << 16) + (uint64_t)returned[60];
         if (ATADevices[count].LBA28 == 0)
         {
             return;

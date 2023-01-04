@@ -40,6 +40,8 @@ dd if=/dev/zero of=disk.img bs=512 count=1440000
 mformat -F -i disk.img ::
 mcopy -i disk.img stage2.bin ::
 mcopy -i disk.img stage2.bin ::/stage22.bin
+mmd -i disk.img ::/folder
+mmd -i disk.img ::/folder/subfolder
 # mcopy -i disk.img stage3.bin ::
 mcopy -i disk.img ../bootloader/stage3/build/stage3.bin ::
 # mcopy -i disk.img ../bootloader/stage4/build/stage4.bin ::

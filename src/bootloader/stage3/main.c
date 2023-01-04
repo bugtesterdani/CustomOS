@@ -19,6 +19,8 @@ void _cstart_()
     irq_init();
     init_idt();
     enable_interrupts();
+
+#ifdef SetVGAMode
     setupmode(320, 200, 256);
     for (uint32_t x = 0; x < 320; x++)
     {
@@ -32,6 +34,7 @@ void _cstart_()
     FillRectangle(20, 20, 30, 30, 0x04);
     FillRectangle(80, 20, 30, 30, 0x0A);
     FillRectangle(80, 80, 30, 30, 0x0E);
+#endif
 
     while (1)
     {

@@ -12,6 +12,8 @@
 #include "headers/ata.h"
 #include "headers/RAM.h"
 
+#include "headers/memory_management.h"
+
 void ParseCommand(char* commandline)
 {
     char PartSplit[60];
@@ -44,6 +46,17 @@ void ParseCommand(char* commandline)
         {
             FAT32_t *fat32 = (FAT32_t*)addr;
             printString(fat32->OEM_ID, White, Black);
+            uint8_t output[80];
+            clearArray(output, 80, 0x00);
+            ConvertToChar(fat32->RootDirectoryStart[3], 16, output, 0);
+            uint8_t _lastindex = lastIndex(output, 80);
+            ConvertToChar(fat32->RootDirectoryStart[2], 16, output, _lastindex);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar(fat32->RootDirectoryStart[1], 16, output, _lastindex);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar(fat32->RootDirectoryStart[0], 16, output, _lastindex);
+            printString(output, White, Black);
+            setcursornewline();
         }
         else
         {
@@ -76,14 +89,24 @@ void ParseCommand(char* commandline)
     }
     else if (strcmp(PartSplit, "outpmem"))
     {
+        // Funktioniert nicht ganz so wie gedacht.
         uint8_t output[80];
-        clearArray(output, 80, 0x00);
-        uint32_t* memspace_counter = (uint32_t*)0x500;
-        uint32_t count = memspace_counter[0];
-        ConvertToChar((count >> 16) & 0xFFFF, 16, output, 0);
-        uint8_t _lastindex = lastIndex(output, 80);
-        ConvertToChar((count >> 0)  & 0xFFFF, 16, output, _lastindex);
-        printString(output, White, Black);
+        uint8_t* memspace_counter = (uint32_t*)0x500;
+        memory_table_t *memory = (memory_table_t*)0x510;
+        for (uint8_t i = 0; i < memspace_counter[0]; i++)
+        {
+            clearArray(output, 80, 0x00);
+            ConvertToChar((memory[i].memory_start >> 16) & 0xFFFF, 16, output, 0);
+            uint8_t _lastindex = lastIndex(output, 80);
+            ConvertToChar((memory[i].memory_start >> 0)  & 0xFFFF, 16, output, _lastindex);
+            _lastindex = lastIndex(output, 80);
+            output[_lastindex] = ' ';
+            ConvertToChar((memory[i].memory_size  >> 16) & 0xFFFF, 16, output, _lastindex + 1);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar((memory[i].memory_size  >> 0)  & 0xFFFF, 16, output, _lastindex);
+            printString(output, White, Black);
+            setcursornewline();
+        }
     }
     else if (strcmp(PartSplit, "ata"))
     {
@@ -248,31 +271,6 @@ void ParseCommand(char* commandline)
     {
         printString("Command not now implemented please again.", White, Black);
     }
-}
-
-void printDevID(uint8_t busid)
-{
-    // char outputint[20];
-    // uint32_t value;
-    // uint8_t _lastindex;
-    // for (uint16_t i = busid; i < (busid + 8); i++)
-    // {
-    //     for (uint8_t j = 0; j < 8; j++)
-    //     {
-    //         value = pciDevice(i, j);
-    //         clearArray(outputint, 20, 0x00);
-    //         ConvertToChar(((i * 8) + j), 10, outputint, 0);
-    //         _lastindex = lastIndex(outputint, 20);
-    //         outputint[_lastindex + 0] = 'x';
-    //         ConvertToChar(((value >> 16) & 0xFFFF), 16, outputint, _lastindex + 1);
-    //         _lastindex = lastIndex(outputint, 20);
-    //         outputint[_lastindex + 0] = ':';
-    //         ConvertToChar(((value >> 0) & 0xFFFF), 16, outputint, _lastindex + 1);
-    //         _lastindex = lastIndex(outputint, 20);
-    //         outputint[_lastindex] = ' ';
-    //         printString(outputint, White, Black);
-    //     }
-    // }
 }
 
 void SplitParameters(char* line, int *start_pos, char* PartSplit)
