@@ -115,7 +115,7 @@ void GetListOfFiles(FAT_Folder_t *folderstruct, uint64_t *amount)
     // FirstDataSector = ReservedSectors + (TotalFATs * BigSectorsPerFAT) + MaxRootEntries
     // FirstSectorOfCluster = ((RootDirectoryStart - 2) * SectorsPerCluster) + FirstDataSector
     // RootDirectoryStart = FirstSectorOfCluster * BytesPerSector
-    uint32_t FirstDataSector =  (*((uint32_t*)fat32->ReservedSectors)) + 
+    uint32_t FirstDataSector =  (*((uint16_t*)fat32->ReservedSectors)) + 
                                 ((*((uint8_t*)fat32->TotalFATs)) * (*((uint32_t*)fat32->BigSectorsPerFAT))) +
                                 (*((uint16_t*)fat32->MaxRootEntries));
     uint32_t FirstSectorOfCluster = (((*((uint32_t*)fat32->RootDirectoryStart)) - 2) * (*((uint8_t*)fat32->SectorsPerCluster))) + 
@@ -130,18 +130,6 @@ void GetListOfFiles(FAT_Folder_t *folderstruct, uint64_t *amount)
     {
         clearArray(output, 80, 0x00);
         output[0] = ' ';
-        ConvertToChar(((FirstSectorOfCluster >> 16) & 0xFFFF), 16, output, 1);
-        _lastindex = lastIndex(output, 80);
-        output[_lastindex] = ' ';
-        ConvertToChar(((FirstSectorOfCluster >>  0) & 0xFFFF), 16, output, _lastindex + 1);
-        printString(output, White, Black);
-        _lastindex = lastIndex(output, 80);
-    }
-    setcursornewline();
-    for (uint16_t i = 0; i < 25; i++)
-    {
-        clearArray(output, 80, 0x00);
-        output[0] = ' ';
         ConvertToChar(((short_addr[i] >> 8) & 0xFF), 16, output, 1);
         _lastindex = lastIndex(output, 80);
         output[_lastindex] = ' ';
@@ -152,20 +140,20 @@ void GetListOfFiles(FAT_Folder_t *folderstruct, uint64_t *amount)
     setcursornewline();
     *amount = 0;
 
-    // for (uint8_t i = 0; i < 200; i++)
-    // {
-    //     uint8_t* addr_bytes = &short_addr[i * 20];
-    //     if (addr_bytes[0] == 0)
-    //     {
-    //         i = 200;
-    //         continue;
-    //     }
-    //     for (uint8_t j = 0; j < 11; j++)
-    //     {
-    //         folderstruct[i].NAME[j] = addr_bytes[j];
-    //     }
-    //     amount[0] = i;
-    // }
+    for (uint8_t i = 0; i < 200; i++)
+    {
+        uint8_t* addr_bytes = &short_addr[i * 20];
+        if (addr_bytes[0] == 0)
+        {
+            i = 200;
+            continue;
+        }
+        for (uint8_t j = 0; j < 11; j++)
+        {
+            folderstruct[i].NAME[j] = addr_bytes[j];
+        }
+        amount[0] = i;
+    }
 }
 
 void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint64_t *dest)

@@ -22,13 +22,38 @@ void RAM_FullInit()
         RAM[i].Type = *(uint32_t*)(RAM_OFFSET + 0x14 + i * 0x18);
         RAM[i].ExtendedPart = *(uint32_t*)(RAM_OFFSET + 0x18 + i * 0x18);
         // Verarbeite Eintrag ...
-        setcursornewline();
     }
 
     uint32_t* _memory_pointer = (uint32_t*)0x500;
     for (uint64_t i = 0; i < ((0x900 - 0x500) / (32 / 8)); i++)
     {
         _memory_pointer[i] = (uint32_t)0x00;
+    }
+
+    uint8_t output[80];
+    uint8_t _lastindex;
+    for (uint16_t i = 0; i < size_RAM; i++)
+    {
+        clearArray(output, 80, 0x00);
+        output[0] = ' ';
+        ConvertToChar(((RAM[i].BaseAddress >> 48) & 0xFFFF), 16, output, 1);
+        _lastindex = lastIndex(output, 80);
+        ConvertToChar(((RAM[i].BaseAddress >> 32) & 0xFFFF), 16, output, _lastindex);
+        _lastindex = lastIndex(output, 80);
+        ConvertToChar(((RAM[i].BaseAddress >> 16) & 0xFFFF), 16, output, _lastindex);
+        _lastindex = lastIndex(output, 80);
+        ConvertToChar(((RAM[i].BaseAddress >>  0) & 0xFFFF), 16, output, _lastindex);
+        _lastindex = lastIndex(output, 80);
+        output[_lastindex] = ' ';
+        ConvertToChar(((RAM[i].Size >> 48) & 0xFFFF), 16, output, _lastindex);
+        _lastindex = lastIndex(output, 80);
+        ConvertToChar(((RAM[i].Size >> 32) & 0xFFFF), 16, output, _lastindex);
+        _lastindex = lastIndex(output, 80);
+        ConvertToChar(((RAM[i].Size >> 16) & 0xFFFF), 16, output, _lastindex);
+        _lastindex = lastIndex(output, 80);
+        ConvertToChar(((RAM[i].Size >>  0) & 0xFFFF), 16, output, _lastindex);
+        printString(output, White, Black);
+        setcursornewline();
     }
 
     uint64_t sizeBytes_usedKernel = 0;

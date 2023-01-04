@@ -1,6 +1,16 @@
 #!/bin/bash
 
 sudo docker run -t -d --name compile_runner compile_image
+status=$?
+if [ $status -ne 0 ]; then
+    echo "Docker Image nicht vorhanden ?!"
+    sudo docker build --tag compile_image .
+    status=$?
+    if [ $status -ne 0 ]; then
+        echo "Error. Docker Image schon vorhanden, kann nicht aber gestartet werden?!?"
+        return $status
+    fi
+fi
 
 rm src.tar.gz
 tar -czf src.tar.gz src
@@ -29,7 +39,7 @@ vboxmanage convertfromraw --format VDI --uuid=220868a3-515d-4693-875f-491f7bf306
 chmod +w build/disk.vdi
 
 # Start debugging Instance
-qemu-system-x86_64 -s -S -m 32 -hda build/disk.img &
+qemu-system-x86_64 -s -S -m 16 -hda build/disk.img &
 # qemu-system-i386 -s -S -hda build/disk.img &
 #gdb -ix "gdb_init_real_mode.txt" build/stage3.elf -ex "target remote localhost:1234" -ex "br *0x7c00" -ex "br *0x8000" -ex "br *0x8400" -ex "c"
 gdb -ix "gdb_init_test.txt" -ex "target remote localhost:1234" -ex "c"
