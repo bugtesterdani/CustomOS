@@ -10,9 +10,9 @@
 
 void RAM_FullInit()
 {
-    RAM_t* RAM;
     uint8_t* values = (uint8_t*)RAM_OFFSET;
     uint8_t size_RAM = values[0];
+    RAM_t* RAM = (RAM_t*)(RAM_OFFSET + 0x04 + (size_RAM * 0x18));
 
     for (int i = 0; i < values[0]; i++)
     {
@@ -24,36 +24,10 @@ void RAM_FullInit()
         // Verarbeite Eintrag ...
     }
 
-    uint32_t* _memory_pointer = (uint32_t*)0x500;
-    for (uint64_t i = 0; i < ((0x900 - 0x500) / (32 / 8)); i++)
+    uint32_t* _memory_pointer = (uint32_t*)RAM_OFFSET;
+    for (uint32_t i = 0; i < ((values[0] * 0x06) + 0x01); i++)
     {
         _memory_pointer[i] = (uint32_t)0x00;
-    }
-
-    uint8_t output[80];
-    uint8_t _lastindex;
-    for (uint16_t i = 0; i < size_RAM; i++)
-    {
-        clearArray(output, 80, 0x00);
-        output[0] = ' ';
-        ConvertToChar(((RAM[i].BaseAddress >> 48) & 0xFFFF), 16, output, 1);
-        _lastindex = lastIndex(output, 80);
-        ConvertToChar(((RAM[i].BaseAddress >> 32) & 0xFFFF), 16, output, _lastindex);
-        _lastindex = lastIndex(output, 80);
-        ConvertToChar(((RAM[i].BaseAddress >> 16) & 0xFFFF), 16, output, _lastindex);
-        _lastindex = lastIndex(output, 80);
-        ConvertToChar(((RAM[i].BaseAddress >>  0) & 0xFFFF), 16, output, _lastindex);
-        _lastindex = lastIndex(output, 80);
-        output[_lastindex] = ' ';
-        ConvertToChar(((RAM[i].Size >> 48) & 0xFFFF), 16, output, _lastindex);
-        _lastindex = lastIndex(output, 80);
-        ConvertToChar(((RAM[i].Size >> 32) & 0xFFFF), 16, output, _lastindex);
-        _lastindex = lastIndex(output, 80);
-        ConvertToChar(((RAM[i].Size >> 16) & 0xFFFF), 16, output, _lastindex);
-        _lastindex = lastIndex(output, 80);
-        ConvertToChar(((RAM[i].Size >>  0) & 0xFFFF), 16, output, _lastindex);
-        printString(output, White, Black);
-        setcursornewline();
     }
 
     uint64_t sizeBytes_usedKernel = 0;
@@ -64,6 +38,10 @@ void RAM_FullInit()
     {
         // RAM_t RAM = RAM_Values[i];
         RAM_t RAM_Value = RAM[i];
+        for (uint8_t j = 0; j < 0x06; j++)
+        {
+            _memory_pointer[((values[0] * 0x06) + 0x01) + j] = (uint32_t)0x00;
+        }
         uint8_t tmp_char[80];
         switch (RAM_Value.Type)
         {
@@ -97,6 +75,12 @@ void RAM_FullInit()
                 break;
         }
     }
+
+    for (uint32_t i = 0; i < (((0x900 - RAM_OFFSET) / (32 / 8)) - (((values[0] * 0x06) + 0x01) * 2)); i++)
+    {
+        _memory_pointer[((values[0] * 0x06) + 0x01) + i] = (uint32_t)0x00;
+    }
+
     ram_printSize("Available:     ", sizeBytes_Available);
     ram_printSize("Used by Kernel:", sizeBytes_usedKernel);
     ram_printSize("Total:         ", sizeBytes_Total);

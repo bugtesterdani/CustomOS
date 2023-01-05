@@ -2,8 +2,6 @@
 
 // To use 264Bit
 memory_table_t *memory = (memory_table_t*)0x510;
-// To use 500Bit => Support only for now 2GB with 4kBit Pages
-uint32_t *memory_params = (uint32_t*)0x80C;
 uint32_t* memspace_counter = (uint32_t*)0x500;
 
 uint8_t checkRAM(RAM_t *RAM);
@@ -38,4 +36,12 @@ uint8_t checkRAM(RAM_t *RAM)
         return 0;
     }
     return 1;
+}
+
+void memcp(uint8_t *src, uint8_t *dst, uint8_t start, uint8_t count, uint8_t offset_dst)
+{
+    for (uint16_t i = start; i < count; i++)
+    {
+        dst[i + offset_dst] = src[i];
+    }
 }

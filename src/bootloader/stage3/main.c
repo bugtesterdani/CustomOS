@@ -36,9 +36,9 @@ void _cstart_()
     FillRectangle(80, 80, 30, 30, 0x0E);
 #endif
 
+    char Buff[60];
     while (1)
     {
-        char Buff[60];
         clearArray(Buff, 60, 0x00);
         printString("> ", White, Black);
         setcursorX(2);

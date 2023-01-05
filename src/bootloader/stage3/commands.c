@@ -77,13 +77,15 @@ void ParseCommand(char* commandline)
     // }
     else if (strcmp(PartSplit, "lsfs"))
     {
-        FAT_Folder_t *FolderStruct;
-        uint64_t count_folders;
+        FAT_Folder_t FolderStruct[10];
+        uint32_t count_folders = 0;
         GetListOfFiles(FolderStruct, &count_folders);
-        for (uint8_t i = 0; i < count_folders; i++)
+        for (uint64_t i = 0; i < count_folders; i++)
         {
-            uint8_t output[80];
-            printString(FolderStruct[i].NAME, White, Black);
+            uint8_t print_nane[12];
+            clearArray(print_nane, 12, 0x00);
+            memcp(FolderStruct[i].NAME, print_nane, 0, 11, 0);
+            printString(print_nane, White, Black);
             setcursornewline();
         }
     }
@@ -91,7 +93,7 @@ void ParseCommand(char* commandline)
     {
         // Funktioniert nicht ganz so wie gedacht.
         uint8_t output[80];
-        uint8_t* memspace_counter = (uint32_t*)0x500;
+        uint8_t* memspace_counter = (uint8_t*)0x500;
         memory_table_t *memory = (memory_table_t*)0x510;
         for (uint8_t i = 0; i < memspace_counter[0]; i++)
         {

@@ -5,11 +5,11 @@
 #include "headers/isr.h"
 #include "headers/io.h"
 
-#include "headers/colors.h"
-#include "headers/screen.h"
-#include "headers/string.h"
-#include "headers/stdio.h"
-#include "headers/commands.h"
+// #include "headers/colors.h"
+// #include "headers/screen.h"
+// #include "headers/string.h"
+// #include "headers/stdio.h"
+// #include "headers/commands.h"
 
 uint64_t ReadParameter()
 {
@@ -17,23 +17,8 @@ uint64_t ReadParameter()
 
     FAT32_t* fat32 = (FAT32_t*)memory_addr;
     uint8_t sector_amount = 1;
-    uint64_t outp[256 * sector_amount];
+    uint16_t outp[256 * sector_amount];
     ReadSectorsLBA(0, 0, sector_amount, outp);
-
-    // uint8_t output[80];
-    // uint8_t _lastindex;
-    // for (uint8_t i = 0; i < 25; i++)
-    // {
-    //     clearArray(output, 80, 0x00);
-    //     output[0] = ' ';
-    //     ConvertToChar(((outp[1 + i] >> 8) & 0xFF), 16, output, 1);
-    //     _lastindex = lastIndex(output, 80);
-    //     output[_lastindex] = ' ';
-    //     ConvertToChar(((outp[1 + i] >> 0) & 0xFF), 16, output, _lastindex + 1);
-    //     printString(output, White, Black);
-    //     _lastindex = lastIndex(output, 80);
-    // }
-    // setcursornewline();
 
     uint8_t offset_fat32 = 1;
 
@@ -108,58 +93,58 @@ uint64_t ReadParameter()
     return memory_addr;
 }
 
-void GetListOfFiles(FAT_Folder_t *folderstruct, uint64_t *amount)
+void GetListOfFiles(FAT_Folder_t *folderstruct, uint32_t *amount)
 {
     FAT32_t* fat32 = (FAT32_t*)ReadParameter();
-    // Root Dir Start:
-    // FirstDataSector = ReservedSectors + (TotalFATs * BigSectorsPerFAT) + MaxRootEntries
-    // FirstSectorOfCluster = ((RootDirectoryStart - 2) * SectorsPerCluster) + FirstDataSector
-    // RootDirectoryStart = FirstSectorOfCluster * BytesPerSector
     uint32_t FirstDataSector =  (*((uint16_t*)fat32->ReservedSectors)) + 
                                 ((*((uint8_t*)fat32->TotalFATs)) * (*((uint32_t*)fat32->BigSectorsPerFAT))) +
                                 (*((uint16_t*)fat32->MaxRootEntries));
-    uint32_t FirstSectorOfCluster = (((*((uint32_t*)fat32->RootDirectoryStart)) - 2) * (*((uint8_t*)fat32->SectorsPerCluster))) + 
+    uint32_t FirstSectorOfCluster = (((*((uint32_t*)fat32->RootDirectoryStart)) - 2) * fat32->SectorsPerCluster) + 
                                     FirstDataSector;
     
-    uint64_t* short_addr = (uint64_t*)0x100050;
-    ReadSectorsLBA(0, FirstSectorOfCluster, 1, short_addr);
-
-    uint8_t output[80];
-    uint8_t _lastindex;
-    for (uint16_t i = 0; i < 25; i++)
+    uint16_t* short_addr = (uint16_t*)0x100050;
+    uint8_t read_sector = 0;
+    for (uint16_t k = 0; k < 0x10; k++)
     {
-        clearArray(output, 80, 0x00);
-        output[0] = ' ';
-        ConvertToChar(((short_addr[i] >> 8) & 0xFF), 16, output, 1);
-        _lastindex = lastIndex(output, 80);
-        output[_lastindex] = ' ';
-        ConvertToChar(((short_addr[i] >> 0) & 0xFF), 16, output, _lastindex + 1);
-        printString(output, White, Black);
-        _lastindex = lastIndex(output, 80);
-    }
-    setcursornewline();
-    *amount = 0;
+        ReadSectorsLBA(0, FirstSectorOfCluster + k, 1, short_addr);
+        uint8_t count = 0;
+        for (uint8_t i = 0; i < 0x20; i++)
+        {
+            uint16_t *values = ((uint16_t*)&(short_addr[i * 0x10]));
+            count += 1;
+            if (((values[0] >> 8) & 0xFF) == 0)
+            {
+                i = 0x20;
+            }
+        }
 
-    for (uint8_t i = 0; i < 200; i++)
-    {
-        uint8_t* addr_bytes = &short_addr[i * 20];
-        if (addr_bytes[0] == 0)
+        if (count <= 1)
         {
-            i = 200;
-            continue;
+            return;
         }
-        for (uint8_t j = 0; j < 11; j++)
+
+        for (uint8_t i = 0; i < count; i++)
         {
-            folderstruct[i].NAME[j] = addr_bytes[j];
+            uint16_t *values = ((uint16_t*)&(short_addr[i * 0x10]));
+            for (uint8_t j = 0; j < 11; j++)
+            {
+                folderstruct[i].NAME[j] = ((values[j / 2] >> (8 * (1 - (j % 2)))) & 0xFF);
+            }
         }
-        amount[0] = i;
+
+        amount[0] += count - 1;
+
+        if (count < 0x21)
+        {
+            return;
+        }
+        read_sector++;
     }
 }
 
-void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint64_t *dest)
+void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest)
 {
     uint16_t index, max, base;
-    uint64_t *buffer = (uint64_t *)dest;
     uint8_t drive = 0x40;
 
     switch (drive_num)
@@ -196,7 +181,7 @@ void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count,
     for (index = 0; index < max; index++)
     {
         uint16_t value = inw(base + 0);
-        buffer[index] = (((value & 0xFF) << 8) | ((value >> 8) & 0xFF));
+        dest[index] = (((value & 0xFF) << 8) | ((value >> 8) & 0xFF));
     }
 }
 

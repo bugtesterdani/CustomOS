@@ -13,6 +13,7 @@
         "type_traits": "c",
         "utility": "c",
         "asm.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "commands.h": "c"
     }
 }
