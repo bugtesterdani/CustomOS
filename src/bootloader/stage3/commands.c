@@ -46,16 +46,6 @@ void ParseCommand(char* commandline)
         {
             FAT32_t *fat32 = (FAT32_t*)addr;
             printString(fat32->OEM_ID, White, Black);
-            uint8_t output[80];
-            clearArray(output, 80, 0x00);
-            ConvertToChar(fat32->RootDirectoryStart[3], 16, output, 0);
-            uint8_t _lastindex = lastIndex(output, 80);
-            ConvertToChar(fat32->RootDirectoryStart[2], 16, output, _lastindex);
-            _lastindex = lastIndex(output, 80);
-            ConvertToChar(fat32->RootDirectoryStart[1], 16, output, _lastindex);
-            _lastindex = lastIndex(output, 80);
-            ConvertToChar(fat32->RootDirectoryStart[0], 16, output, _lastindex);
-            printString(output, White, Black);
             setcursornewline();
         }
         else

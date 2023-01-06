@@ -14,6 +14,8 @@ void RAM_FullInit()
     uint8_t size_RAM = values[0];
     RAM_t* RAM = (RAM_t*)(RAM_OFFSET + 0x04 + (size_RAM * 0x18));
 
+    uint8_t output[80];
+    uint8_t _lastindex;
     for (int i = 0; i < values[0]; i++)
     {
         // Lese Eintrag aus Speicher
@@ -22,6 +24,74 @@ void RAM_FullInit()
         RAM[i].Type = *(uint32_t*)(RAM_OFFSET + 0x14 + i * 0x18);
         RAM[i].ExtendedPart = *(uint32_t*)(RAM_OFFSET + 0x18 + i * 0x18);
         // Verarbeite Eintrag ...
+        clearArray(output, 80, 0x00);
+        uint8_t baseaddr[20];
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].BaseAddress) >> 48) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, 0, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].BaseAddress) >> 32) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].BaseAddress) >> 16) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].BaseAddress) >>  0) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        output[_lastindex] = ' ';
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].Size) >> 48) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex + 1, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].Size) >> 32) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].Size) >> 16) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].Size) >>  0) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        output[_lastindex] = ' ';
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].Type) >> 16) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex + 1, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].Type) >>  0) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        output[_lastindex] = ' ';
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].ExtendedPart) >> 16) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex + 1, 20);
+        _lastindex = lastIndex(output, 80);
+        clearArray(baseaddr, 20, 0x00);
+        ConvertToChar(((RAM[i].ExtendedPart) >>  0) & 0xFFFF, 16, baseaddr, 0);
+        FillStrSize(baseaddr, '0', 4);
+        strapp(output, baseaddr, _lastindex, 20);
+        _lastindex = lastIndex(output, 80);
+        output[_lastindex] = ' ';
+        printString(output, White, Black);
+        setcursornewline();
     }
 
     uint32_t* _memory_pointer = (uint32_t*)RAM_OFFSET;
@@ -80,6 +150,8 @@ void RAM_FullInit()
     {
         _memory_pointer[((values[0] * 0x06) + 0x01) + i] = (uint32_t)0x00;
     }
+
+    register_memory_map();
 
     ram_printSize("Available:     ", sizeBytes_Available);
     ram_printSize("Used by Kernel:", sizeBytes_usedKernel);
