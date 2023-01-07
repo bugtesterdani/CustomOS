@@ -9,9 +9,9 @@
 #include "headers/isr.h"
 #include "headers/RAM.h"
 #include "headers/monitor.h"
-
 #include "headers/memory_management.h"
 #include "headers/fat32.h"
+#include "headers/initialize.h"
 
 #define SYSTEM_MEMORY   4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
@@ -21,13 +21,14 @@ void _cstart_()
     RAM_FullInit();
     uint32_t address = 0;
     uint32_t offset = 0;
-    allocate_blocks(&address, &offset, SYSTEM_MEMORY);
-    initScreen(address + offset);
-    init_gdt(address + offset);
-    isr_init(address + offset);
-    irq_init(address + offset);
-    init_idt(address + offset);
-    enable_interrupts(address + offset);
+    allocate_block(&address, &offset, SYSTEM_MEMORY);
+    InitializeAddresses(address + offset);
+    initScreen();
+    init_gdt();
+    isr_init();
+    irq_init();
+    init_idt();
+    enable_interrupts();
 
 #ifdef SetVGAMode
     setupmode(320, 200, 256);

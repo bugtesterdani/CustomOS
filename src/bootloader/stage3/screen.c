@@ -3,8 +3,14 @@
 #include "headers/io.h"
 
 uint8_t* g_ScreenBuffer = (uint8_t*)SCREEN_ADDR;
-uint8_t ScreenX = 0;
-uint8_t ScreenY = 0;
+static uint8_t *ScreenX;
+static uint8_t *ScreenY;
+
+void screen_setup_static(uint32_t address_X, uint32_t address_Y)
+{
+    ScreenX = (uint8_t*)address_X;
+    ScreenY = (uint8_t*)address_Y;
+}
 
 void putcharp(int x, int y, char character, uint8_t color)
 {
@@ -14,10 +20,10 @@ void putcharp(int x, int y, char character, uint8_t color)
 
 void putchar(char character, uint8_t color)
 {
-    g_ScreenBuffer[2 * (ScreenY * SCREEN_WIDTH + ScreenX)] = character;
-    g_ScreenBuffer[2 * (ScreenY * SCREEN_WIDTH + ScreenX) + 1] = color;
-    ScreenX++;
-    if (ScreenX < 80)
+    g_ScreenBuffer[2 * (*ScreenY * SCREEN_WIDTH + *ScreenX)] = character;
+    g_ScreenBuffer[2 * (*ScreenY * SCREEN_WIDTH + *ScreenX) + 1] = color;
+    *ScreenX = *ScreenX + 1;
+    if (*ScreenX < 80)
     {
         return;
     }
@@ -31,12 +37,12 @@ char getchar(int x, int y)
 
 uint8_t getXPos()
 {
-    return ScreenX;
+    return *ScreenX;
 }
 
 uint8_t getYPos()
 {
-    return ScreenY;
+    return *ScreenY;
 }
 
 uint8_t getColor(int x, int y)
@@ -46,22 +52,22 @@ uint8_t getColor(int x, int y)
 
 void setcursor(int x, int y)
 {
-    ScreenX = x;
-    ScreenY = y;
+    *ScreenX = x;
+    *ScreenY = y;
     updatePos();
 }
 
 void setcursorX(int x)
 {
-    ScreenX = x;
+    *ScreenX = x;
     updatePos();
 }
 
 void setcursornewline()
 {
-    ScreenX = 0;
-    ScreenY++;
-    if (ScreenY == 25)
+    *ScreenX = 0;
+    *ScreenY += 1;
+    if (*ScreenY == 25)
     {
         scrollDown();
     }
@@ -70,7 +76,7 @@ void setcursornewline()
 
 void updatePos()
 {
-    unsigned short    position=(ScreenY*80) + ScreenX;
+    unsigned short    position=(*ScreenY * 80) + *ScreenX;
     // cursor LOW port to vga INDEX register
     outb(0x3D4, 0x0F);
     outb(0x3D5, (unsigned char)(position&0xFF));
@@ -107,5 +113,5 @@ void scrollDown()
             putcharp(x, y, '\0', DEFAULT_COLOR);
         }
     }
-    ScreenY -= 1;
+    *ScreenY -= 1;
 }

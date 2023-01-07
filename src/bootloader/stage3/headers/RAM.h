@@ -26,4 +26,3 @@ struct RAM
 typedef struct RAM RAM_t;
 
 void RAM_FullInit();
-void ram_printSize(char *str, uint64_t size);

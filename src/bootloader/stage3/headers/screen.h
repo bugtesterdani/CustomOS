@@ -8,6 +8,7 @@
 
 #define SCREEN_ADDR 0xB8000
 
+void screen_setup_static(uint32_t address_X, uint32_t address_Y);
 void putcharp(int x, int y, char character, uint8_t color);
 void putchar(char character, uint8_t color);
 void setcursor(int x, int y);
