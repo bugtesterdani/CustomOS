@@ -23,11 +23,10 @@ unsigned int tmp_FetchScancode()
     return( inb(0x60)); // get scan code from the keyboard
 }
 
-int tmp_ShiftKeyDown;
-
 unsigned int tmp_FetchAndAnalyzeScancode()
 {
     unsigned int scancode;
+    int ShiftKeyDown;
     while(1) // Loop until a key to be pressed
     {
         // Wait for the key
@@ -38,16 +37,16 @@ unsigned int tmp_FetchAndAnalyzeScancode()
         {
             scancode &= 0x7F; // Key was released, compare only low seven bits: 01111111b = 0x7F
             if ( scancode == KRLEFT_SHIFT || scancode == KRRIGHT_SHIFT ) // A key was released, shift key up?
-                tmp_ShiftKeyDown = 0x00;
+                ShiftKeyDown = 0x00;
             continue;
         }
 
         if ( scancode == KRLEFT_SHIFT || scancode == KRRIGHT_SHIFT )
         {
-            tmp_ShiftKeyDown = 0x80;
+            ShiftKeyDown = 0x80;
             continue;
         }
-        return scancode | tmp_ShiftKeyDown;
+        return scancode | ShiftKeyDown;
     }
 }
 

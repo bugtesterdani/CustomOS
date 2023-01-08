@@ -21,11 +21,10 @@ unsigned int FetchScancode()
     return( inb(0x60)); // get scan code from the keyboard
 }
 
-int ShiftKeyDown;
-
 unsigned int FetchAndAnalyzeScancode()
 {
     unsigned int scancode;
+    int ShiftKeyDown;
     while(1) // Loop until a key to be pressed
     {
         // Wait for the key
