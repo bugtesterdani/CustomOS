@@ -313,3 +313,4 @@ void irq_init();
 void enable_interrupts();
 void isr_register(int interrupt, ISRHandler handler);
 void irq_register(int interrupt, ISRHandler handler);
+void ISR_setup_static(uint32_t address);

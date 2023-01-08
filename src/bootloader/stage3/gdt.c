@@ -51,29 +51,48 @@ typedef enum
     GDT_BASE_HIGH(base)                                             \
 }
 
-gdt_entry_t g_GDT[] = {
-    // NULL descriptor
-    GDT_ENTRY(0, 0, 0, 0),
+static gdt_entry_t *g_GDT;
+static gdt_ptr_t *g_GDTDescriptor;
 
-    // Kernel 32-bit code segment
-    GDT_ENTRY(0,
-              0xFFFFF,
-              GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_CODE_SEGMENT | GDT_ACCESS_CODE_READABLE,
-              GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K),
+// gdt_entry_t g_GDT[] = {
+//     // NULL descriptor
+//     GDT_ENTRY(0, 0, 0, 0),
 
-    // Kernel 32-bit data segment
-    GDT_ENTRY(0,
-              0xFFFFF,
-              GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_DATA_SEGMENT | GDT_ACCESS_DATA_WRITEABLE,
-              GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K),
+//     // Kernel 32-bit code segment
+//     GDT_ENTRY(0,
+//               0xFFFFF,
+//               GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_CODE_SEGMENT | GDT_ACCESS_CODE_READABLE,
+//               GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K),
 
-};
+//     // Kernel 32-bit data segment
+//     GDT_ENTRY(0,
+//               0xFFFFF,
+//               GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_DATA_SEGMENT | GDT_ACCESS_DATA_WRITEABLE,
+//               GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K),
 
-gdt_ptr_t g_GDTDescriptor = { sizeof(g_GDT) - 1, g_GDT};
+// };
+
+// gdt_ptr_t g_GDTDescriptor = { sizeof(g_GDT) - 1, g_GDT};
 
 void asm_functions(gdt_flush(gdt_ptr_t* descriptor, uint16_t codeSegment, uint16_t dataSegment));
 
-void init_gdt(uint64_t memory)
+void GDT_setup_static(uint32_t address_GDT, uint32_t address_Descriptor)
 {
-    gdt_flush(&g_GDTDescriptor, 0x08, 0x10);
+    g_GDT = (gdt_entry_t*)address_GDT;
+    g_GDTDescriptor = (gdt_ptr_t*)address_Descriptor;
+}
+
+void init_gdt()
+{
+    g_GDT[0] = (gdt_entry_t)GDT_ENTRY(0, 0, 0, 0);
+    g_GDT[1] = (gdt_entry_t)GDT_ENTRY(0, 0xFFFFF,
+                    GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_CODE_SEGMENT | GDT_ACCESS_CODE_READABLE,
+                    GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K);
+    g_GDT[2] = (gdt_entry_t)GDT_ENTRY(0, 0xFFFFF,
+                    GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_DATA_SEGMENT | GDT_ACCESS_DATA_WRITEABLE,
+                    GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K);
+    
+    *g_GDTDescriptor = (gdt_ptr_t) { (GDT_Entries * sizeof(gdt_entry_t)) - 1, g_GDT};
+    
+    gdt_flush(g_GDTDescriptor, 0x08, 0x10);
 }

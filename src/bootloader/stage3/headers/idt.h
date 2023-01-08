@@ -1,6 +1,8 @@
 #pragma once
 #include "stdint.h"
 
+#define IDT_Entries             256
+
 typedef enum
 {
     IDT_FLAG_GATE_TASK              = 0x5,

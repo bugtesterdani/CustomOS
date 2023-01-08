@@ -2,11 +2,16 @@
 #include "headers/stdint.h"
 #include "headers/asm.h"
 
-idt_entry_t g_IDT[256];
-
-idt_ptr_t g_IDTDescriptor = { sizeof(g_IDT) - 1, g_IDT };
+idt_entry_t *g_IDT; // is an array of size with 256 Entries
+idt_ptr_t *g_IDTDescriptor;
 
 void asm_functions(idt_flush(idt_ptr_t* idtDescriptor));
+
+void IDT_setup_static(uint32_t address_IDT, uint32_t address_IDTDescriptor)
+{
+    g_IDT = (idt_entry_t*)address_IDT;
+    g_IDTDescriptor = (idt_ptr_t*)address_IDTDescriptor;
+}
 
 void idt_set_gate(int interrupt, void* base, uint16_t segmentDescriptor, uint8_t flags)
 {
@@ -29,5 +34,6 @@ void idt_disable_gate(int interrupt)
 
 void init_idt()
 {
-    idt_flush(&g_IDTDescriptor);
+    *g_IDTDescriptor = (idt_ptr_t){ IDT_Entries - 1, g_IDT };
+    idt_flush(g_IDTDescriptor);
 }

@@ -2,12 +2,12 @@
 #include "headers/io.h"
 #include "headers/pci.h"
 
-#include "headers/colors.h"
-#include "headers/screen.h"
-#include "headers/string.h"
-#include "headers/stdio.h"
-#include "headers/commands.h"
-#include "headers/fat32.h"
+// #include "headers/colors.h"
+// #include "headers/screen.h"
+// #include "headers/string.h"
+// #include "headers/stdio.h"
+// #include "headers/commands.h"
+// #include "headers/fat32.h"
 
 // Chat von OpenGPT zum Thema ATA
 // Ohne Zugriff auf Standardbibliotheken oder Betriebssystemfunktionen wäre es schwierig, auf ATA-Geräte zuzugreifen und Informationen darüber abzurufen. Um direkt auf die Hardware-Schnittstelle des Computers zuzugreifen und Befehle und Daten an das ATA-Gerät zu senden, müssten Sie tiefes Wissen über die Hardware-Schnittstelle des Computers und das ATA-Protokoll haben. Hier sind einige Schritte, die Sie unternehmen könnten, um auf diese Weise auf ATA-Geräte zuzugreifen:
@@ -19,20 +19,21 @@
 
 
 // andere methode zum testen
-uint16_t returned[256];
-ATA_t ATADevices[4];
-uint8_t count = 0;
+static ATA_t *ATADevices;
+static uint8_t *count;
 
-void ATA_Init(ATA_t loc_ATADevices[4], uint8_t *loc_count)
+void ATA_setup_static(uint32_t address_ATA_Devices, uint32_t address_count)
 {
-    count = 0;
-    //ata_detect_devices();
+    ATADevices = (ATA_t*)address_ATA_Devices;
+    count = (uint8_t*)address_count;
+}
+
+void ATA_Init(ATA_t **ptr_ATADevices, uint8_t **ptr_count)
+{
+    *count = 0;
     ata_detect_addresses();
-    *loc_count = count;
-    for (uint8_t i = 0; i < 4; i++)
-    {
-        loc_ATADevices[i] = ATADevices[i];
-    }
+    *ptr_ATADevices = ATADevices;
+    *ptr_count = count;
 }
 
 void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit)
@@ -56,27 +57,28 @@ void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit)
     {
         return;
     }
+    uint16_t returned[256];
     for (uint16_t i = 0; i < 256; i++)
     {
         returned[i] = inw(port);
     }
-    ATADevices[count].port = port;
-    ATADevices[count].slavebit = slavebit;
+    ATADevices[*count].port = port;
+    ATADevices[*count].slavebit = slavebit;
     if (returned[83] & 1 << 10 != 0)
     {
-        ATADevices[count].isLBA48Supported = 1;
-        ATADevices[count].LBA48 = ((uint64_t)returned[103] << 48) + ((uint64_t)returned[102] << 32) + ((uint64_t)returned[101] << 16) + (uint64_t)returned[100];
+        ATADevices[*count].isLBA48Supported = 1;
+        ATADevices[*count].LBA48 = (((uint64_t)returned[103]) << 48) + (((uint64_t)returned[102]) << 32) + (((uint64_t)returned[101]) << 16) + ((uint64_t)returned[100]);
     }
     else
     {
-        ATADevices[count].isLBA48Supported = 0;
-        ATADevices[count].LBA28 = ((uint64_t)returned[61] << 16) + (uint64_t)returned[60];
-        if (ATADevices[count].LBA28 == 0)
+        ATADevices[*count].isLBA48Supported = 0;
+        ATADevices[*count].LBA28 = (((uint64_t)returned[61]) << 16) + ((uint64_t)returned[60]);
+        if (ATADevices[*count].LBA28 == 0)
         {
             return;
         }
     }
-    count++;
+    *count += 1;
     return;
 }
 
@@ -232,24 +234,23 @@ void ata_detect_addresses()
 {
     pci_dev_t devices[PCI_DEV_COUNT];
     pci_init(devices);
-    uint8_t AHCI_Devices = 0;
-    uint8_t CHARARRAYMAX = 80;
-    uint8_t outputint[CHARARRAYMAX];
-    uint8_t _lastindex;
+    // uint8_t CHARARRAYMAX = 80;
+    // uint8_t outputint[CHARARRAYMAX];
+    // uint8_t _lastindex;
     for (uint32_t i = 0; i < PCI_DEV_COUNT; i++)
     {
         pci_dev_t pci_dev = devices[i];
         if (pci_dev.ClassCode == 0x01 && pci_dev.Subclass == 0x06 && pci_dev.ProgIF == 0x01)
         {
-            uint32_t value = pci_ConfigReadDword(pci_dev.bus, pci_dev.device, pci_dev.function, 0xA8);
-            clearArray(outputint, CHARARRAYMAX, 0x00);
-            strapp(outputint, "AHCI Devices: ", 0, CHARARRAYMAX);
-            _lastindex = lastIndex(outputint, CHARARRAYMAX);
-            ConvertToChar(((value >> 16) & 0xFFFF), 16, outputint, _lastindex);
-            _lastindex = lastIndex(outputint, CHARARRAYMAX);
-            ConvertToChar(((value >>  0) & 0xFFFF), 16, outputint, _lastindex);
-            printString(outputint, White, Black);
-            setcursornewline();
+            // uint32_t value = pci_ConfigReadDword(pci_dev.bus, pci_dev.device, pci_dev.function, 0xA8);
+            // clearArray(outputint, CHARARRAYMAX, 0x00);
+            // strapp(outputint, "AHCI Devices: ", 0, CHARARRAYMAX);
+            // _lastindex = lastIndex(outputint, CHARARRAYMAX);
+            // ConvertToChar(((value >> 16) & 0xFFFF), 16, outputint, _lastindex);
+            // _lastindex = lastIndex(outputint, CHARARRAYMAX);
+            // ConvertToChar(((value >>  0) & 0xFFFF), 16, outputint, _lastindex);
+            // printString(outputint, White, Black);
+            // setcursornewline();
             continue;
         }
         if (pci_dev.ClassCode != 0x01 || pci_dev.Subclass != 0x01)
@@ -291,27 +292,19 @@ void ata_detect_addresses()
         {
             address2_CTRL = (baddr.BaseAddress3 & 0xFFFF);
         }
-        clearArray(outputint, CHARARRAYMAX, 0x00);
-        strapp(outputint, "Addr 1: ", 0, CHARARRAYMAX);
-        _lastindex = lastIndex(outputint, CHARARRAYMAX);
-        ConvertToChar(address1_IO, 16, outputint, _lastindex);
-        _lastindex = lastIndex(outputint, CHARARRAYMAX);
-        strapp(outputint, " Addr 2: ", _lastindex, CHARARRAYMAX);
-        _lastindex = lastIndex(outputint, CHARARRAYMAX);
-        ConvertToChar(address2_IO, 16, outputint, _lastindex);
-        printString(outputint, White, Black);
-        setcursornewline();
+        // clearArray(outputint, CHARARRAYMAX, 0x00);
+        // strapp(outputint, "Addr 1: ", 0, CHARARRAYMAX);
+        // _lastindex = lastIndex(outputint, CHARARRAYMAX);
+        // ConvertToChar(address1_IO, 16, outputint, _lastindex);
+        // _lastindex = lastIndex(outputint, CHARARRAYMAX);
+        // strapp(outputint, " Addr 2: ", _lastindex, CHARARRAYMAX);
+        // _lastindex = lastIndex(outputint, CHARARRAYMAX);
+        // ConvertToChar(address2_IO, 16, outputint, _lastindex);
+        // printString(outputint, White, Black);
+        // setcursornewline();
         ATA_Detect_Devtype(address1_IO, 0);
         ATA_Detect_Devtype(address1_IO, 1);
         ATA_Detect_Devtype(address2_IO, 0);
         ATA_Detect_Devtype(address2_IO, 1);
     }
-}
-
-void ata_detect_devices()
-{
-    ATA_Detect_Devtype(0x1F0, 0);
-    ATA_Detect_Devtype(0x1F0, 1);
-    ATA_Detect_Devtype(0x170, 0);
-    ATA_Detect_Devtype(0x170, 1);
 }

@@ -35,7 +35,8 @@ struct ATA
 
 typedef struct ATA ATA_t;
 
-void ATA_Init(ATA_t loc_ATADevices[4], uint8_t *loc_count);
+void ATA_setup_static(uint32_t address_ATA_Devices, uint32_t address_count);
+void ATA_Init(ATA_t **ptr_ATADevices, uint8_t **ptr_count);
 void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit);
 void ataRead(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr);
 void ataWrite(uint8_t drive_id, uint64_t LBA, uint8_t cnt, void *addr);

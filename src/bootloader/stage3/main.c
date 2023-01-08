@@ -13,7 +13,7 @@
 #include "headers/fat32.h"
 #include "headers/initialize.h"
 
-#define SYSTEM_MEMORY   4096            // Request 4096 Bit. We will need to change this later, when more needed.
+#define SYSTEM_MEMORY   1 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
 
 void _cstart_()
@@ -46,10 +46,10 @@ void _cstart_()
     FillRectangle(80, 80, 30, 30, 0x0E);
 #endif
 
-    uint8_t output[80];
     char Buff[60];
 
 #ifdef ALLOCATE_TEST
+    uint8_t output[80];
     uint32_t address = 0;
     uint32_t offset = 0;
     uint8_t _lastindex = 0;

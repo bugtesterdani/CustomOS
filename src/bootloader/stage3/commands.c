@@ -102,19 +102,21 @@ void ParseCommand(char* commandline)
     }
     else if (strcmp(PartSplit, "ata"))
     {
-        ATA_t ATA[4];
-        uint8_t counter;
-        ATA_Init(ATA, &counter);
+        ATA_t *atadevices;
+        uint8_t *count;
+        ATA_Init(&atadevices, &count);
         uint8_t charArrayLength = 80;
         uint8_t outputint[charArrayLength];
         clearArray(outputint, charArrayLength, 0x00);
         strapp(outputint, "Found ", 0, charArrayLength);
         uint8_t _lastindex = lastIndex(outputint, charArrayLength);
-        ConvertToChar(counter, 10, outputint, _lastindex);
+        ConvertToChar(count[0], 16, outputint, _lastindex);
         _lastindex = lastIndex(outputint, charArrayLength);
+        // ConvertToChar(((atadevices[0].port >> 16) & 0xFFFF), 16, outputint, _lastindex);
+        // _lastindex = lastIndex(outputint, charArrayLength);
+        // ConvertToChar(((atadevices[0].port >>  0) & 0xFFFF), 16, outputint, _lastindex);
+        // _lastindex = lastIndex(outputint, charArrayLength);
         strapp(outputint, " Hard Drive Disks", _lastindex, charArrayLength - _lastindex);
-        printString("ATA Exiteted", White, Black);
-        setcursornewline();
         printString(outputint, White, Black);
     }
     else if (strcmp(PartSplit, "partid"))

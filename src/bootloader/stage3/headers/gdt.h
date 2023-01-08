@@ -2,6 +2,8 @@
 
 #include "stdint.h"
 
+#define GDT_Entries             3
+
 struct gdt_entry_struct
 {
    // Segment Size (Bits 15-6)
@@ -43,3 +45,4 @@ struct gdt_ptr_struct
 typedef struct gdt_ptr_struct gdt_ptr_t;
 
 void init_gdt();
+void GDT_setup_static(uint32_t address_GDT, uint32_t address_Descriptor);

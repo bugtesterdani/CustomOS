@@ -22,7 +22,7 @@ void putchar(char character, uint8_t color)
 {
     g_ScreenBuffer[2 * (*ScreenY * SCREEN_WIDTH + *ScreenX)] = character;
     g_ScreenBuffer[2 * (*ScreenY * SCREEN_WIDTH + *ScreenX) + 1] = color;
-    *ScreenX = *ScreenX + 1;
+    *ScreenX += 1;
     if (*ScreenX < 80)
     {
         return;
@@ -94,7 +94,7 @@ void clearscreen()
             putcharp(x, y, '\0', DEFAULT_COLOR);
         }
     }
-    setcursor(0, 0);
+    setcursor(1, 2);
 }
 
 void scrollDown()
