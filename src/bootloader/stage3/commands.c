@@ -6,7 +6,6 @@
 #include "headers/stdint.h"
 #include "headers/fat32.h"
 #include "headers/keyboard.h"
-#include "headers/drive.h"
 #include "headers/pci.h"
 #include "headers/pci_definitions.h"
 #include "headers/ata.h"
@@ -41,10 +40,10 @@ void ParseCommand(char* commandline)
     }
     else if (strcmp(PartSplit, "oem"))
     {
-        uint64_t addr = ReadParameter();
-        if (addr != 0)
+        FAT32_t *fat32;
+        ReadParameter(&fat32, 0);
+        if (fat32->OEM_ID[0] != 0)
         {
-            FAT32_t *fat32 = (FAT32_t*)addr;
             printString(fat32->OEM_ID, White, Black);
             setcursornewline();
         }
@@ -53,23 +52,11 @@ void ParseCommand(char* commandline)
             printString("Something went wrong", White, Black);
         }
     }
-    // else if (strcmp(PartSplit, "devid"))
-    // {
-    //     char outputint[20];
-    //     clearArray(outputint, 20, 0x00);
-    //     uint32_t value = drive_init();
-    //     outputint[0] = '0';
-    //     outputint[1] = 'x';
-    //     ConvertToChar((value >> 16) & 0xFFFF, 16, outputint, 2);
-    //     uint8_t _lastindex = lastIndex(outputint, 20);
-    //     ConvertToChar((value >> 0)  & 0xFFFF, 16, outputint, _lastindex);
-    //     printString(outputint, White, Black);
-    // }
     else if (strcmp(PartSplit, "lsfs"))
     {
         FAT_Folder_t FolderStruct[10];
         uint32_t count_folders = 0;
-        GetListOfFiles(FolderStruct, &count_folders);
+        GetListOfFiles(0, FolderStruct, &count_folders);
         for (uint64_t i = 0; i < count_folders; i++)
         {
             uint8_t print_nane[12];

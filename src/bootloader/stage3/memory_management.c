@@ -110,6 +110,7 @@ uint8_t allocate_block(uint32_t *address, uint32_t *offset_addr, uint64_t size)
 
     *address = (loc_addr * BLOCK_SIZE);
     *offset_addr = memory[0].memory_start;
+    clearArray(((uint8_t*)(*address + *offset_addr)), (block * BLOCK_SIZE), 0x00);
     return 1;
 }
 

@@ -9,104 +9,129 @@
 // #include "headers/screen.h"
 // #include "headers/string.h"
 // #include "headers/stdio.h"
-// #include "headers/commands.h"
+#include "headers/commands.h"
 
-uint64_t ReadParameter()
+static FAT32_t *fat32;
+static uint32_t *address_blocks;
+static uint8_t *count_blocks;
+
+void FAT32_setup_static(uint32_t address_fat32_count_output, uint32_t address_fat32_output_store, uint32_t address_fat32_informations)
 {
-    uint64_t memory_addr = 0x100000;
-
-    FAT32_t* fat32 = (FAT32_t*)memory_addr;
-    uint8_t sector_amount = 1;
-    uint16_t outp[256 * sector_amount];
-    ReadSectorsLBA(0, 0, sector_amount, outp);
-
-    uint8_t offset_fat32 = 1;
-
-    fat32->OEM_ID[0] = ((outp[offset_fat32 + 0] >> 0) & 0xFF);
-    fat32->OEM_ID[1] = ((outp[offset_fat32 + 1] >> 8) & 0xFF);
-    fat32->OEM_ID[2] = ((outp[offset_fat32 + 1] >> 0) & 0xFF);
-    fat32->OEM_ID[3] = ((outp[offset_fat32 + 2] >> 8) & 0xFF);
-    fat32->OEM_ID[4] = ((outp[offset_fat32 + 2] >> 0) & 0xFF);
-    fat32->OEM_ID[5] = ((outp[offset_fat32 + 3] >> 8) & 0xFF);
-    fat32->OEM_ID[6] = ((outp[offset_fat32 + 3] >> 0) & 0xFF);
-    fat32->OEM_ID[7] = ((outp[offset_fat32 + 4] >> 8) & 0xFF);
-
-    fat32->BytesPerSector[0] = ((outp[offset_fat32 + 4] >> 0) & 0xFF);
-    fat32->BytesPerSector[1] = ((outp[offset_fat32 + 5] >> 8) & 0xFF);
-
-    fat32->SectorsPerCluster = ((outp[offset_fat32 + 5] >> 0) & 0xFF);
-
-    fat32->ReservedSectors[0] = ((outp[offset_fat32 + 6] >> 8) & 0xFF);
-    fat32->ReservedSectors[1] = ((outp[offset_fat32 + 6] >> 0) & 0xFF);
-
-    fat32->TotalFATs[0] = ((outp[offset_fat32 + 7] >> 8) & 0xFF);
-
-    fat32->MaxRootEntries[0] = ((outp[offset_fat32 + 7] >> 0) & 0xFF);
-    fat32->MaxRootEntries[1] = ((outp[offset_fat32 + 8] >> 8) & 0xFF);
-
-    fat32->NumberOfSectors[0] = ((outp[offset_fat32 + 8] >> 0) & 0xFF);
-    fat32->NumberOfSectors[1] = ((outp[offset_fat32 + 9] >> 8) & 0xFF);
-
-    fat32->MediaDescriptor = ((outp[offset_fat32 + 9] >> 0) & 0xFF);
-
-    fat32->SectorsPerFAT[0] = ((outp[offset_fat32 + 10] >> 8) & 0xFF);
-    fat32->SectorsPerFAT[1] = ((outp[offset_fat32 + 10] >> 0) & 0xFF);
-
-    fat32->SectorsPerTrack[0] = ((outp[offset_fat32 + 11] >> 8) & 0xFF);
-    fat32->SectorsPerTrack[1] = ((outp[offset_fat32 + 11] >> 0) & 0xFF);
-
-    fat32->SectorsPerHead[0] = ((outp[offset_fat32 + 12] >> 8) & 0xFF);
-    fat32->SectorsPerHead[1] = ((outp[offset_fat32 + 12] >> 0) & 0xFF);
-
-    fat32->HiddenSectors[0] = ((outp[offset_fat32 + 13] >> 8) & 0xFF);
-    fat32->HiddenSectors[1] = ((outp[offset_fat32 + 13] >> 0) & 0xFF);
-    fat32->HiddenSectors[2] = ((outp[offset_fat32 + 14] >> 8) & 0xFF);
-    fat32->HiddenSectors[3] = ((outp[offset_fat32 + 14] >> 0) & 0xFF);
-
-    fat32->TotalSectors[0] = ((outp[offset_fat32 + 15] >> 8) & 0xFF);
-    fat32->TotalSectors[1] = ((outp[offset_fat32 + 15] >> 0) & 0xFF);
-    fat32->TotalSectors[2] = ((outp[offset_fat32 + 16] >> 8) & 0xFF);
-    fat32->TotalSectors[3] = ((outp[offset_fat32 + 16] >> 0) & 0xFF);
-
-    fat32->BigSectorsPerFAT[0] = ((outp[offset_fat32 + 17] >> 8) & 0xFF);
-    fat32->BigSectorsPerFAT[1] = ((outp[offset_fat32 + 17] >> 0) & 0xFF);
-    fat32->BigSectorsPerFAT[2] = ((outp[offset_fat32 + 18] >> 8) & 0xFF);
-    fat32->BigSectorsPerFAT[3] = ((outp[offset_fat32 + 18] >> 0) & 0xFF);
-
-    fat32->Flags[0] = ((outp[offset_fat32 + 19] >> 8) & 0xFF);
-    fat32->Flags[1] = ((outp[offset_fat32 + 19] >> 0) & 0xFF);
-
-    fat32->FSVersion[0] = ((outp[offset_fat32 + 20] >> 8) & 0xFF);
-    fat32->FSVersion[1] = ((outp[offset_fat32 + 20] >> 0) & 0xFF);
-
-    fat32->RootDirectoryStart[0] = ((outp[offset_fat32 + 21] >> 8) & 0xFF);
-    fat32->RootDirectoryStart[1] = ((outp[offset_fat32 + 21] >> 0) & 0xFF);
-    fat32->RootDirectoryStart[2] = ((outp[offset_fat32 + 22] >> 8) & 0xFF);
-    fat32->RootDirectoryStart[3] = ((outp[offset_fat32 + 22] >> 0) & 0xFF);
-
-    fat32->FSInfoSector[0] = ((outp[offset_fat32 + 23] >> 8) & 0xFF);
-    fat32->FSInfoSector[1] = ((outp[offset_fat32 + 23] >> 0) & 0xFF);
-
-    fat32->BackupBootSector[0] = ((outp[offset_fat32 + 24] >> 8) & 0xFF);
-    fat32->BackupBootSector[1] = ((outp[offset_fat32 + 24] >> 0) & 0xFF);
-
-    return memory_addr;
+    fat32 = (FAT32_t*)address_fat32_informations;
+    address_blocks = (uint32_t*)address_fat32_output_store;
+    count_blocks = (uint8_t*)address_fat32_count_output;
 }
 
-void GetListOfFiles(FAT_Folder_t *folderstruct, uint32_t *amount)
+void ReadParameter(FAT32_t **address_fat32, uint8_t drive_num)
 {
-    FAT32_t* fat32 = (FAT32_t*)ReadParameter();
+    uint8_t sector_amount = 1;
+
+    uint32_t address = 0;
+    uint32_t offset = 0;
+    allocate_block(&address, &offset, 512 * sector_amount);
+    
+    // outp[256 * sector_amount]
+    uint16_t *outp = (uint16_t*)(address + offset);
+    ReadSectorsLBA(drive_num, 0, sector_amount, outp);
+
+    // 1 => FAT32 Offset. First 3 Bytes are not useful for the informations
+    fat32->OEM_ID[0] = ((outp[1 + 0] >> 0) & 0xFF);
+    fat32->OEM_ID[1] = ((outp[1 + 1] >> 8) & 0xFF);
+    fat32->OEM_ID[2] = ((outp[1 + 1] >> 0) & 0xFF);
+    fat32->OEM_ID[3] = ((outp[1 + 2] >> 8) & 0xFF);
+    fat32->OEM_ID[4] = ((outp[1 + 2] >> 0) & 0xFF);
+    fat32->OEM_ID[5] = ((outp[1 + 3] >> 8) & 0xFF);
+    fat32->OEM_ID[6] = ((outp[1 + 3] >> 0) & 0xFF);
+    fat32->OEM_ID[7] = ((outp[1 + 4] >> 8) & 0xFF);
+
+    fat32->BytesPerSector[0] = ((outp[1 + 4] >> 0) & 0xFF);
+    fat32->BytesPerSector[1] = ((outp[1 + 5] >> 8) & 0xFF);
+
+    fat32->SectorsPerCluster = ((outp[1 + 5] >> 0) & 0xFF);
+
+    fat32->ReservedSectors[0] = ((outp[1 + 6] >> 8) & 0xFF);
+    fat32->ReservedSectors[1] = ((outp[1 + 6] >> 0) & 0xFF);
+
+    fat32->TotalFATs[0] = ((outp[1 + 7] >> 8) & 0xFF);
+
+    fat32->MaxRootEntries[0] = ((outp[1 + 7] >> 0) & 0xFF);
+    fat32->MaxRootEntries[1] = ((outp[1 + 8] >> 8) & 0xFF);
+
+    fat32->NumberOfSectors[0] = ((outp[1 + 8] >> 0) & 0xFF);
+    fat32->NumberOfSectors[1] = ((outp[1 + 9] >> 8) & 0xFF);
+
+    fat32->MediaDescriptor = ((outp[1 + 9] >> 0) & 0xFF);
+
+    fat32->SectorsPerFAT[0] = ((outp[1 + 10] >> 8) & 0xFF);
+    fat32->SectorsPerFAT[1] = ((outp[1 + 10] >> 0) & 0xFF);
+
+    fat32->SectorsPerTrack[0] = ((outp[1 + 11] >> 8) & 0xFF);
+    fat32->SectorsPerTrack[1] = ((outp[1 + 11] >> 0) & 0xFF);
+
+    fat32->SectorsPerHead[0] = ((outp[1 + 12] >> 8) & 0xFF);
+    fat32->SectorsPerHead[1] = ((outp[1 + 12] >> 0) & 0xFF);
+
+    fat32->HiddenSectors[0] = ((outp[1 + 13] >> 8) & 0xFF);
+    fat32->HiddenSectors[1] = ((outp[1 + 13] >> 0) & 0xFF);
+    fat32->HiddenSectors[2] = ((outp[1 + 14] >> 8) & 0xFF);
+    fat32->HiddenSectors[3] = ((outp[1 + 14] >> 0) & 0xFF);
+
+    fat32->TotalSectors[0] = ((outp[1 + 15] >> 8) & 0xFF);
+    fat32->TotalSectors[1] = ((outp[1 + 15] >> 0) & 0xFF);
+    fat32->TotalSectors[2] = ((outp[1 + 16] >> 8) & 0xFF);
+    fat32->TotalSectors[3] = ((outp[1 + 16] >> 0) & 0xFF);
+
+    fat32->BigSectorsPerFAT[0] = ((outp[1 + 17] >> 8) & 0xFF);
+    fat32->BigSectorsPerFAT[1] = ((outp[1 + 17] >> 0) & 0xFF);
+    fat32->BigSectorsPerFAT[2] = ((outp[1 + 18] >> 8) & 0xFF);
+    fat32->BigSectorsPerFAT[3] = ((outp[1 + 18] >> 0) & 0xFF);
+
+    fat32->Flags[0] = ((outp[1 + 19] >> 8) & 0xFF);
+    fat32->Flags[1] = ((outp[1 + 19] >> 0) & 0xFF);
+
+    fat32->FSVersion[0] = ((outp[1 + 20] >> 8) & 0xFF);
+    fat32->FSVersion[1] = ((outp[1 + 20] >> 0) & 0xFF);
+
+    fat32->RootDirectoryStart[0] = ((outp[1 + 21] >> 8) & 0xFF);
+    fat32->RootDirectoryStart[1] = ((outp[1 + 21] >> 0) & 0xFF);
+    fat32->RootDirectoryStart[2] = ((outp[1 + 22] >> 8) & 0xFF);
+    fat32->RootDirectoryStart[3] = ((outp[1 + 22] >> 0) & 0xFF);
+
+    fat32->FSInfoSector[0] = ((outp[1 + 23] >> 8) & 0xFF);
+    fat32->FSInfoSector[1] = ((outp[1 + 23] >> 0) & 0xFF);
+
+    fat32->BackupBootSector[0] = ((outp[1 + 24] >> 8) & 0xFF);
+    fat32->BackupBootSector[1] = ((outp[1 + 24] >> 0) & 0xFF);
+
+    *address_fat32 = fat32;
+
+    // Freeup the memoryspace again
+    unblock_space(&address, 512 * sector_amount);
+}
+
+void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amount)
+{
+    if (fat32->OEM_ID[0] == 0)
+    {
+        FAT32_t *fat32;
+        ReadParameter(&fat32, drive_num);
+    }
     uint32_t FirstDataSector =  (*((uint16_t*)fat32->ReservedSectors)) + 
                                 ((*((uint8_t*)fat32->TotalFATs)) * (*((uint32_t*)fat32->BigSectorsPerFAT))) +
                                 (*((uint16_t*)fat32->MaxRootEntries));
     uint32_t FirstSectorOfCluster = (((*((uint32_t*)fat32->RootDirectoryStart)) - 2) * fat32->SectorsPerCluster) + 
                                     FirstDataSector;
     
-    uint16_t* short_addr = (uint16_t*)0x100050;
+    uint32_t address = 0;
+    uint32_t offset = 0;
+    allocate_block(&address, &offset, 512);
+
+    uint16_t *short_addr = (uint16_t*)(address + offset);
     uint8_t read_sector = 0;
     for (uint16_t k = 0; k < 0x10; k++)
     {
-        ReadSectorsLBA(0, FirstSectorOfCluster + k, 1, short_addr);
+        clearArray(((uint8_t*)(address + offset)), 512, 0x00);
+        ReadSectorsLBA(drive_num, FirstSectorOfCluster + k, 1, short_addr);
         uint8_t count = 0;
         for (uint8_t i = 0; i < 0x20; i++)
         {
@@ -120,7 +145,7 @@ void GetListOfFiles(FAT_Folder_t *folderstruct, uint32_t *amount)
 
         if (count <= 1)
         {
-            return;
+            break;
         }
 
         for (uint8_t i = 0; i < count; i++)
@@ -136,10 +161,13 @@ void GetListOfFiles(FAT_Folder_t *folderstruct, uint32_t *amount)
 
         if (count < 0x21)
         {
-            return;
+            break;
         }
         read_sector++;
     }
+    
+    // Freeup the memoryspace again
+    unblock_space(&address, 512);
 }
 
 void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest)
