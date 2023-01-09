@@ -12,14 +12,10 @@
 #include "headers/commands.h"
 
 static FAT32_t *fat32;
-static uint32_t *address_blocks;
-static uint8_t *count_blocks;
 
-void FAT32_setup_static(uint32_t address_fat32_count_output, uint32_t address_fat32_output_store, uint32_t address_fat32_informations)
+void FAT32_setup_static(uint32_t address_fat32_informations)
 {
     fat32 = (FAT32_t*)address_fat32_informations;
-    address_blocks = (uint32_t*)address_fat32_output_store;
-    count_blocks = (uint8_t*)address_fat32_count_output;
 }
 
 void ReadParameter(FAT32_t **address_fat32, uint8_t drive_num)
@@ -32,7 +28,7 @@ void ReadParameter(FAT32_t **address_fat32, uint8_t drive_num)
     
     // outp[256 * sector_amount]
     uint16_t *outp = (uint16_t*)(address + offset);
-    ReadSectorsLBA(drive_num, 0, sector_amount, outp);
+    ReadSectorsLBA(drive_num, 0, sector_amount, outp, 1);
 
     // 1 => FAT32 Offset. First 3 Bytes are not useful for the informations
     fat32->OEM_ID[0] = ((outp[1 + 0] >> 0) & 0xFF);
@@ -124,14 +120,13 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
     
     uint32_t address = 0;
     uint32_t offset = 0;
-    allocate_block(&address, &offset, 512);
+    allocate_block(&address, &offset, 512 * 8);
 
     uint16_t *short_addr = (uint16_t*)(address + offset);
-    uint8_t read_sector = 0;
     for (uint16_t k = 0; k < 0x10; k++)
     {
         clearArray(((uint8_t*)(address + offset)), 512, 0x00);
-        ReadSectorsLBA(drive_num, FirstSectorOfCluster + k, 1, short_addr);
+        ReadSectorsLBA(drive_num, FirstSectorOfCluster + k, 1, short_addr, 0);
         uint8_t count = 0;
         for (uint8_t i = 0; i < 0x20; i++)
         {
@@ -148,13 +143,10 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
             break;
         }
 
-        for (uint8_t i = 0; i < count; i++)
+        FAT_Folder_t *values = ((FAT_Folder_t*)(address + offset));
+        for (uint16_t i = 0; i < count; i++)
         {
-            uint16_t *values = ((uint16_t*)&(short_addr[i * 0x10]));
-            for (uint8_t j = 0; j < 11; j++)
-            {
-                folderstruct[i].NAME[j] = ((values[j / 2] >> (8 * (1 - (j % 2)))) & 0xFF);
-            }
+            folderstruct[i] = values[i];
         }
 
         amount[0] += count - 1;
@@ -163,14 +155,36 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
         {
             break;
         }
-        read_sector++;
     }
     
     // Freeup the memoryspace again
-    unblock_space(&address, 512);
+    unblock_space(&address, 512 * 8);
 }
 
-void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest)
+void ReadFile(uint8_t drive_num, uint32_t offset_index, uint64_t byte_size, uint32_t *data_address)
+{
+    if (fat32->OEM_ID[0] == 0)
+    {
+        FAT32_t *fat32;
+        ReadParameter(&fat32, drive_num);
+    }
+
+    uint32_t FirstDataSector =  (*((uint16_t*)fat32->ReservedSectors)) + 
+                                ((*((uint8_t*)fat32->TotalFATs)) * (*((uint32_t*)fat32->BigSectorsPerFAT))) +
+                                (*((uint16_t*)fat32->MaxRootEntries));
+    uint32_t FirstSectorOfCluster = (((*((uint32_t*)fat32->RootDirectoryStart)) - 2) * fat32->SectorsPerCluster) + 
+                                    FirstDataSector;
+
+    uint8_t sector_count = (byte_size / 512);
+    if ((byte_size % 512) > 0)
+    {
+        sector_count++;
+    }
+
+    ReadSectorsLBA(drive_num, FirstSectorOfCluster + ((offset_index - 2) * 0x1000), sector_count, ((uint16_t*)*data_address), 0);
+}
+
+void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest, uint8_t reverted)
 {
     uint16_t index, max, base;
     uint8_t drive = 0x40;
@@ -209,7 +223,14 @@ void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count,
     for (index = 0; index < max; index++)
     {
         uint16_t value = inw(base + 0);
-        dest[index] = (((value & 0xFF) << 8) | ((value >> 8) & 0xFF));
+        if (reverted)
+        {
+            dest[index] = (((value & 0xFF) << 8) | ((value >> 8) & 0xFF));
+        }
+        else
+        {
+            dest[index] = value;
+        }
     }
 }
 

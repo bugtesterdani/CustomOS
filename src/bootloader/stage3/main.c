@@ -12,6 +12,7 @@
 #include "headers/memory_management.h"
 #include "headers/fat32.h"
 #include "headers/initialize.h"
+#include "headers/paging.h"
 
 #define SYSTEM_MEMORY   1 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
@@ -29,6 +30,7 @@ void _cstart_()
     irq_init();
     init_idt();
     enable_interrupts();
+    paging_setup();
 
 #ifdef SetVGAMode
     setupmode(320, 200, 256);

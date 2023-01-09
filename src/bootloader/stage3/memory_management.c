@@ -61,6 +61,11 @@ uint8_t checkRAM(RAM_t *RAM)
 // and go further to set this address to the 
 uint8_t register_memory_map()
 {
+    // First make a offset change to the BLOCKSIZE of 4096
+    uint32_t offset_align = (memory[0].memory_start % BLOCK_SIZE);
+    memory[0].memory_start += offset_align;
+    memory[0].memory_size -= offset_align;
+    
     uint32_t *memory_map = (uint32_t*)(memory[0].memory_start + MEMORY_MAP_ADDRESS_OFFSET);
     if (memspace_counter[0] == 0)
     {

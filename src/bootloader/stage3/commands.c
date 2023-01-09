@@ -10,6 +10,7 @@
 #include "headers/pci_definitions.h"
 #include "headers/ata.h"
 #include "headers/RAM.h"
+#include "headers/elf.h"
 
 #include "headers/memory_management.h"
 
@@ -242,6 +243,28 @@ void ParseCommand(char* commandline)
             outputint[_lastindex]     = ' ';
             printString(outputint, White, Black);
             setcursornewline();
+        }
+    }
+    else if (strcmp(PartSplit, "load"))
+    {
+        clearArray(PartSplit, 60, 0x00);
+        spos++;
+        SplitParameters(commandline, &spos, PartSplit);
+        FAT_Folder_t FolderStruct[10];
+        uint32_t count_folders = 0;
+        GetListOfFiles(0, FolderStruct, &count_folders);
+        for (uint32_t i = 0; i < count_folders; i++)
+        {
+            uint8_t outpname[12];
+            clearArray(outpname, 12, 0x00);
+            memcp(FolderStruct[i].NAME, outpname, 0, 11, 0);
+            uint8_t counter = cmplsname(outpname, PartSplit);
+            if (counter == 1)
+            {
+                printString("File Found", White, Black);
+                setcursornewline();
+                break;
+            }
         }
     }
     else if (strcmp(PartSplit, "register"))

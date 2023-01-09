@@ -2,11 +2,7 @@
 
 bool strcmp(char *str1, char *str2)
 {
-    if (sizeof(*str1) != sizeof(*str2))
-    {
-        return false;
-    }
-    while (*str1 && *str2)
+    while (*str1 || *str2)
     {
         if (*str1 != *str2)
         {
@@ -14,6 +10,35 @@ bool strcmp(char *str1, char *str2)
         }
         str1++;
         str2++;
+    }
+    return true;
+}
+
+uint8_t cmplsname(char *str1, char *str2)
+{
+    bool found_dot = false;
+    while (*str1 || *str2)
+    {
+        if ((*str1 == ' ') &&
+            (*str2 == '.'))
+        {
+            found_dot = true;
+            str1++;
+        }
+        else if (found_dot)
+        {
+            str2++;
+            found_dot = false;
+        }
+        else if (*str1 != *str2)
+        {
+            return false;
+        }
+        else
+        {
+            str1++;
+            str2++;
+        }
     }
     return true;
 }
