@@ -11,6 +11,7 @@
 #include "headers/ata.h"
 #include "headers/RAM.h"
 #include "headers/elf.h"
+#include "headers/break.h"
 
 #include "headers/memory_management.h"
 
@@ -253,18 +254,37 @@ void ParseCommand(char* commandline)
         FAT_Folder_t FolderStruct[10];
         uint32_t count_folders = 0;
         GetListOfFiles(0, FolderStruct, &count_folders);
-        for (uint32_t i = 0; i < count_folders; i++)
+        uint32_t i;
+        uint8_t found = 0;
+        for (i = 0; i < count_folders; i++)
         {
             uint8_t outpname[12];
             clearArray(outpname, 12, 0x00);
             memcp(FolderStruct[i].NAME, outpname, 0, 11, 0);
-            uint8_t counter = cmplsname(outpname, PartSplit);
-            if (counter == 1)
+            found = cmplsname(outpname, PartSplit);
+            if (found == 1)
             {
                 printString("File Found", White, Black);
                 setcursornewline();
                 break;
             }
+        }
+        if (found == 1)
+        {
+            uint32_t LBA_Bytes = FolderStruct[i].HighBytes_Cluster[1] << 24 | FolderStruct[i].HighBytes_Cluster[0] << 16 |
+                                 FolderStruct[i].LowBytes_Cluster[1]  <<  8 | FolderStruct[i].LowBytes_Cluster[0]  <<  0;
+            uint32_t SizeBytes = (uint32_t)((*((uint32_t*)(&(*FolderStruct[i].FileSize_Byte))) & 0xFFFFFFFF) << 0);
+            uint32_t address = 0;
+            uint32_t offset = 0;
+            allocate_block(&address, &offset, SizeBytes * 8);
+            uint16_t *address_blocked = (uint16_t*)(address + offset);
+
+            ReadFile(0, LBA_Bytes, SizeBytes, address_blocked);
+
+            parseELFFile(address_blocked, SizeBytes);
+            breakpoint();
+
+            unblock_space(&address, SizeBytes * 8);
         }
     }
     else if (strcmp(PartSplit, "register"))

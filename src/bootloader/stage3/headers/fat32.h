@@ -70,6 +70,6 @@ enum FAT_Folder_Attribute_MASK
 void FAT32_setup_static(uint32_t address_fat32_informations);
 void ReadParameter(FAT32_t **address_fat32, uint8_t drive_num);
 void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amount);
-void ReadFile(uint8_t drive_num, uint32_t offset_index, uint64_t byte_size, uint32_t *data_address);
+void ReadFile(uint8_t drive_num, uint32_t offset_index, uint64_t byte_size, uint16_t *data_address);
 void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest, uint8_t reverted);
 uint8_t lastIndex(char *tmp, uint8_t max);

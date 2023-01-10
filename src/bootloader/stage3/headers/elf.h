@@ -46,4 +46,4 @@ typedef struct ELF_header
     uint16_t IndexSectionHeaderSectionNames;
 } __attribute__((packed)) ELF_header_t;
 
-uint8_t parseELFFile(uint8_t *elffile, uint64_t size);
+uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes);

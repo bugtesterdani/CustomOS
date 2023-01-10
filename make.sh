@@ -16,6 +16,7 @@ rm src.tar.gz
 tar -czf src.tar.gz src
 
 sudo docker cp src.tar.gz compile_runner:/root/src.tar.gz
+sudo docker cp tests/test.elf compile_runner:/root/test.elf
 
 sudo docker exec -it compile_runner /bin/bash /root/build.sh
 
