@@ -1,6 +1,7 @@
 #include "headers/paging.h"
 #include "headers/memory_management.h"
 #include "headers/asm.h"
+#include "headers/isr.h"
 
 static uint32_t *page_directory = (uint32_t*)0;
 static uint32_t *addr_page_dir;
@@ -22,7 +23,12 @@ void paging_setup()
 
     uint16_t page_dir_entries = 1024;
     uint32_t address_dir, offset_dir;
-    allocate_block(&address_dir, &offset_dir, page_dir_entries * 32); // Its only 32 bit per Entry
+    if (allocate_block(&address_dir, &offset_dir, page_dir_entries * 32) == 0) // Its only 32 bit per Entry
+    {
+        // Failed to allocate space
+        stopping_system();
+        return;
+    }
 
     page_directory = (uint32_t*)(address_dir + offset_dir);
     *addr_page_dir = (address_dir + offset_dir);
@@ -36,7 +42,12 @@ void paging_setup()
 
     uint16_t page_table_entries = 1024;
     uint32_t address_table, offset_table;
-    allocate_block(&address_table, &offset_table, page_table_entries * 32); // Its only 32 bit per Entry
+    if (allocate_block(&address_table, &offset_table, page_table_entries * 32) == 0) // Its only 32 bit per Entry
+    {
+        // Failed to allocate space
+        stopping_system();
+        return;
+    }
 
     uint32_t *page_table = (uint32_t*)(address_table + offset_table);
     for (uint16_t i = 0; i < page_table_entries; i++)

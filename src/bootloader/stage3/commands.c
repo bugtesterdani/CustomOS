@@ -252,6 +252,14 @@ void ParseCommand(char* commandline)
         spos++;
         SplitParameters(commandline, &spos, PartSplit);
         FAT_Folder_t FolderStruct[10];
+        char output[80];
+        clearArray(output, 80, 0x00);
+        ConvertToChar(((uint32_t)(FolderStruct)) >> 16 & 0xFFFF, 16, output, 0);
+        uint8_t _lastindex = lastIndex(output, 80);
+        output[_lastindex] = ' ';
+        ConvertToChar(((uint32_t)(FolderStruct)) >>  0 & 0xFFFF, 16, output, _lastindex + 1);
+        printString(output, White, Black);
+        setcursornewline();
         uint32_t count_folders = 0;
         GetListOfFiles(0, FolderStruct, &count_folders);
         uint32_t i;
@@ -276,8 +284,42 @@ void ParseCommand(char* commandline)
             uint32_t SizeBytes = (uint32_t)((*((uint32_t*)(&(*FolderStruct[i].FileSize_Byte))) & 0xFFFFFFFF) << 0);
             uint32_t address = 0;
             uint32_t offset = 0;
-            allocate_block(&address, &offset, SizeBytes * 8);
-            uint16_t *address_blocked = (uint16_t*)(address + offset);
+            uint8_t _lastindex = lastIndex(output, 80);
+            if (allocate_block(&address, &offset, SizeBytes * 8) == 0)
+            {
+                printString("Not enough memory to allocate for ", White, Black);
+            }
+            clearArray(output, 80, 0x00);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar(((SizeBytes * 8) >> 16) & 0xFFFF, 16, output, _lastindex);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar(((SizeBytes * 8) >>  0) & 0xFFFF, 16, output, _lastindex);
+            printString(output, White, Black);
+            setcursornewline();
+            clearArray(output, 80, 0x00);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar(((SizeBytes) >> 16) & 0xFFFF, 16, output, _lastindex);
+            _lastindex = lastIndex(output, 80);
+            ConvertToChar(((SizeBytes) >>  0) & 0xFFFF, 16, output, _lastindex);
+            printString(output, White, Black);
+            setcursornewline();
+            uint16_t *address_blocked;
+            address_blocked = (uint16_t*)(address + offset);
+
+            // clearArray(output, 80, 0x00);
+            // ConvertToChar(((uint32_t)(address + offset)) >> 16 & 0xFFFF, 16, output, 0);
+            // _lastindex = lastIndex(output, 80);
+            // output[_lastindex] = ' ';
+            // ConvertToChar(((uint32_t)(address + offset)) >>  0 & 0xFFFF, 16, output, _lastindex + 1);
+            // printString(output, White, Black);
+            // setcursornewline();
+            // clearArray(output, 80, 0x00);
+            // ConvertToChar(((uint32_t)(address_blocked)) >> 16 & 0xFFFF, 16, output, 0);
+            // _lastindex = lastIndex(output, 80);
+            // output[_lastindex] = ' ';
+            // ConvertToChar(((uint32_t)(address_blocked)) >>  0 & 0xFFFF, 16, output, _lastindex + 1);
+            // printString(output, White, Black);
+            // setcursornewline();
 
             ReadFile(0, LBA_Bytes, SizeBytes, address_blocked);
 

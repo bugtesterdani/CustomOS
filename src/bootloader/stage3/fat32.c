@@ -24,7 +24,12 @@ void ReadParameter(FAT32_t **address_fat32, uint8_t drive_num)
 
     uint32_t address = 0;
     uint32_t offset = 0;
-    allocate_block(&address, &offset, 512 * sector_amount);
+    if (allocate_block(&address, &offset, 512 * sector_amount) == 0)
+    {
+        // Failed to allocate space
+        stopping_system();
+        return;
+    }
     
     // outp[256 * sector_amount]
     uint16_t *outp = (uint16_t*)(address + offset);
@@ -120,7 +125,12 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
     
     uint32_t address = 0;
     uint32_t offset = 0;
-    allocate_block(&address, &offset, 512 * 8);
+    if (allocate_block(&address, &offset, 512 * 8) == 0)
+    {
+        // Failed to allocate space
+        stopping_system();
+        return;
+    }
 
     uint16_t *short_addr = (uint16_t*)(address + offset);
     for (uint16_t k = 0; k < 0x10; k++)
@@ -156,6 +166,15 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
             break;
         }
     }
+
+    char output[80];
+    clearArray(output, 80, 0x00);
+    ConvertToChar(((uint32_t)(folderstruct)) >> 16 & 0xFFFF, 16, output, 0);
+    uint8_t _lastindex = lastIndex(output, 80);
+    output[_lastindex] = ' ';
+    ConvertToChar(((uint32_t)(folderstruct)) >>  0 & 0xFFFF, 16, output, _lastindex + 1);
+    printString(output, White, Black);
+    setcursornewline();
     
     // Freeup the memoryspace again
     unblock_space(&address, 512 * 8);

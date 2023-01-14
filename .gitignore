@@ -1,3 +1,4 @@
 build
 *.err
 src.tar.gz
+src/bootloader/stage3\ copy

@@ -357,7 +357,11 @@ void irq_init()
     outb(0xA1, 0xff);   //0x00
 }
 
-void asm_functions(stop_system());
+void stopping_system()
+{
+    printString("Stopping, cause an error happened, and stopp system function called", White, Black);
+    stop_system();
+}
 
 void asm_functions(isr_handler(registers_t* regs))
 {

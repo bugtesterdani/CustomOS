@@ -22,7 +22,14 @@ void _cstart_()
     RAM_FullInit();
     uint32_t address = 0;
     uint32_t offset = 0;
-    allocate_block(&address, &offset, SYSTEM_MEMORY);
+    if (allocate_block(&address, &offset, SYSTEM_MEMORY) == 0)
+    {
+        printString("Memory allocation failed in main thread", White, Black);
+        setcursornewline();
+        // endless loop
+        for (;;);
+        return;
+    }
     InitializeAddresses(address + offset);
     initScreen();
     init_gdt();
@@ -32,7 +39,7 @@ void _cstart_()
     enable_interrupts();
     paging_setup();
 
-#ifdef SetVGAMode
+#ifdef VGA_TEST
     setupmode(320, 200, 256);
     for (uint32_t x = 0; x < 320; x++)
     {

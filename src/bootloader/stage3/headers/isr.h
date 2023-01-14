@@ -307,6 +307,9 @@ void asm_functions(IRQ13());
 void asm_functions(IRQ14());
 void asm_functions(IRQ15());
 
+void asm_functions(stop_system());
+
+void stopping_system();
 void test(int t, registers_t* regs);
 void isr_init();
 void irq_init();
