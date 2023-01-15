@@ -30,6 +30,8 @@ cd bootloader/stage3
 make
 cd ../..
 
+tar -czvf stage3.tar.gz bootloader/stage3/build
+
 # cd bootloader/stage4
 # make
 # cd ../..

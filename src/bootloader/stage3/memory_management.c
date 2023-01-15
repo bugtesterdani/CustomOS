@@ -97,18 +97,14 @@ void block_memory_map_space()
 
 uint8_t allocate_block(uint32_t *address, uint32_t *offset_addr, uint64_t size)
 {
-    if (0x100000 + 0xC0000 == 0)
-    {
-        screen_setup_static(0x100000 + 0x100, 0x100000 + 0x200);
-        clearscreen();
-    }
-    
     uint32_t loc_addr = 0;
     uint32_t block = size / BLOCK_SIZE;
     if ((size % BLOCK_SIZE) > 0)
     {
         block++;
     }
+    printString("Received allocate block", White, Black);
+    setcursornewline();
 
     if (find_first_free_block(block, &loc_addr) != 1)
     {
@@ -123,6 +119,9 @@ uint8_t allocate_block(uint32_t *address, uint32_t *offset_addr, uint64_t size)
     *address = (loc_addr * BLOCK_SIZE);
     *offset_addr = memory[0].memory_start;
     clearArray(((uint8_t*)(*address + *offset_addr)), (block * BLOCK_SIZE), 0x00);
+
+    printString("done allocate block", White, Black);
+    setcursornewline();
     return 1;
 }
 
@@ -186,6 +185,8 @@ void unblock_space(uint32_t *address, uint64_t size)
 
 uint8_t find_first_free_block(uint32_t blocks, uint32_t *block)
 {
+    printString("Received find block", White, Black);
+    setcursornewline();
     if (blocks == 0)
     {
         return 0;
@@ -230,6 +231,8 @@ uint8_t find_first_free_block(uint32_t blocks, uint32_t *block)
 
 void set_block(uint32_t bit)
 {
+    printString("Received set block", White, Black);
+    setcursornewline();
     // There is a Pointer at address 0x510, which points to the start address of the map (by offset 0x008)
     uint32_t *memory_map = (uint32_t*)(memory[0].memory_start + MEMORY_MAP_ADDRESS_OFFSET);
     memory_map[bit/32] |= (1 << (bit % 32));

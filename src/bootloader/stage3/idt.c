@@ -2,8 +2,8 @@
 #include "headers/stdint.h"
 #include "headers/asm.h"
 
-idt_entry_t *g_IDT; // is an array of size with 256 Entries
-idt_ptr_t *g_IDTDescriptor;
+static idt_entry_t *g_IDT; // is an array of size with 256 Entries
+static idt_ptr_t *g_IDTDescriptor;
 
 void asm_functions(idt_flush(idt_ptr_t* idtDescriptor));
 

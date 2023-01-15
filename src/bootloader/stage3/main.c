@@ -31,29 +31,12 @@ void _cstart_()
     }
     InitializeAddresses(address + offset);
     initScreen();
-    output_mem_things();
-    printString("Call now GDT", White, Black);
-    setcursornewline();
     init_gdt();
-    output_mem_things();
-    printString("Call now ISR", White, Black);
-    setcursornewline();
     isr_init();
-    output_mem_things();
-    printString("Call now IRQ", White, Black);
-    setcursornewline();
     irq_init();
-    output_mem_things();
-    printString("Call now IDR", White, Black);
-    setcursornewline();
     init_idt();
-    output_mem_things();
     enable_interrupts();
-    output_mem_things();
     paging_setup();
-    printString("Success...", White, Black);
-    setcursornewline();
-    for(;;);
 
 #ifdef VGA_TEST
     setupmode(320, 200, 256);

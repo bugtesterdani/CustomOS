@@ -46,6 +46,7 @@ typedef struct idt_ptr_struct idt_ptr_t;
 #define FLAG_SET(x, flag) x |= (flag)
 #define FLAG_UNSET(x, flag) x &= ~(flag)
 
+void IDT_setup_static(uint32_t address_IDT, uint32_t address_IDTDescriptor);
 void init_idt();
 void idt_disable_gate(int interrupt);
 void idt_enable_gate(int interrupt);
