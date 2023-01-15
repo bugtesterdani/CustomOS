@@ -16,7 +16,7 @@ void paging_setup_static(uint32_t address_page_directory)
 
 void paging_setup()
 {
-    if (page_directory == (uint32_t*)0)
+    if (page_directory != (uint32_t*)0)
     {
         return;
     }
@@ -26,7 +26,7 @@ void paging_setup()
     if (allocate_block(&address_dir, &offset_dir, page_dir_entries * 32) == 0) // Its only 32 bit per Entry
     {
         // Failed to allocate space
-        stopping_system();
+        for(;;);
         return;
     }
 
@@ -45,7 +45,7 @@ void paging_setup()
     if (allocate_block(&address_table, &offset_table, page_table_entries * 32) == 0) // Its only 32 bit per Entry
     {
         // Failed to allocate space
-        stopping_system();
+        for(;;);
         return;
     }
 

@@ -71,10 +71,5 @@ void RAM_FullInit()
         }
     }
 
-    for (uint32_t i = 0; i < (((0x900 - RAM_OFFSET) / (32 / 8)) - (((values[0] * 0x06) + 0x01) * 2)); i++)
-    {
-        _memory_pointer[((values[0] * 0x06) + 0x01) + i] = (uint32_t)0x00;
-    }
-
     register_memory_map();
 }

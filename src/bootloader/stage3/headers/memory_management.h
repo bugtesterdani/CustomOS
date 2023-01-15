@@ -20,3 +20,5 @@ void unblock_space(uint32_t *address, uint64_t size);
 void register_memspace(RAM_t *RAM);
 void memcp(uint8_t *src, uint8_t *dst, uint8_t start, uint8_t count, uint8_t offset_dst);
 void memset(uint8_t *dst, uint32_t size, uint8_t value);
+
+void output_mem_things();

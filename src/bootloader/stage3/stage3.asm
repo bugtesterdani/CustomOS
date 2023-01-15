@@ -42,7 +42,6 @@ entry:
     mov eax, [0x413]
     mul ecx
     mov [StackPointer_Value], eax
-    mov sp, ax
 .load_ram_part:
     call do_e820
 ; .change_vga_resolution:
