@@ -16,10 +16,15 @@ void paging_setup_static(uint32_t address_page_directory)
 
 void paging_setup()
 {
+    char Buff[60];
     if (page_directory != (uint32_t*)0)
     {
         return;
     }
+
+    output_mem_things();
+    setcursornewline();
+    ReadLine(Buff, 60);
 
     uint16_t page_dir_entries = 1024;
     uint32_t address_dir, offset_dir;
@@ -29,6 +34,10 @@ void paging_setup()
         for(;;);
         return;
     }
+
+    output_mem_things();
+    setcursornewline();
+    ReadLine(Buff, 60);
 
     page_directory = (uint32_t*)(address_dir + offset_dir);
     *addr_page_dir = (address_dir + offset_dir);
@@ -49,6 +58,10 @@ void paging_setup()
         return;
     }
 
+    output_mem_things();
+    setcursornewline();
+    ReadLine(Buff, 60);
+
     uint32_t *page_table = (uint32_t*)(address_table + offset_table);
     for (uint16_t i = 0; i < page_table_entries; i++)
     {
@@ -61,4 +74,8 @@ void paging_setup()
     // load page directory to cpu and enable paging
     loadPageDirectory(page_directory);
     enablePaging();
+
+    output_mem_things();
+    setcursornewline();
+    ReadLine(Buff, 60);
 }

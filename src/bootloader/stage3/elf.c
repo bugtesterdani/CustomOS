@@ -11,28 +11,20 @@
 uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
 {
     // Check if its an ELF File
-    if (elffile[0] != 0x7F45 &&
-        elffile[1] != 0x4c46)
+    if (((uint8_t*)elffile)[0] != 0x7F &&
+        ((uint8_t*)elffile)[1] != 0x45 &&
+        ((uint8_t*)elffile)[2] != 0x4c &&
+        ((uint8_t*)elffile)[3] != 0x46)
     {
-        char output[80];
-        clearArray(output, 80, 0x00);
-        output[0] = ' ';
-        ConvertToChar(elffile[0], 16, output, 1);
-        uint8_t _lastindex = lastIndex(output, 80);
-        ConvertToChar(elffile[1], 16, output, _lastindex);
-        printString(output, White, Black);
-        printString(" Error Parsing 1", White, Black);
+        printString("Error Parsing 1", White, Black);
         return 0;
     }
 
     // Check if its an executable file
-    if (elffile[5] != 0x0200)
+    if (((uint8_t*)elffile)[10] != 0x02 &&
+        ((uint8_t*)elffile)[11] != 0x00)
     {
-        char output[80];
-        clearArray(output, 80, 0x00);
-        ConvertToChar(elffile[0], 16, output, 0);
-        printString(output, White, Black);
-        printString(" Error Parsing 2", White, Black);
+        printString("Error Parsing 2", White, Black);
         return 0;
     }
 

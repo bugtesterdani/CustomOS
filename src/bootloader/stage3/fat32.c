@@ -166,15 +166,6 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
             break;
         }
     }
-
-    char output[80];
-    clearArray(output, 80, 0x00);
-    ConvertToChar(((uint32_t)(folderstruct)) >> 16 & 0xFFFF, 16, output, 0);
-    uint8_t _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((uint32_t)(folderstruct)) >>  0 & 0xFFFF, 16, output, _lastindex + 1);
-    printString(output, White, Black);
-    setcursornewline();
     
     // Freeup the memoryspace again
     unblock_space(&address, 512 * 8);
@@ -200,36 +191,7 @@ void ReadFile(uint8_t drive_num, uint32_t offset_index, uint64_t byte_size, uint
         sector_count++;
     }
 
-    char output[80];
-    clearArray(output, 80, 0x00);
-    ConvertToChar((((FirstSectorOfCluster) >> 16) & 0xFFFF), 16, output, 0);
-    uint8_t _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar((((FirstSectorOfCluster) >>  0) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((((offset_index - 2)) >> 16) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((((offset_index - 2)) >>  0) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((FirstSectorOfCluster + (offset_index - 2)) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((FirstSectorOfCluster + (offset_index - 2)) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((((uint32_t)(&data_address)) >> 16) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(((((uint32_t)(&data_address)) >>  0) & 0xFFFF), 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar(sector_count, 16, output, _lastindex + 1);
-    printString(output, White, Black);
-
-    ReadSectorsLBA(drive_num, FirstSectorOfCluster + (offset_index - 2), sector_count, data_address, 0);
+    ReadSectorsLBA(drive_num, FirstSectorOfCluster + ((offset_index - 2) * fat32->SectorsPerCluster), sector_count, data_address, 0);
 }
 
 void ReadSectorsLBA(uint8_t drive_num, uint32_t start_lba, uint8_t sector_count, uint16_t *dest, uint8_t reverted)

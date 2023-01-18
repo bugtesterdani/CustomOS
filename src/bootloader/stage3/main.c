@@ -14,11 +14,13 @@
 #include "headers/initialize.h"
 #include "headers/paging.h"
 
-#define SYSTEM_MEMORY   1 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
+#define SYSTEM_MEMORY   2 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
 
 void _cstart_()
 {
+    char Buff[60];
+
     RAM_FullInit();
     uint32_t address = 0;
     uint32_t offset = 0;
@@ -36,7 +38,7 @@ void _cstart_()
     irq_init();
     init_idt();
     enable_interrupts();
-    paging_setup();
+    // paging_setup();
 
 #ifdef VGA_TEST
     setupmode(320, 200, 256);
@@ -53,8 +55,6 @@ void _cstart_()
     FillRectangle(80, 20, 30, 30, 0x0A);
     FillRectangle(80, 80, 30, 30, 0x0E);
 #endif
-
-    char Buff[60];
 
 #ifdef ALLOCATE_TEST
     uint8_t output[80];
