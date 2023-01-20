@@ -373,12 +373,21 @@ void asm_functions(isr_handler(registers_t* regs))
 
     else 
     {
-        printString("KERNEL PANIC! ", Red, Black);
-        char outputint[0x14];
-        clearArray(outputint, 20, 0x00);
-        ConvertToChar(regs->int_no, 16, outputint, 0);
-        printString(outputint, White, Black);
-        stop_system();
+        switch (regs->int_no)
+        {
+            case 0x0E:
+                printString("Page Fault", Red, Black);
+                stop_system();
+                break;
+            default:
+                printString("KERNEL PANIC! ", Red, Black);
+                char outputint[0x14];
+                clearArray(outputint, 20, 0x00);
+                ConvertToChar(regs->int_no, 16, outputint, 0);
+                printString(outputint, White, Black);
+                stop_system();
+                break;
+        }
     }
 }
 

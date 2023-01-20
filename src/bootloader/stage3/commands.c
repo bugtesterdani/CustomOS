@@ -17,9 +17,6 @@
 
 void ParseCommand(char* commandline)
 {
-    printString("Received ", White, Black);
-    printString(commandline, White, Black);
-    setcursornewline();
     char PartSplit[60];
     clearArray(PartSplit, 60, 0x00);
     int spos = 0;

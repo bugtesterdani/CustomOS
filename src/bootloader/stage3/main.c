@@ -38,7 +38,7 @@ void _cstart_()
     irq_init();
     init_idt();
     enable_interrupts();
-    // paging_setup();
+    paging_setup();
 
 #ifdef VGA_TEST
     setupmode(320, 200, 256);

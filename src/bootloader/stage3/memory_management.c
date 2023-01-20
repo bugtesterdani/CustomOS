@@ -1,12 +1,5 @@
 #include "headers/memory_management.h"
 
-#include "headers/screen.h"
-#include "headers/commands.h"
-#include "headers/fat32.h"
-#include "headers/string.h"
-#include "headers/colors.h"
-#include "headers/stdio.h"
-
 // To use 264Bit
 memory_table_t *memory = (memory_table_t*)0x510;
 uint32_t* memspace_counter = (uint32_t*)0x500;
@@ -103,8 +96,6 @@ uint8_t allocate_block(uint32_t *address, uint32_t *offset_addr, uint64_t size)
     {
         block++;
     }
-    printString("Received allocate block", White, Black);
-    setcursornewline();
 
     if (find_first_free_block(block, &loc_addr) != 1)
     {
@@ -119,54 +110,51 @@ uint8_t allocate_block(uint32_t *address, uint32_t *offset_addr, uint64_t size)
     *address = (loc_addr * BLOCK_SIZE);
     *offset_addr = memory[0].memory_start;
     clearArray(((uint8_t*)(*address + *offset_addr)), (block * BLOCK_SIZE), 0x00);
-
-    printString("done allocate block", White, Black);
-    setcursornewline();
     return 1;
 }
 
-void output_mem_things()
-{
-    uint8_t output[80];
-    printString("Memory Start: ", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar((memory[0].memory_start >> 16) & 0xFFFF, 16, output, 0);
-    uint8_t _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar((memory[0].memory_start >>  0) & 0xFFFF, 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    output[_lastindex + 1] = ' ';
-    printString(output, White, Black);
-    printString("Memory Start ADDR: ", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar((((uint32_t)&(memory[0].memory_start)) >> 16) & 0xFFFF, 16, output, 0);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar((((uint32_t)&(memory[0].memory_start)) >>  0) & 0xFFFF, 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    printString(output, White, Black);
-    setcursornewline();
-    printString("Memory Size: ", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar((memory[0].memory_size >> 16) & 0xFFFF, 16, output, 0);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar((memory[0].memory_size >>  0) & 0xFFFF, 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    output[_lastindex + 1] = ' ';
-    printString(output, White, Black);
-    printString("Memory Size ADDR: ", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar((((uint32_t)&(memory[0].memory_size)) >> 16) & 0xFFFF, 16, output, 0);
-    _lastindex = lastIndex(output, 80);
-    output[_lastindex] = ' ';
-    ConvertToChar((((uint32_t)&(memory[0].memory_size)) >>  0) & 0xFFFF, 16, output, _lastindex + 1);
-    _lastindex = lastIndex(output, 80);
-    printString(output, White, Black);
-    setcursornewline();
-}
+// void output_mem_things()
+// {
+//     uint8_t output[80];
+//     printString("Memory Start: ", White, Black);
+//     clearArray(output, 80, 0x00);
+//     ConvertToChar((memory[0].memory_start >> 16) & 0xFFFF, 16, output, 0);
+//     uint8_t _lastindex = lastIndex(output, 80);
+//     output[_lastindex] = ' ';
+//     ConvertToChar((memory[0].memory_start >>  0) & 0xFFFF, 16, output, _lastindex + 1);
+//     _lastindex = lastIndex(output, 80);
+//     output[_lastindex] = ' ';
+//     output[_lastindex + 1] = ' ';
+//     printString(output, White, Black);
+//     printString("Memory Start ADDR: ", White, Black);
+//     clearArray(output, 80, 0x00);
+//     ConvertToChar((((uint32_t)&(memory[0].memory_start)) >> 16) & 0xFFFF, 16, output, 0);
+//     _lastindex = lastIndex(output, 80);
+//     output[_lastindex] = ' ';
+//     ConvertToChar((((uint32_t)&(memory[0].memory_start)) >>  0) & 0xFFFF, 16, output, _lastindex + 1);
+//     _lastindex = lastIndex(output, 80);
+//     printString(output, White, Black);
+//     setcursornewline();
+//     printString("Memory Size: ", White, Black);
+//     clearArray(output, 80, 0x00);
+//     ConvertToChar((memory[0].memory_size >> 16) & 0xFFFF, 16, output, 0);
+//     _lastindex = lastIndex(output, 80);
+//     output[_lastindex] = ' ';
+//     ConvertToChar((memory[0].memory_size >>  0) & 0xFFFF, 16, output, _lastindex + 1);
+//     _lastindex = lastIndex(output, 80);
+//     output[_lastindex] = ' ';
+//     output[_lastindex + 1] = ' ';
+//     printString(output, White, Black);
+//     printString("Memory Size ADDR: ", White, Black);
+//     clearArray(output, 80, 0x00);
+//     ConvertToChar((((uint32_t)&(memory[0].memory_size)) >> 16) & 0xFFFF, 16, output, 0);
+//     _lastindex = lastIndex(output, 80);
+//     output[_lastindex] = ' ';
+//     ConvertToChar((((uint32_t)&(memory[0].memory_size)) >>  0) & 0xFFFF, 16, output, _lastindex + 1);
+//     _lastindex = lastIndex(output, 80);
+//     printString(output, White, Black);
+//     setcursornewline();
+// }
 
 void unblock_space(uint32_t *address, uint64_t size)
 {
@@ -185,8 +173,6 @@ void unblock_space(uint32_t *address, uint64_t size)
 
 uint8_t find_first_free_block(uint32_t blocks, uint32_t *block)
 {
-    printString("Received find block", White, Black);
-    setcursornewline();
     if (blocks == 0)
     {
         return 0;
@@ -231,8 +217,6 @@ uint8_t find_first_free_block(uint32_t blocks, uint32_t *block)
 
 void set_block(uint32_t bit)
 {
-    printString("Received set block", White, Black);
-    setcursornewline();
     // There is a Pointer at address 0x510, which points to the start address of the map (by offset 0x008)
     uint32_t *memory_map = (uint32_t*)(memory[0].memory_start + MEMORY_MAP_ADDRESS_OFFSET);
     memory_map[bit/32] |= (1 << (bit % 32));
