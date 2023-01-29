@@ -15,6 +15,10 @@
         "asm.h": "c",
         "stdio.h": "c",
         "commands.h": "c",
-        "colors.h": "c"
+        "colors.h": "c",
+        "atomic": "c",
+        "initialize.h": "c",
+        "offset_list.h": "c",
+        "elf.h": "c"
     }
 }

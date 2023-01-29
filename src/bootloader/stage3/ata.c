@@ -45,10 +45,10 @@ void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit)
     outb(port + 5, 0);
     outb(port + 7, ATA_CMD_IDENTIFY);
     uint8_t x = inb(port + 7);
-    while (x & 0x08 != 0)
+    while ((x & 0x08) != 0)
     {
         x = inb(port + 7);
-        if (x & 0x01 != 0)
+        if ((x & 0x01) != 0)
         {
             break;
         }
@@ -64,7 +64,7 @@ void ATA_Detect_Devtype(uint16_t port, uint8_t slavebit)
     }
     ATADevices[*count].port = port;
     ATADevices[*count].slavebit = slavebit;
-    if (returned[83] & 1 << 10 != 0)
+    if (((returned[83] & 1) << 10) != 0)
     {
         ATADevices[*count].isLBA48Supported = 1;
         ATADevices[*count].LBA48 = (((uint64_t)returned[103]) << 48) + (((uint64_t)returned[102]) << 32) + (((uint64_t)returned[101]) << 16) + ((uint64_t)returned[100]);
@@ -257,7 +257,8 @@ void ata_detect_addresses()
         {
             continue;
         }
-        uint16_t address1_IO = 0, address2_IO = 0, address1_CTRL = 0, address2_CTRL;
+        uint16_t address1_IO = 0, address2_IO = 0;
+        // uint16_t address1_CTRL = 0, address2_CTRL = 0;
         pci_baddress_t baddr;
         pci_getBaseAddress(pci_dev.bus, pci_dev.device, pci_dev.function, &baddr);
         if (baddr.BaseAddress0 == 0x0 || baddr.BaseAddress0 == 0x1)
@@ -276,32 +277,22 @@ void ata_detect_addresses()
         {
             address2_IO = (baddr.BaseAddress2 & 0xFFFF);
         }
-        if (baddr.BaseAddress1 == 0x0 || baddr.BaseAddress1 == 0x1)
-        {
-            address1_CTRL = 0x3F4;
-        }
-        else
-        {
-            address1_CTRL = (baddr.BaseAddress1 & 0xFFFF);
-        }
-        if (baddr.BaseAddress3 == 0x0 || baddr.BaseAddress3 == 0x1)
-        {
-            address2_CTRL = 0x374;
-        }
-        else
-        {
-            address2_CTRL = (baddr.BaseAddress3 & 0xFFFF);
-        }
-        // clearArray(outputint, CHARARRAYMAX, 0x00);
-        // strapp(outputint, "Addr 1: ", 0, CHARARRAYMAX);
-        // _lastindex = lastIndex(outputint, CHARARRAYMAX);
-        // ConvertToChar(address1_IO, 16, outputint, _lastindex);
-        // _lastindex = lastIndex(outputint, CHARARRAYMAX);
-        // strapp(outputint, " Addr 2: ", _lastindex, CHARARRAYMAX);
-        // _lastindex = lastIndex(outputint, CHARARRAYMAX);
-        // ConvertToChar(address2_IO, 16, outputint, _lastindex);
-        // printString(outputint, White, Black);
-        // setcursornewline();
+        // if (baddr.BaseAddress1 == 0x0 || baddr.BaseAddress1 == 0x1)
+        // {
+        //     address1_CTRL = 0x3F4;
+        // }
+        // else
+        // {
+        //     address1_CTRL = (baddr.BaseAddress1 & 0xFFFF);
+        // }
+        // if (baddr.BaseAddress3 == 0x0 || baddr.BaseAddress3 == 0x1)
+        // {
+        //     address2_CTRL = 0x374;
+        // }
+        // else
+        // {
+        //     address2_CTRL = (baddr.BaseAddress3 & 0xFFFF);
+        // }
         ATA_Detect_Devtype(address1_IO, 0);
         ATA_Detect_Devtype(address1_IO, 1);
         ATA_Detect_Devtype(address2_IO, 0);

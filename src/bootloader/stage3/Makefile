@@ -2,9 +2,9 @@ BUILD_DIR?=build
 ASM?=nasm
 ASMFLAGS?=-f elf
 CC=i686-elf-gcc
-CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib
+CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib -Wall
 LD=i686-elf-gcc
-LDFLAGS?=-g -T linker.ld -nostdlib
+LDFLAGS?=-g -T linker.ld -nostdlib -Wall
 STAGEFILENAME=stage3
 
 SOURCES_C=$(wildcard *.c)

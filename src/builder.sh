@@ -32,6 +32,12 @@ cd ../..
 
 tar -czvf stage3.tar.gz bootloader/stage3/build
 
+
+#Build User Software
+cd user_Software/template
+make
+cd ../..
+
 # cd bootloader/stage4
 # make
 # cd ../..
@@ -50,4 +56,5 @@ mcopy -i disk.img ../bootloader/stage3/build/stage3.bin ::
 # mcopy -i disk.img ../bootloader/stage4/build/stage4.bin ::
 # mcopy -i disk.img stage4.bin ::
 mcopy -i disk.img /root/test.elf ::
+mcopy -i disk.img ../user_Software/template/build/template.elf ::
 dd if=boot.bin of=disk.img conv=notrunc
