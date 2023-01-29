@@ -7,8 +7,6 @@ void RAM_FullInit()
     uint8_t size_RAM = values[0];
     RAM_t* RAM = (RAM_t*)(RAM_OFFSET + 0x04 + (size_RAM * 0x18));
 
-    uint8_t output[80];
-    uint8_t _lastindex;
     for (int i = 0; i < values[0]; i++)
     {
         // Lese Eintrag aus Speicher
@@ -25,9 +23,9 @@ void RAM_FullInit()
         _memory_pointer[i] = (uint32_t)0x00;
     }
 
-    uint64_t sizeBytes_usedKernel = 0;
-    uint64_t sizeBytes_Available = 0;
-    uint64_t sizeBytes_Total = 0;
+    // uint64_t sizeBytes_usedKernel = 0;
+    // uint64_t sizeBytes_Available = 0;
+    // uint64_t sizeBytes_Total = 0;
 
     for (int i = 0; i < size_RAM; i++)
     {
@@ -37,36 +35,35 @@ void RAM_FullInit()
         {
             _memory_pointer[((values[0] * 0x06) + 0x01) + j] = (uint32_t)0x00;
         }
-        uint8_t tmp_char[80];
         switch (RAM_Value.Type)
         {
             case RAM_Type_Available:
                 if (RAM_Value.BaseAddress == 0x00)
                 {
-                    sizeBytes_usedKernel = RAM_Value.Size;
+                    // sizeBytes_usedKernel = RAM_Value.Size;
                 }
                 else
                 {
                     register_memspace(&RAM_Value);
-                    sizeBytes_Available += RAM_Value.Size;
+                    // sizeBytes_Available += RAM_Value.Size;
                 }
-                sizeBytes_Total += RAM_Value.Size;
+                // sizeBytes_Total += RAM_Value.Size;
                 break;
             
             case RAM_Type_Reserved:
-                sizeBytes_Total += RAM_Value.Size;
+                // sizeBytes_Total += RAM_Value.Size;
                 break;
 
             case RAM_Type_ACPI:
-                sizeBytes_Total += RAM_Value.Size;
+                // sizeBytes_Total += RAM_Value.Size;
                 break;
 
             case RAM_Type_Error:
-                sizeBytes_Total += RAM_Value.Size;
+                // sizeBytes_Total += RAM_Value.Size;
                 break;
 
             default:
-                sizeBytes_Total += RAM_Value.Size;
+                // sizeBytes_Total += RAM_Value.Size;
                 break;
         }
     }

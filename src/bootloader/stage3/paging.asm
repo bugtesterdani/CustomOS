@@ -12,3 +12,10 @@ enablePaging:
     or eax, 0x80000001
     mov cr0, eax
     ret
+
+global disablePaging:
+disablePaging:
+    mov eax, cr0
+    btr eax, 31
+    mov cr0, eax
+    ret

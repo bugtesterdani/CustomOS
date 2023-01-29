@@ -17,7 +17,7 @@
 
 void ParseCommand(char* commandline)
 {
-    char PartSplit[60];
+    uint8_t PartSplit[60];
     clearArray(PartSplit, 60, 0x00);
     int spos = 0;
     
@@ -269,6 +269,10 @@ void ParseCommand(char* commandline)
                 break;
             }
         }
+
+        uint32_t *erroring_page = (uint32_t*)0xFF0000;
+        *erroring_page = 0x100;
+
         if (found == 1)
         {
             uint32_t LBA_Bytes = FolderStruct[i].HighBytes_Cluster[1] << 24 | FolderStruct[i].HighBytes_Cluster[0] << 16 |
@@ -286,7 +290,7 @@ void ParseCommand(char* commandline)
 
             ReadFile(0, LBA_Bytes, SizeBytes, address_blocked);
             parseELFFile(address_blocked, SizeBytes);
-            unblock_space(&address, SizeBytes * 8);
+            // unblock_space(&address, SizeBytes * 8);
         }
     }
     else if (strcmp(PartSplit, "register"))
@@ -317,7 +321,7 @@ void SplitParameters(char* line, int *start_pos, char* PartSplit)
     PartSplit[counter] = '\0';
 }
 
-void clearArray(char* Array, unsigned int length, char default_value)
+void clearArray(uint8_t* Array, unsigned int length, char default_value)
 {
     for (unsigned int i = 0; i < length; i++)
     {

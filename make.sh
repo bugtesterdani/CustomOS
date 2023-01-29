@@ -20,6 +20,8 @@ sudo docker cp tests/test.elf compile_runner:/root/test.elf
 
 sudo docker exec -it compile_runner /bin/bash /root/build.sh
 
+# sudo docker exec -it compile_runner /bin/bash
+
 mkdir -p build
 sudo docker cp compile_runner:/root/src/build/disk.img build/disk.img
 # sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.map build/stage3.map
@@ -27,6 +29,7 @@ sudo docker cp compile_runner:/root/src/build/boot.bin build/stage1.bin
 sudo docker cp compile_runner:/root/src/build/stage2.bin build/stage2.bin
 sudo docker cp compile_runner:/root/src/stage3.tar.gz build/stage3.tar.gz
 sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.bin build/stage3.bin
+sudo docker cp compile_runner:/root/src/user_Software/template/build/template.elf build/template.elf
 sudo chown $USER:$USER build/disk.img
 
 # sudo docker exec -it compile_runner /bin/bash

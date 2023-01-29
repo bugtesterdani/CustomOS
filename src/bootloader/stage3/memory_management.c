@@ -1,4 +1,5 @@
 #include "headers/memory_management.h"
+#include "headers/commands.h"
 
 // To use 264Bit
 memory_table_t *memory = (memory_table_t*)0x510;
@@ -66,10 +67,10 @@ uint8_t register_memory_map()
         return 0;
     }
     uint32_t *memory_max_blocks = (uint32_t*)(memory[0].memory_start + MEMORY_MAP_MAX_BLOCK_OFFSET);
-    *memory_max_blocks = (memory[0].memory_size + MEMORY_MAP_ADDRESS_OFFSET) / BLOCK_SIZE;
+    *memory_max_blocks = (memory[0].memory_size - MEMORY_MAP_ADDRESS_OFFSET) / BLOCK_SIZE;
 
     // set all blocks as unused
-    unblock_space(0, *memory_max_blocks);
+    unblock_space((uint32_t*)(memory[0].memory_start), *memory_max_blocks);
     block_memory_map_space();
     return 1;
 }
