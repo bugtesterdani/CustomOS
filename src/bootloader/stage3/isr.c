@@ -6,6 +6,7 @@
 #include "headers/colors.h"
 #include "headers/fat32.h"
 #include "headers/commands.h"
+#include "headers/syscall.h"
 #include <stddef.h>
 
 static ISRHandler *isr_handlers;
@@ -366,7 +367,12 @@ void stopping_system()
 void asm_functions(isr_handler(registers_t* regs))
 {
     if (isr_handlers[regs->int_no] != NULL)
-        isr_handlers[regs->int_no](regs);
+    {
+        if (regs->int_no == 0x80)
+            syscall(regs);
+        else
+            isr_handlers[regs->int_no](regs);
+    }
 
     else if (regs->int_no >= 32)
         printString("Unhandled interrupt!", White, Black);

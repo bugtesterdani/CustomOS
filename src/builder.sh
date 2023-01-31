@@ -32,6 +32,9 @@ cd ../..
 
 tar -czvf stage3.tar.gz bootloader/stage3/build
 
+cd bootloader/stage4
+make
+cd ../..
 
 #Build User Software
 cd user_Software/template
@@ -53,6 +56,7 @@ mcopy -i disk.img stage2.bin ::/stage22.bin
 # mmd -i disk.img ::/folder/subfolder
 # mcopy -i disk.img stage3.bin ::
 mcopy -i disk.img ../bootloader/stage3/build/stage3.bin ::
+mcopy -i disk.img ../bootloader/stage4/build/stage4.elf ::kernel.elf
 # mcopy -i disk.img ../bootloader/stage4/build/stage4.bin ::
 # mcopy -i disk.img stage4.bin ::
 mcopy -i disk.img /root/test.elf ::

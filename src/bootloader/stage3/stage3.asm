@@ -62,6 +62,8 @@ halt:
 
 bits 32
 init:
+    mov	al, 2	; set bit 2 (enable a20)
+    out	0x92, al
     mov ax, DATA_SEG
     mov ds, ax
     mov ss, ax

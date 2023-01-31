@@ -85,10 +85,10 @@ void GDT_setup_static(uint32_t address_GDT, uint32_t address_Descriptor)
 void init_gdt()
 {
     g_GDT[0] = (gdt_entry_t)GDT_ENTRY(0, 0, 0, 0);
-    g_GDT[1] = (gdt_entry_t)GDT_ENTRY(0, 0xFFFFF,
+    g_GDT[1] = (gdt_entry_t)GDT_ENTRY(0, 0xFFFFFFFF,
                     GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_CODE_SEGMENT | GDT_ACCESS_CODE_READABLE,
                     GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K);
-    g_GDT[2] = (gdt_entry_t)GDT_ENTRY(0, 0xFFFFF,
+    g_GDT[2] = (gdt_entry_t)GDT_ENTRY(0, 0xFFFFFFFF,
                     GDT_ACCESS_PRESENT | GDT_ACCESS_RING0 | GDT_ACCESS_DATA_SEGMENT | GDT_ACCESS_DATA_WRITEABLE,
                     GDT_FLAG_32BIT | GDT_FLAG_GRANULARITY_4K);
     

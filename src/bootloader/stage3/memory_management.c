@@ -216,6 +216,24 @@ uint8_t find_first_free_block(uint32_t blocks, uint32_t *block)
     return 0;
 }
 
+void block_space(uint32_t *address, uint64_t size)
+{
+    uint32_t blocks = size / BLOCK_SIZE;
+    if ((size % BLOCK_SIZE) != 0)
+    {
+        blocks += 1;
+    }
+    if (((*address - memory[0].memory_start) % BLOCK_SIZE) != 0)
+    {
+        *address -= ((*address - memory[0].memory_start) % BLOCK_SIZE);
+    }
+
+    for (uint64_t i = 0; i < blocks; i++)
+    {
+        set_block((*address - memory[0].memory_start) / BLOCK_SIZE);
+    }
+}
+
 void set_block(uint32_t bit)
 {
     // There is a Pointer at address 0x510, which points to the start address of the map (by offset 0x008)
@@ -230,9 +248,9 @@ void unset_block(uint32_t bit)
     memory_map[bit/32] &= ~(1 << (bit % 32));
 }
 
-void memcp(uint8_t *src, uint8_t *dst, uint8_t start, uint8_t count, uint8_t offset_dst)
+void memcp(uint32_t *src, uint32_t *dst, uint32_t start, uint32_t count, uint32_t offset_dst)
 {
-    for (uint16_t i = start; i < count; i++)
+    for (uint64_t i = start; i < count; i++)
     {
         dst[i + offset_dst] = src[i];
     }

@@ -61,10 +61,10 @@ void ParseCommand(char* commandline)
         GetListOfFiles(0, FolderStruct, &count_folders);
         for (uint64_t i = 0; i < count_folders; i++)
         {
-            uint8_t print_nane[12];
-            clearArray(print_nane, 12, 0x00);
-            memcp(FolderStruct[i].NAME, print_nane, 0, 11, 0);
-            printString(print_nane, White, Black);
+            uint8_t print_name[12];
+            clearArray(print_name, 12, 0x00);
+            memcp((uint32_t*)(FolderStruct[i].NAME), (uint32_t*)print_name, 0, 11, 0);
+            printString(print_name, White, Black);
             setcursornewline();
         }
     }
@@ -260,7 +260,8 @@ void ParseCommand(char* commandline)
         {
             uint8_t outpname[12];
             clearArray(outpname, 12, 0x00);
-            memcp(FolderStruct[i].NAME, outpname, 0, 11, 0);
+            memcp((uint32_t*)(FolderStruct[i].NAME), (uint32_t*)outpname, 0, 3, 0);
+            outpname[11] = 0;
             found = cmplsname(outpname, PartSplit);
             if (found == 1)
             {
@@ -269,9 +270,6 @@ void ParseCommand(char* commandline)
                 break;
             }
         }
-
-        uint32_t *erroring_page = (uint32_t*)0xFF0000;
-        *erroring_page = 0x100;
 
         if (found == 1)
         {
@@ -289,8 +287,13 @@ void ParseCommand(char* commandline)
             address_blocked = (uint16_t*)(address + offset);
 
             ReadFile(0, LBA_Bytes, SizeBytes, address_blocked);
-            parseELFFile(address_blocked, SizeBytes);
+            parseELFFile(address_blocked, SizeBytes, 0x00);
             // unblock_space(&address, SizeBytes * 8);
+        }
+        else
+        {
+            printString("No File Found", White, Black);
+            setcursornewline();
         }
     }
     else if (strcmp(PartSplit, "register"))

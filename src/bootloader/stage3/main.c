@@ -13,6 +13,7 @@
 #include "headers/fat32.h"
 #include "headers/initialize.h"
 #include "headers/paging.h"
+#include "headers/elf.h"
 
 #define SYSTEM_MEMORY   2 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
@@ -26,9 +27,6 @@ void _cstart_()
     uint32_t offset = 0;
     if (allocate_block(&address, &offset, SYSTEM_MEMORY) == 0)
     {
-        // printString("Memory allocation failed in main thread", White, Black);
-        // setcursornewline();
-        // endless loop
         stopping_system();
     }
     InitializeAddresses(address + offset);
@@ -39,6 +37,10 @@ void _cstart_()
     init_idt();
     enable_interrupts();
     paging_setup();
+    Parsing("KERNEL.ELF", 0xFF000000);
+
+    // We will switch before to stage 4
+    for (;;);
 
 #ifdef VGA_TEST
     setupmode(320, 200, 256);

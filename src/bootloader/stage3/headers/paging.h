@@ -23,9 +23,12 @@ struct Page
 typedef struct Page PD_t;
 typedef struct Page PT_t;
 
+void asm_functions(enablePaging());
+void asm_functions(disablePaging());
+
 uint8_t paging_setup_newDirectory(uint32_t *address, uint16_t table_count);
 void paging_setup_static(uint32_t address_page_directory);
 void paging_setup();
+uint8_t paging_setup_newTable(uint16_t entry_id);
 void map_page(uint32_t *phys_address, uint32_t *virt_address, uint32_t flags);
-void paging_register_IRQ();
 void page_fault(registers_t* regs);

@@ -29,6 +29,7 @@ sudo docker cp compile_runner:/root/src/build/boot.bin build/stage1.bin
 sudo docker cp compile_runner:/root/src/build/stage2.bin build/stage2.bin
 sudo docker cp compile_runner:/root/src/stage3.tar.gz build/stage3.tar.gz
 sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.bin build/stage3.bin
+sudo docker cp compile_runner:/root/src/bootloader/stage4/build/stage4.elf build/stage4.elf
 sudo docker cp compile_runner:/root/src/user_Software/template/build/template.elf build/template.elf
 sudo chown $USER:$USER build/disk.img
 
