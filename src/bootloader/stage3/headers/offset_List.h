@@ -18,4 +18,4 @@
 #define ATA_DEV_T       GDT_DESC + sizeof(gdt_ptr_t)                        // 4 * ATA_t
 #define ATA_COUNT       ATA_DEV_T + (4 * sizeof(ATA_t))                     // uint8_t
 #define FAT32_INFOS     ATA_COUNT + (sizeof(uint8_t))                       // uint32_t to show at page with readed informations
-#define PAGING_DIR_ADDR FAT32_INFOS + (sizeof(uint32_t))                    // uint32_t to show at page where the Page directory is located
+#define PAGING_DIR_ADDR FAT32_INFOS + (sizeof(uint32_t) * 13)               // uint32_t to show at page where the Page directory is located

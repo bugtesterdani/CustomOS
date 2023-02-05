@@ -63,7 +63,7 @@ void ParseCommand(char* commandline)
         {
             uint8_t print_name[12];
             clearArray(print_name, 12, 0x00);
-            memcp((uint32_t*)(FolderStruct[i].NAME), (uint32_t*)print_name, 0, 11, 0);
+            memcp(FolderStruct[i].NAME, (uint8_t*)print_name, 0, 11, 0);
             printString(print_name, White, Black);
             setcursornewline();
         }
@@ -260,7 +260,7 @@ void ParseCommand(char* commandline)
         {
             uint8_t outpname[12];
             clearArray(outpname, 12, 0x00);
-            memcp((uint32_t*)(FolderStruct[i].NAME), (uint32_t*)outpname, 0, 3, 0);
+            memcp(FolderStruct[i].NAME, (uint8_t*)outpname, 0, 3, 0);
             outpname[11] = 0;
             found = cmplsname(outpname, PartSplit);
             if (found == 1)
@@ -287,7 +287,7 @@ void ParseCommand(char* commandline)
             address_blocked = (uint16_t*)(address + offset);
 
             ReadFile(0, LBA_Bytes, SizeBytes, address_blocked);
-            parseELFFile(address_blocked, SizeBytes, 0x00);
+            parseELFFile(address_blocked, SizeBytes);
             // unblock_space(&address, SizeBytes * 8);
         }
         else

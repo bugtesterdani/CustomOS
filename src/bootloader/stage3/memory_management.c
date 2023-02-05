@@ -248,7 +248,7 @@ void unset_block(uint32_t bit)
     memory_map[bit/32] &= ~(1 << (bit % 32));
 }
 
-void memcp(uint32_t *src, uint32_t *dst, uint32_t start, uint32_t count, uint32_t offset_dst)
+void memcp(uint8_t *src, uint8_t *dst, uint32_t start, uint32_t count, uint32_t offset_dst)
 {
     for (uint64_t i = start; i < count; i++)
     {

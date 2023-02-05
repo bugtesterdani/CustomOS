@@ -114,8 +114,8 @@ void GetListOfFiles(uint8_t drive_num, FAT_Folder_t *folderstruct, uint32_t *amo
 {
     if (fat32->OEM_ID[0] == 0)
     {
-        FAT32_t *fat32;
-        ReadParameter(&fat32, drive_num);
+        FAT32_t *fat32_tmp;
+        ReadParameter(&fat32_tmp, drive_num);
     }
     uint32_t FirstDataSector =  (*((uint16_t*)fat32->ReservedSectors)) + 
                                 ((*((uint8_t*)fat32->TotalFATs)) * (*((uint32_t*)fat32->BigSectorsPerFAT))) +

@@ -1,9 +1,15 @@
 
 void make_syscall_test();
 void start_paging();
+typedef void func(char *, unsigned char, unsigned char);
+typedef void func2(void);
 
 void main()
 {
+    func* printString = (func*)(0x97a2);
+    func2* setccurosrnewline = (func2*)(0x91cb);
+    printString("Hello world stage 4", 0xf, 0x0);
+    setccurosrnewline();
     start_paging();
     make_syscall_test();
 }

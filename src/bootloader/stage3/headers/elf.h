@@ -46,5 +46,17 @@ typedef struct ELF_header
     uint16_t IndexSectionHeaderSectionNames;
 } __attribute__((packed)) ELF_header_t;
 
-uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes, uint16_t virtual_address);
-void Parsing(char *name, uint32_t offset_block);
+typedef struct ELF_header_table
+{
+    uint8_t p_type[4];
+    uint8_t p_offset[4];
+    uint8_t p_virt_addr[4];
+    uint8_t p_phys_addr[4];
+    uint8_t p_file_size[4];
+    uint8_t p_mem_size[4];
+    uint8_t p_flags[4];
+    uint8_t p_align[4];
+} __attribute__((packed)) ELF_header_table_t;
+
+uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes);
+void Parsing(char *name);

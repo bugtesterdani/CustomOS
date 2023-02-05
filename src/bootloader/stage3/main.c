@@ -37,7 +37,7 @@ void _cstart_()
     init_idt();
     enable_interrupts();
     paging_setup();
-    Parsing("KERNEL.ELF", 0xFF000000);
+    Parsing("KERNEL.ELF");
 
     // We will switch before to stage 4
     for (;;);
