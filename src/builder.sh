@@ -32,6 +32,11 @@ cd ../..
 
 tar -czvf stage3.tar.gz bootloader/stage3/build
 
+# Bootloader Stage 3_2
+nasm -f elf32 -g3 -F dwarf bootloader/stage3_2/jmploader.asm -o build/stage32.o
+ld -Ttext=0x00 -melf_i386 build/stage32.o -o build/stage32.elf
+objcopy -O binary build/stage32.elf build/stage32.bin
+
 cd bootloader/stage4
 make
 cd ../..
@@ -52,6 +57,7 @@ dd if=/dev/zero of=disk.img bs=512 count=1440000
 mformat -F -i disk.img ::
 mcopy -i disk.img stage2.bin ::
 mcopy -i disk.img stage2.bin ::/stage22.bin
+# mcopy -i disk.img stage32.bin ::
 # mmd -i disk.img ::/folder
 # mmd -i disk.img ::/folder/subfolder
 # mcopy -i disk.img stage3.bin ::

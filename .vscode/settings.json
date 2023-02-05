@@ -19,6 +19,7 @@
         "atomic": "c",
         "initialize.h": "c",
         "offset_list.h": "c",
-        "elf.h": "c"
+        "elf.h": "c",
+        "string_view": "c"
     }
 }
