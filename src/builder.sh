@@ -65,6 +65,5 @@ mcopy -i disk.img ../bootloader/stage3/build/stage3.bin ::
 mcopy -i disk.img ../bootloader/stage4/build/stage4.elf ::kernel.elf
 # mcopy -i disk.img ../bootloader/stage4/build/stage4.bin ::
 # mcopy -i disk.img stage4.bin ::
-mcopy -i disk.img /root/test.elf ::
 mcopy -i disk.img ../user_Software/template/build/template.elf ::
 dd if=boot.bin of=disk.img conv=notrunc

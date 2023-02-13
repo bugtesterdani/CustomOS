@@ -28,7 +28,9 @@ uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
     }
 
     uint32_t offsetBytes = ((uint32_t*)(&(ELF->ProgramEntryPosition)))[0];
-    ELF_header_table_t *header_table = ((ELF_header_table_t*)(&(ELF->HeaderTablePosition)));
+    uint32_t headertable_address = (uint32_t)((ELF->HeaderTablePosition[3] << 24) | (ELF->HeaderTablePosition[2] << 16) |
+                                              (ELF->HeaderTablePosition[1] <<  8) | (ELF->HeaderTablePosition[0] <<  0));
+    ELF_header_table_t *header_table = ((ELF_header_table_t*)(((uint32_t)ELF) + headertable_address));
     uint32_t start_address = 0;
 
     PreparePages(ELF, header_table, &start_address);
@@ -55,11 +57,12 @@ void PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t 
     }
 
     for (uint32_t i = 0; i < ELF->NumberOfProgramHeaderTableEntries; i++)
-    {        
+    {
+        uint8_t output[80];
         header_table = (ELF_header_table_t*)((uint32_t)header_table + ELF->SizePerProgramHeaderTableEntry);
-        start_offset = ((uint32_t*)(&(header_table->p_align)))[0];
-        save_address = ((uint32_t*)(&(header_table->p_phys_addr)))[0];
-        size = ((uint32_t*)(&(header_table->p_mem_size)))[0];
+        start_offset = ((uint32_t*)((header_table->p_align)))[0];
+        save_address = ((uint32_t*)((header_table->p_phys_addr)))[0];
+        size = ((uint32_t*)((header_table->p_mem_size)))[0];
         if (allocate_block(&block_addr, &block_offset, size) != 1)
         {
             return 0;
@@ -83,7 +86,7 @@ void Parsing(char *name)
     uint8_t found = 0;
 
     // Load the Paging enabler and jumper to 0xFF000000
-    uint8_t loader_bytes[17];
+    uint8_t loader_bytes[20];
     loader_bytes[0] = 0x0F;
     loader_bytes[1] = 0x20;
     loader_bytes[2] = 0xC0;
@@ -95,13 +98,16 @@ void Parsing(char *name)
     loader_bytes[8] = 0x0F;
     loader_bytes[9] = 0x22;
     loader_bytes[10] = 0xC0;
-    loader_bytes[11] = 0xE8;
-    loader_bytes[12] = 0xF0;
-    loader_bytes[13] = 0xFF;
-    loader_bytes[14] = 0xFF;
-    loader_bytes[15] = 0xFE;
-    loader_bytes[16] = 0xC3;
-    memcp(loader_bytes, (uint8_t*)0x00, 0, 17, 0);
+    loader_bytes[11] = 0xB8;
+    loader_bytes[12] = 0x00;
+    loader_bytes[13] = 0x00;
+    loader_bytes[14] = 0x00;
+    loader_bytes[15] = 0xBF;
+    loader_bytes[16] = 0xFF;
+    loader_bytes[17] = 0xE0;
+    loader_bytes[18] = 0xC3;
+    loader_bytes[19] = 0x00;
+    memcp(loader_bytes, (uint8_t*)0x00, 0, 20, 0);
 
     while ((i < count_folders) & (found == 0))
     {
@@ -112,7 +118,10 @@ void Parsing(char *name)
         printString(outpname, White, Black);
         setcursornewline();
         found = cmplsname(outpname, name);
-        i++;
+        if (found == 0)
+        {
+            i++;
+        }
     }
 
     if (found == 1)
@@ -124,7 +133,7 @@ void Parsing(char *name)
         uint32_t SizeBytes = (uint32_t)((*((uint32_t*)(&(*FolderStruct[i].FileSize_Byte))) & 0xFFFFFFFF) << 0);
         uint32_t address = 0;
         uint32_t offset = 0;
-        if (allocate_block(&address, &offset, SizeBytes * 8) == 0)
+        if (allocate_block(&address, &offset, SizeBytes * 0x20 * 8) == 0)
         {
             printString("Not enough memory to allocate", White, Black);
             return;
@@ -132,7 +141,28 @@ void Parsing(char *name)
         uint16_t *address_blocked;
         address_blocked = (uint16_t*)(address + offset);
         memset((uint8_t*)address_blocked, SizeBytes, 0x00);
-        ReadFile(0, LBA_Bytes, SizeBytes, address_blocked);
+        ReadFile(0, LBA_Bytes, SizeBytes * 0x20, address_blocked);
+
+        uint8_t output[80];
+        clearArray(output, 80, 0x00);
+        printString("ADDR PS1: ", White, Black);
+        ConvertToChar((((uint32_t)(address_blocked)) >> 16) & 0xFFFF, 16, output, 0);
+        ConvertToChar((((uint32_t)(address_blocked)) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
+        printString(output, White, Black);
+        setcursornewline(); 
+        clearArray(output, 80, 0x00);
+        printString("LBA: ", White, Black);
+        ConvertToChar((((uint32_t)(LBA_Bytes)) >> 16) & 0xFFFF, 16, output, 0);
+        ConvertToChar((((uint32_t)(LBA_Bytes)) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
+        printString(output, White, Black);
+        setcursornewline(); 
+        clearArray(output, 80, 0x00);
+        printString("SIZE PS2: ", White, Black);
+        ConvertToChar(((SizeBytes) >> 16) & 0xFFFF, 16, output, 0);
+        ConvertToChar(((SizeBytes) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
+        printString(output, White, Black);
+        setcursornewline(); 
+
         parseELFFile(address_blocked, SizeBytes);
         // unblock_space(&address, SizeBytes * 8);
     }
