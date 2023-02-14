@@ -64,7 +64,7 @@ uint8_t paging_setup_newTable(uint16_t entry_id)
 
 void paging_setup_newTableEntry(uint16_t d_entry_id, uint16_t t_entry_id, uint32_t address, uint32_t flags)
 {
-    printString("Setup new Directory Entry: ", White, Black);
+    printString("Setup new Table Entry: ", White, Black);
     char output[80];
     clearArray(output, 80, 0x00);
     ConvertToChar((t_entry_id) & 0xFFFF, 16, output, 0);
@@ -82,7 +82,19 @@ void paging_setup_newTableEntry(uint16_t d_entry_id, uint16_t t_entry_id, uint32
     setcursornewline();
     PD_t *Directory = (PD_t*)(*addr_page_dir);
     PT_t *Table = (PT_t*)((Directory[d_entry_id].Frame_Pointer) << 12);
-    ((uint32_t*)(&(Table[t_entry_id])))[0] = flags;
+    *((uint32_t*)(&(Table[t_entry_id]))) = flags;
+    clearArray(output, 80, 0x00);
+    printString("ADDR: ", White, Black);
+    ConvertToChar((((uint32_t)((uint32_t*)(&(Table[t_entry_id])))) >> 16) & 0xFFFF, 16, output, 0);
+    ConvertToChar((((uint32_t)((uint32_t*)(&(Table[t_entry_id])))) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
+    printString(output, White, Black);
+    setcursornewline();
+    clearArray(output, 80, 0x00);
+    printString("NEWADDR: ", White, Black);
+    ConvertToChar((address >> 16) & 0xFFFF, 16, output, 0);
+    ConvertToChar((address >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
+    printString(output, White, Black);
+    setcursornewline();
     Table[t_entry_id].FreeBits = 1;
     Table[t_entry_id].Frame_Pointer = ((address) >> 12);
 }
@@ -106,42 +118,8 @@ void paging_setup()
 
 void map_page(uint32_t *phys_address, uint32_t *virt_address, uint32_t flags)
 {
-    setcursornewline();
-    printString("PAGEDIR: 0x", White, Black);
-    uint8_t output[80];
-    clearArray(output, 80, 0x00);
-    ConvertToChar(((*addr_page_dir) >> 16) & 0xFFFF, 16, output, 0);
-    uint8_t _lastindex = lastIndex(output, 80);
-    ConvertToChar(((*addr_page_dir) >>  0) & 0xFFFF, 16, output, _lastindex);
-    printString(output, White, Black);
-    setcursornewline();
-    printString("PhysAddr: 0x", White, Black);
-    output[80];
-    clearArray(output, 80, 0x00);
-    ConvertToChar(((*phys_address) >> 16) & 0xFFFF, 16, output, 0);
-    _lastindex = lastIndex(output, 80);
-    ConvertToChar(((*phys_address) >>  0) & 0xFFFF, 16, output, _lastindex);
-    printString(output, White, Black);
-    setcursornewline();
-    printString("VirtAddr: 0x", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar(((*virt_address) >> 16) & 0xFFFF, 16, output, 0);
-    _lastindex = lastIndex(output, 80);
-    ConvertToChar(((*virt_address) >>  0) & 0xFFFF, 16, output, _lastindex);
-    printString(output, White, Black);
-        uint16_t PD = PD_Entry(*virt_address);
-    setcursornewline();
-    printString("PD: 0x", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar(PD, 16, output, 0);
-    printString(output, White, Black);
-        uint16_t PT = PT_Entry(*virt_address);
-    setcursornewline();
-    printString("PT: 0x", White, Black);
-    clearArray(output, 80, 0x00);
-    ConvertToChar(PT, 16, output, 0);
-    printString(output, White, Black);
-    setcursornewline();
+    uint16_t PD = PD_Entry(*virt_address);
+    uint16_t PT = PT_Entry(*virt_address);
 
     PD_t *Directory = (PD_t*)(*addr_page_dir);
     if (Directory[PD].FreeBits == 0)
@@ -151,8 +129,15 @@ void map_page(uint32_t *phys_address, uint32_t *virt_address, uint32_t flags)
     PT_t *Table = (PT_t*)((Directory[PD].Frame_Pointer) << 12);
     if (Table[PT].FreeBits == 0)
     {
+        printString(" set new table ", White, Black);
         paging_setup_newTableEntry(PD, PT, *phys_address, flags);
     }
+    else
+    {
+        printString(" no new table set ", White, Black);
+        Table[PT].Frame_Pointer = ((*phys_address) >> 12);
+    }
+    setcursornewline();
 }
 
 void page_fault(registers_t* regs)

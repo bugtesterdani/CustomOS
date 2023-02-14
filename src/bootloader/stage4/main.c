@@ -6,11 +6,11 @@ typedef void func2(void);
 
 void main()
 {
-    func* printString = (func*)(0x97a2);
-    func2* setccurosrnewline = (func2*)(0x91cb);
-    printString("Hello world stage 4", 0xf, 0x0);
-    setccurosrnewline();
-    start_paging();
+    // func* printString = (func*)(0x97a2);
+    // func2* setccurosrnewline = (func2*)(0x91cb);
+    // printString("Hello world stage 4", 0xf, 0x0);
+    // setccurosrnewline();
+    // start_paging();
     make_syscall_test();
 }
 
@@ -18,7 +18,7 @@ void make_syscall_test()
 {
     unsigned short syscall_addr = 0x10;
     __asm__ __volatile__("movl $0, %eax");
-    __asm__ __volatile__("int $0x10");// : : "Nd"(syscall_addr));
+    __asm__ __volatile__("int $0x40");// : : "Nd"(syscall_addr));
 }
 
 void start_paging()

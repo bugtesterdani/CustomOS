@@ -8,6 +8,8 @@ enablePaging:
     or eax, 0x80000001
     mov cr0, eax
 
+mov esp, 0xbf000000
+mov ebp, esp
 mov eax, 0xbf000000
 jmp eax
 ret
