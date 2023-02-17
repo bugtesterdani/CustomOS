@@ -189,9 +189,15 @@ void ReadFile(uint8_t drive_num, uint32_t offset_index, uint64_t byte_size, uint
     {
         sector_count++;
     }
+    char output[80];
 
     for (uint32_t i = 0; i < sector_count; i++)
     {
+        clearArray((uint8_t*)output, 80, 0x00);
+        ConvertToChar(((uint32_t)(((uint16_t*)(((uint32_t)data_address) + (i * 512 * 8)))) >> 16) & 0xFFFF, 16, output, 0);
+        ConvertToChar(((uint32_t)(((uint16_t*)(((uint32_t)data_address) + (i * 512 * 8)))) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
+        printString(output, White, Black);
+        setcursornewline();
         ReadSectorsLBA(drive_num, FirstSectorOfCluster + ((offset_index - 2) * fat32->SectorsPerCluster) + i, 1, ((uint16_t*)(((uint32_t)data_address) + (i * 512))), 0);
     }
 }

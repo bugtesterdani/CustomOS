@@ -1,5 +1,7 @@
 #pragma once
 #include "stdint.h"
+#include "isr.h"
+#include "io.h"
 
 #define IDT_Entries             256
 

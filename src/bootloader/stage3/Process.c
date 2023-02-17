@@ -11,9 +11,10 @@
 // #include "headers/memory_management.h"
 // #include "headers/keyboard.h"
 
-void ProcessExecutor(uint32_t *address)
+void ProcessExecutor(uint32_t *address, uint32_t parameter)
 {
     void (*myfunc)();
     myfunc = (void*)(address);
+    __asm__ __volatile__("push %[value]" : : [value] "r" (parameter));
     myfunc();
 }
