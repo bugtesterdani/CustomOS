@@ -6,11 +6,10 @@
 #include "headers/screen.h"
 #include "headers/string.h"
 #include "headers/stdio.h"
-#include "headers/commands.h"
 #include "headers/fat32.h"
 #include "headers/memory_management.h"
 
-void PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t *start_address);
+uint8_t PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t *start_address);
 
 uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
 {
@@ -27,13 +26,15 @@ uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
         return 0;
     }
 
-    uint32_t offsetBytes = ((uint32_t*)(&(ELF->ProgramEntryPosition)))[0];
     uint32_t headertable_address = (uint32_t)((ELF->HeaderTablePosition[3] << 24) | (ELF->HeaderTablePosition[2] << 16) |
                                               (ELF->HeaderTablePosition[1] <<  8) | (ELF->HeaderTablePosition[0] <<  0));
     ELF_header_table_t *header_table = ((ELF_header_table_t*)(((uint32_t)ELF) + headertable_address));
     uint32_t start_address = 0;
 
-    PreparePages(ELF, header_table, &start_address);
+    if (PreparePages(ELF, header_table, &start_address) == 0)
+    {
+        return 0;
+    }
 
     printString("Successfully parsed ELF file", White, Black);
     uint32_t addr = 0x00;
@@ -56,7 +57,7 @@ uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
     return 1;
 }
 
-void PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t *start_address)
+uint8_t PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t *start_address)
 {
     header_table = (ELF_header_table_t*)((uint32_t)header_table - ELF->SizePerProgramHeaderTableEntry);
     uint32_t start_offset = 0, save_address = 0, size = 0;
@@ -64,7 +65,6 @@ void PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t 
 
     for (uint32_t i = 0; i < ELF->NumberOfProgramHeaderTableEntries; i++)
     {
-        uint8_t output[80];
         header_table = (ELF_header_table_t*)((uint32_t)header_table + ELF->SizePerProgramHeaderTableEntry);
         start_offset = ((uint32_t*)((header_table->p_align)))[0];
         save_address = ((uint32_t*)((header_table->p_phys_addr)))[0];
@@ -73,30 +73,6 @@ void PreparePages(ELF_header_t *ELF, ELF_header_table_t *header_table, uint32_t 
         {
             return 0;
         }
-        clearArray(output, 80, 0x00);
-        printString("CP FROM: ", White, Black);
-        ConvertToChar((((uint32_t)ELF) >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar((((uint32_t)ELF) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline();
-        clearArray(output, 80, 0x00);
-        printString("CP TO: ", White, Black);
-        ConvertToChar(((block_addr + block_offset - start_offset) >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar(((block_addr + block_offset - start_offset) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline();
-        clearArray(output, 80, 0x00);
-        printString("OFFSET: ", White, Black);
-        ConvertToChar((start_offset >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar((start_offset >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline();
-        clearArray(output, 80, 0x00);
-        printString("SIZE: ", White, Black);
-        ConvertToChar(((size) >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar(((size) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline();
         memcp(((uint8_t*)((uint32_t)ELF)), (uint8_t*)(block_addr + block_offset - start_offset), start_offset, (start_offset + size), 0);
         if (i == 0)
         {
@@ -151,9 +127,9 @@ void Parsing(char *name)
 
     while ((i < count_folders) & (found == 0))
     {
-        uint8_t outpname[12];
-        clearArray(outpname, 12, 0x00);
-        memcp(FolderStruct[i].NAME, outpname, 0, 11, 0);
+        char outpname[12];
+        clearArray((uint8_t*)outpname, 12, 0x00);
+        memcp(FolderStruct[i].NAME, (uint8_t*)outpname, 0, 11, 0);
         outpname[11] = 0;
         printString(outpname, White, Black);
         setcursornewline();
@@ -182,26 +158,6 @@ void Parsing(char *name)
         address_blocked = (uint16_t*)(address + offset);
         memset((uint8_t*)address_blocked, SizeBytes, 0x00);
         ReadFile(0, LBA_Bytes, SizeBytes * 8, address_blocked);
-
-        uint8_t output[80];
-        clearArray(output, 80, 0x00);
-        printString("ADDR PS1: ", White, Black);
-        ConvertToChar((((uint32_t)(address_blocked)) >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar((((uint32_t)(address_blocked)) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline(); 
-        clearArray(output, 80, 0x00);
-        printString("LBA: ", White, Black);
-        ConvertToChar((((uint32_t)(LBA_Bytes)) >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar((((uint32_t)(LBA_Bytes)) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline(); 
-        clearArray(output, 80, 0x00);
-        printString("SIZE PS2: ", White, Black);
-        ConvertToChar(((SizeBytes) >> 16) & 0xFFFF, 16, output, 0);
-        ConvertToChar(((SizeBytes) >>  0) & 0xFFFF, 16, output, lastIndex(output, 80));
-        printString(output, White, Black);
-        setcursornewline(); 
 
         parseELFFile(address_blocked, SizeBytes);
         // unblock_space(&address, SizeBytes * 8);

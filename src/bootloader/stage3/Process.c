@@ -14,6 +14,6 @@
 void ProcessExecutor(uint32_t *address)
 {
     void (*myfunc)();
-    myfunc = (address);
+    myfunc = (void*)(address);
     myfunc();
 }

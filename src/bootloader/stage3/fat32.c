@@ -9,7 +9,6 @@
 #include "headers/screen.h"
 #include "headers/string.h"
 #include "headers/stdio.h"
-#include "headers/commands.h"
 
 static FAT32_t *fat32;
 

@@ -1,5 +1,5 @@
 #include "headers/memory_management.h"
-#include "headers/commands.h"
+#include "headers/stdio.h"
 
 // To use 264Bit
 memory_table_t *memory = (memory_table_t*)0x510;
@@ -60,8 +60,6 @@ uint8_t register_memory_map()
     memory[0].memory_start += offset_align;
     memory[0].memory_size -= offset_align;
     
-    uint32_t *memory_map = (uint32_t*)(memory[0].memory_start + MEMORY_MAP_ADDRESS_OFFSET);
-
     if (memspace_counter[0] == 0)
     {
         return 0;

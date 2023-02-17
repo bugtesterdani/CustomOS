@@ -5,7 +5,6 @@
 #include "headers/stdio.h"
 #include "headers/colors.h"
 #include "headers/fat32.h"
-#include "headers/commands.h"
 #include "headers/syscall.h"
 #include <stddef.h>
 
@@ -388,7 +387,7 @@ void asm_functions(isr_handler(registers_t* regs))
             default:
                 printString("KERNEL PANIC! ", Red, Black);
                 char outputint[0x14];
-                clearArray(outputint, 20, 0x00);
+                clearArray((uint8_t*)outputint, 20, 0x00);
                 ConvertToChar(regs->int_no, 16, outputint, 0);
                 printString(outputint, White, Black);
                 stop_system();

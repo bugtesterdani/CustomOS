@@ -3,7 +3,7 @@ ASM?=nasm
 ASMFLAGS?=-f elf
 CC=i686-elf-gcc
 # CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib -Wall
-CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib
+CCFLAGS?=-std=c99 -g -ffreestanding -nostdlib -Wall -Wno-packed-bitfield-compat
 LD=i686-elf-gcc
 # LDFLAGS?=-g -T linker.ld -nostdlib -Wall
 LDFLAGS?=-g -T linker.ld -nostdlib

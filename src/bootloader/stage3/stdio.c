@@ -50,3 +50,11 @@ void removeLastCharacter()
     putchar(' ', lastcolor);
     setcursor(XPos - 1, YPos);
 }
+
+void clearArray(uint8_t* Array, unsigned int length, char default_value)
+{
+    for (unsigned int i = 0; i < length; i++)
+    {
+        Array[i] = default_value;
+    }
+}
