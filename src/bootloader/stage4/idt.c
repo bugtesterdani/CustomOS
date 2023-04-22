@@ -33,6 +33,9 @@ void idt_disable_gate(int interrupt)
 
 void init_idt()
 {
-    *g_IDTDescriptor = (idt_ptr_t){ IDT_Entries - 1, g_IDT };
+    idt_ptr_t ptrT = { 0, 0 };
+    ptrT.Limit = (IDT_Entries - 1);
+    ptrT.Ptr = g_IDT;
+    *g_IDTDescriptor = ptrT;
     idt_flush(g_IDTDescriptor);
 }

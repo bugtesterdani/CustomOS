@@ -113,3 +113,18 @@ void scrollDown()
     }
     *ScreenY -= 1;
 }
+
+void printString(char *str, uint8_t Foreground, uint8_t Background)
+{
+    for (uint8_t i = 0; i < 80; i++)
+    {
+        if (str[i] == 0x00)
+        {
+            i = 80;
+        }
+        else
+        {
+            putchar(str[i], (Background << 4) | Foreground);
+        }
+    }
+}

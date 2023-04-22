@@ -1,6 +1,8 @@
 #include "headers/idt.h"
 #include <stddef.h>
 
+#include "headers/screen.h"
+
 static ISRHandler *isr_handlers;
 
 void ISR_setup_static(uint32_t address)
@@ -350,33 +352,75 @@ void irq_init()
     outb(0xA1, 0xff);   //0x00
 }
 
+void clearArray(uint8_t* Array, unsigned int length, char default_value)
+{
+    for (unsigned int i = 0; i < length; i++)
+    {
+        Array[i] = default_value;
+    }
+}
+
+void GPF(registers_t *regs)
+{
+    uint32_t int_index = ((regs->error_code >> 3) & 0x3FFF);
+    if (isr_handlers[int_index] != NULL)
+    {
+        isr_handlers[int_index](regs);
+    }
+    else if (regs->int_no == 0x80)
+    {
+        void (*myfunc)(registers_t*);
+        myfunc = (void*)(0x20);
+        myfunc(regs);
+    }
+    else
+    {
+        setcursornewline();
+        printString("General Protection Fault and sub Interrupt not implemented!", 0xF, 0x0);
+        stop_system();
+    }
+}
+
 void asm_functions(isr_handler(registers_t* regs))
 {
+    // if (regs->int_no == 0x0D)
+    // {
+    //     GPF(regs);
+    //     return;
+    // }
     if (isr_handlers[regs->int_no] != NULL)
     {
-        // if (regs->int_no == 0x80)
-        //     syscall(regs);
-        // else
+        if (regs->int_no == 0x80)
+        {
+            void (*myfunc)(registers_t*);
+            myfunc = (void*)(0x20);
+            myfunc(regs);
+        }
+        else
             isr_handlers[regs->int_no](regs);
     }
 
-    // else if (regs->int_no >= 32)
-    //     printString("Unhandled interrupt!", White, Black);
+    else if (regs->int_no >= 32)
+        printString("Unhandled interrupt!", 0xF, 0x0);
 
     else 
     {
         switch (regs->int_no)
         {
             case 0x0E:
-                // printString("Page Fault", Red, Black);
+                printString("Page Fault", 0xE, 0x0);
                 stop_system();
                 break;
             default:
-                // printString("KERNEL PANIC! ", Red, Black);
-                // char outputint[0x14];
-                // clearArray((uint8_t*)outputint, 20, 0x00);
-                // ConvertToChar(regs->int_no, 16, outputint, 0);
-                // printString(outputint, White, Black);
+                printString("KERNEL PANIC! ", 0xE, 0x0);
+                char outputint[0x14];
+                clearArray((uint8_t*)outputint, 20, 0x00);
+                ConvertToChar(regs->int_no, 16, outputint, 0);
+                printString(outputint, 0xF, 0x0);
+                printString(" ", 0xF, 0x0);
+                clearArray((uint8_t*)outputint, 20, 0x00);
+                ConvertToChar(regs->error_code, 16, outputint, 0);
+                printString(outputint, 0xF, 0x0);
                 stop_system();
                 break;
         }

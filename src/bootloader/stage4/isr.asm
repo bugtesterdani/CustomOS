@@ -9,6 +9,7 @@ extern irq_handler
 
 global ISR%1:
 ISR%1:
+    cli
     push 0              ; push dummy error code
     push %1             ; push interrupt number
     jmp isr_common
@@ -17,6 +18,7 @@ ISR%1:
 %macro ISR_ERRORCODE 1
 global ISR%1:
 ISR%1:
+    cli
                         ; cpu pushes an error code to the stack
     push %1             ; push interrupt number
     jmp isr_common
@@ -70,6 +72,7 @@ isr_common:
 
     popa                ; pop what we pushed with pusha
     add esp, 8          ; remove error code and interrupt number
+    sti
     iret                ; will pop: cs, eip, eflags, ss, esp
 
 irq_common:

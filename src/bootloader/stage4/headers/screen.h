@@ -21,3 +21,4 @@ void updatePos();
 uint8_t getXPos();
 uint8_t getYPos();
 uint8_t getColor(int x, int y);
+void printString(char *str, uint8_t Foreground, uint8_t Background);

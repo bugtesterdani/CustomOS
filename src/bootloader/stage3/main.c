@@ -15,6 +15,8 @@
 #define SYSTEM_MEMORY   2 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
 
+void testing_idt();
+
 void _cstart_()
 {
     RAM_FullInit();
@@ -31,9 +33,24 @@ void _cstart_()
     irq_init();
     init_idt();
     enable_interrupts();
+
+    testing_idt();
+
     paging_setup();
     Parsing("KERNEL.ELF");
 
     // We will switch before to stage 4
     for (;;);
+}
+
+struct idt
+{
+    void *base;
+    unsigned short length;
+};
+
+void testing_idt()
+{
+    struct idt idt;
+    __asm__ __volatile__ ("sidt %0" : "=m"(idt));
 }

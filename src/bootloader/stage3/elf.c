@@ -29,7 +29,7 @@ uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
     uint32_t headertable_address = (uint32_t)((ELF->HeaderTablePosition[3] << 24) | (ELF->HeaderTablePosition[2] << 16) |
                                               (ELF->HeaderTablePosition[1] <<  8) | (ELF->HeaderTablePosition[0] <<  0));
     ELF_header_table_t *header_table = ((ELF_header_table_t*)(((uint32_t)ELF) + headertable_address));
-
+    
     if (PreparePages(ELF, header_table) == 0)
     {
         return 0;
@@ -67,7 +67,9 @@ uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
     block_addr = 0;
     block_offset = 0;
     addr = 0xc0000000;
-    allocate_block(&block_addr, &block_offset, (0xc000f000 - 0xc0000000));
+    uint32_t end_addr = 0xc000f000;
+    allocate_block(&block_addr, &block_offset, (end_addr - addr));
+    size = ((end_addr - addr) / 0x1000);
     block_address = (block_addr + block_offset);
     for (uint32_t i = 0; i < size; i++)
     {
@@ -79,6 +81,7 @@ uint8_t parseELFFile(uint16_t *elffile, uint32_t sizeBytes)
     // Map the Output Graphic Addresses to 0xB00000000
     addr = 0xb0000000;
     block_address = 0xB8000;
+    size = 100;
     for (uint32_t i = 0; i < size; i++)
     {
         map_page(&block_address, &addr, 0x7);
