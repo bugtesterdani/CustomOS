@@ -33,6 +33,7 @@
 typedef void func(void);
 
 void testing_idt();
+void running_interrupt30(registers_t *regs);
 void running_interrupt40(registers_t *regs);
 
 uint16_t get_cpl() {
@@ -57,6 +58,7 @@ void main()
     init_gdt();
     isr_init();
     isr_register(0x81, running_interrupt40);
+    isr_register(0x82, running_interrupt30);
     irq_init();
     init_idt();
     __asm__ __volatile__ ("cli");
@@ -69,14 +71,23 @@ void main()
     printString(charout, 0xf, 0x0);
     // uint32_t *tmp = (uint32_t*)0x100000;
     // *tmp = 100;
+    __asm__ __volatile__("int $0x82");
     __asm__ __volatile__("int $0x81");
+    __asm__ __volatile__("int $0x80");
     for(;;);
+}
+
+void running_interrupt30(registers_t *regs)
+{
+    setcursornewline();
+    printString("Interrupt received 30", White, Black);
+    setcursornewline();
 }
 
 void running_interrupt40(registers_t *regs)
 {
     setcursornewline();
-    printString("Interrupt received", White, Black);
+    printString("Interrupt received - 40", White, Black);
     setcursornewline();
 }
 

@@ -161,14 +161,42 @@ void Parsing(char *name)
     uint8_t found = 0;
 
     // Load the Paging enabler and jumper to 0xFF000000
-    uint32_t loader_bytes[6];
-    loader_bytes[0] = 0x0F0C5D8B;
-    loader_bytes[1] = 0x010DC020;
-    loader_bytes[2] = 0x0F800000;
-    loader_bytes[3] = 0x00BCC022;
-    loader_bytes[4] = 0x89BF0000;
-    loader_bytes[5] = 0xC3E3FFE5;
-    memcp((uint8_t*)loader_bytes, (uint8_t*)0x00, 0, 6 * 4, 0);
+    uint32_t loader_bytes[26];
+    loader_bytes[0] = 0x90909090;
+    loader_bytes[1] = 0x000000BB;
+    loader_bytes[2] = 0x0000B800;
+    loader_bytes[3] = 0x0389BF00;
+    loader_bytes[4] = 0x0F0C5D8B;
+    loader_bytes[5] = 0x010DC020;
+    loader_bytes[6] = 0x0F800000;
+    loader_bytes[7] = 0x32BDC022;
+    loader_bytes[8] = 0x89000000;
+    loader_bytes[9] = 0x00BD0065;
+    loader_bytes[10] = 0x8B000000;
+    loader_bytes[11] = 0xE3FF0065;
+    loader_bytes[12] = 0x909090C3;
+    loader_bytes[13] = 0x90909090;
+    loader_bytes[14] = 0x00BD9090;
+    loader_bytes[15] = 0x89000000;
+    loader_bytes[16] = 0x200F0065;
+    loader_bytes[17] = 0x000135C0;
+    loader_bytes[18] = 0x220F8000;
+    loader_bytes[19] = 0x0032BDC0;
+    loader_bytes[20] = 0x658B0000;
+    loader_bytes[21] = 0xBD80CD00;
+    loader_bytes[22] = 0x00000011;
+    loader_bytes[23] = 0x9090E5FF;
+    loader_bytes[24] = 0x90909090;
+    loader_bytes[25] = 0x90909090;
+    memcp((uint8_t*)loader_bytes, (uint8_t*)0x00, 0, 26 * 4, 0);
+    // uint32_t loader_bytes[6];
+    // loader_bytes[0] = 0x0F0C5D8B;
+    // loader_bytes[1] = 0x010DC020;
+    // loader_bytes[2] = 0x0F800000;
+    // loader_bytes[3] = 0x00BCC022;
+    // loader_bytes[4] = 0x89BF0000;
+    // loader_bytes[5] = 0xC3E3FFE5;
+    // memcp((uint8_t*)loader_bytes, (uint8_t*)0x00, 0, 6 * 4, 0);
 
     while ((i < count_folders) & (found == 0))
     {

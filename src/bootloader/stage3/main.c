@@ -21,7 +21,7 @@ void _cstart_()
 {
     RAM_FullInit();
     uint32_t address = 0;
-    uint32_t offset = 0;
+    uint32_t offset = 300;
     if (allocate_block(&address, &offset, SYSTEM_MEMORY) == 0)
     {
         stopping_system();

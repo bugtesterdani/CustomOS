@@ -331,6 +331,7 @@ void isr_init()
 }
 
 void asm_functions(asm_enable_interrupts());
+void asm_functions(asm_syscall_success());
 
 void enable_interrupts()
 {
@@ -367,10 +368,10 @@ void GPF(registers_t *regs)
     {
         isr_handlers[int_index](regs);
     }
-    else if (regs->int_no == 0x80)
+    else if (int_index == 0x80)
     {
         void (*myfunc)(registers_t*);
-        myfunc = (void*)(0x20);
+        myfunc = (void*)(0x3a);
         myfunc(regs);
     }
     else
@@ -378,22 +379,23 @@ void GPF(registers_t *regs)
         setcursornewline();
         printString("General Protection Fault and sub Interrupt not implemented!", 0xF, 0x0);
         stop_system();
+        return;
     }
+
+    asm_syscall_success();
 }
 
 void asm_functions(isr_handler(registers_t* regs))
 {
-    // if (regs->int_no == 0x0D)
-    // {
-    //     GPF(regs);
-    //     return;
-    // }
-    if (isr_handlers[regs->int_no] != NULL)
+    if (regs->int_no == 0x0D)
+        GPF(regs);
+
+    else if (isr_handlers[regs->int_no] != NULL)
     {
-        if (regs->int_no == 0x80)
+        if (((regs->error_code >> 3) & 0x3FFF) == 0x80)
         {
             void (*myfunc)(registers_t*);
-            myfunc = (void*)(0x20);
+            myfunc = (void*)(0x3a);
             myfunc(regs);
         }
         else

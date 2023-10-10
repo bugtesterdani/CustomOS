@@ -47,8 +47,25 @@ asm_enable_interrupts:
 %include "inc/isr.inc"
 %include "inc/irq.inc"
 
+global asm_syscall_success:
+asm_syscall_success:
+    push eax
+    push ebx
+
+    mov eax, esp
+    add eax, 0x9c
+    mov ebx, [eax]
+    add ebx, 0x2
+    mov [eax], ebx
+
+    pop ebx
+    pop eax
+    ret
+
 isr_common:
     pusha               ; pushes in order: eax, ecx, edx, ebx, esp, ebp, esi, edi
+    cli
+    cld
 
     xor eax, eax        ; push ds
     mov ax, ds
@@ -77,6 +94,8 @@ isr_common:
 
 irq_common:
     pusha
+    cli
+    cld
 
     xor eax, eax
     mov ax, ds
