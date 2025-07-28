@@ -41,7 +41,9 @@ pre-job:
   script:
     # Install all needed Programs before building
     - echo "Prebuild"
-    - docker build -t compile_image .
+    - docker login registry.gitlab.com
+    - docker build -t registry.gitlab.com/daniprog/custom-os .
+    - docker push registry.gitlab.com/daniprog/custom-os
 
 post-job:
   stage: .post
