@@ -41,9 +41,9 @@ pre-job:
   script:
     # Install all needed Programs before building
     - echo "Prebuild"
-    - docker login -u "gitlab-ci-token" -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker build -t $CI_REGISTRY/daniprog/custom-os .
-    - docker push $CI_REGISTRY/daniprog/custom-os
+    # - docker login -u "gitlab-ci-token" -p $CI_JOB_TOKEN $CI_REGISTRY
+    # - docker build -t $CI_REGISTRY/daniprog/custom-os .
+    # - docker push $CI_REGISTRY/daniprog/custom-os
 
 post-job:
   stage: .post
