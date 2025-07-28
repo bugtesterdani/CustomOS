@@ -24,11 +24,15 @@ WORKDIR /root/Toolchain
 RUN apt-get install xz-utils -y
 RUN tar -xvf binutils.tar.xz
 RUN tar -xzvf gcc.tar.gz
+RUN rm binutils.tar.xz
+RUN rm gcc.tar.gz
 RUN mkdir -p /root/Toolchain/binutils-build
 WORKDIR /root/Toolchain/binutils-build
 RUN ../binutils-${VersionBU}/configure --target=$TARGET --prefix="${PREFIX}" --with-sysroot --disable-nls --disable-werror
 RUN make -j 4
 RUN make install
+RUN cd ../binutils-${VersionBU}
+RUN rm -rf *
 RUN mkdir -p /root/Toolchain/gcc-build
 WORKDIR /root/Toolchain/gcc-build
 RUN ../gcc-${VersionGCC}/configure --target=$TARGET --prefix="${PREFIX}" --disable-nls --enable-languages=c,c++ --without-headers
@@ -36,6 +40,8 @@ RUN make all-gcc -j 4
 RUN make all-target-libgcc -j 4
 RUN make install-gcc
 RUN make install-target-libgcc
+RUN cd ../gcc-${VersionGCC}
+RUN rm -rf *
 RUN apt-get install cmake -y
 COPY ${PathTools}/asmparser /root/Toolchain/asmparser/
 RUN mkdir -p /root/Toolchain/asmparser/build

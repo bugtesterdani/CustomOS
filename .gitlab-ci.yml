@@ -42,20 +42,30 @@ pre-job:
     # Install all needed Programs before building
     - echo "Prebuild"
     - docker login -u "gitlab-ci-token" -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker build -t registry.gitlab.com/daniprog/custom-os .
-    - docker push registry.gitlab.com/daniprog/custom-os
+    - docker build -t $CI_REGISTRY/daniprog/custom-os .
+    - docker push $CI_REGISTRY/daniprog/custom-os
 
 post-job:
   stage: .post
   script:
     - echo "Postbuild"
 
-build-job:       # This job runs in the build stage, which runs first.
+build-job:
   stage: build
+  image: $CI_REGISTRY/daniprog/custom-os:latest
   script:
     - echo "Compiling the code..."
-    - make -s
+    - tar -czf src.tar.gz src
+    - cp src.tar.gz /root/src.tar.gz
+    - cp tests/test.elf /root/test.elf
+    - /bin/bash /root/build.sh
     - echo "Compile complete."
+  artifacts:
+    untracked: true
+    when: on_success
+    paths:
+      - /root/src/
+    expire_in: 30 days
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
