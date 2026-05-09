@@ -57,8 +57,12 @@ uint8_t register_memory_map()
 {
     // First make a offset change to the BLOCKSIZE of 4096
     uint32_t offset_align = (memory[0].memory_start % BLOCK_SIZE);
-    memory[0].memory_start += offset_align;
-    memory[0].memory_size -= offset_align;
+    if (offset_align != 0)
+    {
+        offset_align = BLOCK_SIZE - offset_align;
+        memory[0].memory_start += offset_align;
+        memory[0].memory_size -= offset_align;
+    }
     
     if (memspace_counter[0] == 0)
     {
