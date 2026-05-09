@@ -1,9 +1,8 @@
+#include "syscalls.h"
+
 
 void main()
 {
-    unsigned int j = 0;
-    for (unsigned char i = 0; i < 10; i++)
-    {
-        j += i;
-    }
+    const char *msg = "Hello from user space via int 0x80\n";
+    write(1, msg, 34);
 }

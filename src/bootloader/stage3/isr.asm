@@ -2,6 +2,7 @@
 
 extern isr_handler
 extern irq_handler
+extern syscall_dispatch
 
 ; cpu pushes to the stack: ss, esp, eflags, cs, eip
 
@@ -44,6 +45,12 @@ asm_enable_interrupts:
 
 %include "inc/isr.inc"
 %include "inc/irq.inc"
+
+global syscall_ISR
+syscall_ISR:
+    push 0
+    push 128
+    jmp syscall_common
 
 isr_common:
     pusha               ; pushes in order: eax, ecx, edx, ebx, esp, ebp, esi, edi
@@ -98,4 +105,31 @@ irq_common:
     popa
     add esp, 8
     sti
+    iret
+
+syscall_common:
+    pusha
+
+    xor eax, eax
+    mov ax, ds
+    push eax
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    push esp
+    call syscall_dispatch
+    add esp, 4
+
+    pop eax
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    popa
+    add esp, 8
     iret

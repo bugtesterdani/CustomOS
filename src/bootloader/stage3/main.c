@@ -11,6 +11,7 @@
 #include "headers/initialize.h"
 #include "headers/paging.h"
 #include "headers/elf.h"
+#include "headers/syscall.h"
 
 #define SYSTEM_MEMORY   2 * 4096            // Request 4096 Bit. We will need to change this later, when more needed.
 #include "headers/offset_List.h"
@@ -31,10 +32,15 @@ void _cstart_()
     init_gdt();
     isr_init();
     irq_init();
+    syscall_init();
     init_idt();
     enable_interrupts();
 
     testing_idt();
+
+    // syscall verification
+    const char *sys_msg = "[int80] syscall write ok";
+    __asm__ __volatile__("int $0x80" : : "a"(SYS_WRITE), "b"(1), "c"(sys_msg), "d"(24));
 
     paging_setup();
     Parsing("KERNEL.ELF");
