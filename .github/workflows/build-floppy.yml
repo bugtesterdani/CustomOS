@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - master
+      - NewOS
 
 jobs:
   build-floppy:
