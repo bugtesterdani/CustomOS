@@ -73,3 +73,11 @@ To read the full name, use --wide as parameter.
 This was a really good sample, and there should be maybe a elf parser Python Script. I want to use Python, cause Python is a fast and good modifieable customizable script.
 
 This could be done by calling this, maybe like writing when needed for example: "stage2.print_hex_word". Then the Python Script would replace this string with this value: 0x81bc from the above sample.
+## GitHub Build Artifact (Floppy)
+
+A GitHub Actions workflow is available at `.github/workflows/build-floppy.yml`.
+You can run it manually via **Actions → Build Floppy Image → Run workflow**.
+After it finishes, download the artifact `customos-floppy` which contains:
+
+- `floppy.img` (raw floppy disk image for QEMU)
+- `floppy.img.gz` (compressed image)

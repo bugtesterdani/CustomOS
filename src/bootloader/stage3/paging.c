@@ -65,8 +65,38 @@ void paging_setup()
     }
 
     uint32_t new_address;
-    paging_setup_newDirectory(&new_address);
+    if (paging_setup_newDirectory(&new_address) == 0)
+    {
+        return;
+    }
     *addr_page_dir = new_address;
+
+    uint32_t flags = 0x003;
+    uint32_t page_directory = *addr_page_dir;
+
+    // Identity map first 4MB to keep currently executing code/data/stack valid.
+    for (uint32_t i = 0; i < (1024 * 1024 * 4); i += 4096)
+    {
+        uint32_t phys = i;
+        uint32_t virt = i;
+        map_page((uint32_t*)phys, (uint32_t*)virt, flags);
+    }
+
+    // Ensure VGA memory is identity mapped.
+    uint32_t vga = 0xB8000;
+    map_page((uint32_t*)vga, (uint32_t*)vga, flags);
+
+    // Ensure page directory and all active page tables are identity mapped.
+    map_page((uint32_t*)page_directory, (uint32_t*)page_directory, flags);
+    PD_t *Directory = (PD_t*)page_directory;
+    for (uint16_t i = 0; i < 1024; i++)
+    {
+        if (Directory[i].Present == 1)
+        {
+            uint32_t table_addr = (Directory[i].Frame_Pointer << 12);
+            map_page((uint32_t*)table_addr, (uint32_t*)table_addr, flags);
+        }
+    }
 
     // Paging register IRQ
     irq_register(0x0E, &page_fault);
@@ -87,15 +117,15 @@ void map_page(uint32_t *phys_address, uint32_t *virt_address, uint32_t flags)
     PT_t *Table = (PT_t*)((Directory[PD].Frame_Pointer) << 12);
     if (Table[PT].FreeBits == 0)
     {
-        printString(" set new table ", White, Black);
         paging_setup_newTableEntry(PD, PT, *phys_address, flags);
     }
     else
     {
-        printString(" no new table set ", White, Black);
+        *((uint32_t*)(&(Table[PT]))) = flags;
+        Table[PT].Present = 1;
+        Table[PT].Writeable = 1;
         Table[PT].Frame_Pointer = ((*phys_address) >> 12);
     }
-    setcursornewline();
 }
 
 void page_fault(registers_t* regs)
