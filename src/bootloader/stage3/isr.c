@@ -362,9 +362,33 @@ void stopping_system()
     stop_system();
 }
 
+
+void GPF(registers_t *regs)
+{
+    uint32_t int_index = ((regs->error_code >> 3) & 0x3FFF);
+    if (isr_handlers[int_index] != NULL)
+    {
+        isr_handlers[int_index](regs);
+        return;
+    }
+
+    setcursornewline();
+    printString("General Protection Fault", Red, Black);
+    printString(" - selector index: 0x", White, Black);
+
+    char selector[0x14];
+    clearArray((uint8_t*)selector, 20, 0x00);
+    ConvertToChar(int_index, 16, selector, 0);
+    printString(selector, White, Black);
+    stop_system();
+}
+
 void asm_functions(isr_handler(registers_t* regs))
 {
-    if (isr_handlers[regs->int_no] != NULL)
+    if (regs->int_no == 0x0D)
+        GPF(regs);
+
+    else if (isr_handlers[regs->int_no] != NULL)
     {
         // if (regs->int_no == 0x80)
         //     syscall(regs);
