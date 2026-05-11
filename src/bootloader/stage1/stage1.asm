@@ -257,6 +257,9 @@ SystemID		    dd "FAT32   "
 %define ENDL 0x0D, 0x0A
 
 start:
+    ; save BIOS boot drive (DL) immediately
+    mov [DriveNumber], dl
+
     ; setup data segments
     mov ax, 0               ; cant set ds and es register directly, so use ax instead
     mov ds, ax
@@ -379,6 +382,14 @@ read_fat32:
     int 13h
     jc floppy_error
     ; Then we save the Offset at Register DI and Return to the previous caller Function.
+    mov di, [Buff_Off]
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    pop si
+    ret
+
     mov di, [Buff_Off]
     pop edx
     pop ecx
