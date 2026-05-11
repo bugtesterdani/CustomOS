@@ -53,7 +53,7 @@ cd ../..
 # Build Image file to boot
 cd build
 rm -f disk.img
-dd if=/dev/zero of=disk.img bs=512 count=1440000
+dd if=/dev/zero of=disk.img bs=512 count=2880
 mformat -F -i disk.img ::
 mcopy -i disk.img stage2.bin ::
 mcopy -i disk.img stage2.bin ::/stage22.bin
