@@ -96,3 +96,16 @@ So nutzt du es:
 4. `index.html` im Browser öffnen — die VM startet direkt vom Floppy-Image.
 
 Wenn du stattdessen cloudvm.app nutzen willst, lade dort einfach das erzeugte `floppy.img` hoch.
+
+
+## Unified Release (single tag)
+
+The workflow also publishes all build outputs to one stable GitHub release tag: `build-artifacts`.
+
+Release page:
+- `https://github.com/<owner>/<repo>/releases/tag/build-artifacts`
+
+Direct download links (same tag each run):
+- `https://github.com/<owner>/<repo>/releases/download/build-artifacts/floppy.img`
+- `https://github.com/<owner>/<repo>/releases/download/build-artifacts/floppy.img.gz`
+- `https://github.com/<owner>/<repo>/releases/download/build-artifacts/customos-browser-emulator.tar.gz`
