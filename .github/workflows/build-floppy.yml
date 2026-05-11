@@ -8,6 +8,9 @@ on:
       - master
       - NewOS
 
+permissions:
+  contents: write
+
 jobs:
   build-floppy:
     runs-on: ubuntu-latest
@@ -21,6 +24,9 @@ jobs:
 
       - name: Package browser emulator
         run: .github/scripts/package-web-emulator.sh
+
+      - name: Create browser emulator archive
+        run: tar -czf build/customos-browser-emulator.tar.gz -C build web
 
       - name: Upload floppy image
         uses: actions/upload-artifact@v4
@@ -37,3 +43,23 @@ jobs:
           name: customos-browser-emulator
           path: build/web
           if-no-files-found: error
+
+      - name: Publish unified release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: build-artifacts
+          name: CustomOS Build Artifacts
+          allowUpdates: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            build/floppy.img
+            build/floppy.img.gz
+            build/customos-browser-emulator.tar.gz
+          body: |
+            Latest build artifacts are published under a single stable release tag: `build-artifacts`.
+
+            Download links:
+            - [customos-floppy (raw image)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/floppy.img)
+            - [customos-floppy (gzip)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/floppy.img.gz)
+            - [customos-browser-emulator (tar.gz)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/customos-browser-emulator.tar.gz)
