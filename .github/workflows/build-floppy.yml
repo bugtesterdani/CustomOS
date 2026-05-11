@@ -19,6 +19,9 @@ jobs:
       - name: Build floppy artifact
         run: .github/scripts/build-artifacts.sh
 
+      - name: Package browser emulator
+        run: .github/scripts/package-web-emulator.sh
+
       - name: Upload floppy image
         uses: actions/upload-artifact@v4
         with:
@@ -26,4 +29,11 @@ jobs:
           path: |
             build/floppy.img
             build/floppy.img.gz
+          if-no-files-found: error
+
+      - name: Upload browser emulator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: customos-browser-emulator
+          path: build/web
           if-no-files-found: error

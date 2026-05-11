@@ -81,3 +81,18 @@ After it finishes, download the artifact `customos-floppy` which contains:
 
 - `floppy.img` (raw floppy disk image for QEMU)
 - `floppy.img.gz` (compressed image)
+
+## Browser Emulator (wie cloudvm.app)
+Der Workflow erzeugt zusätzlich das Artifact `customos-browser-emulator`.
+Darin sind enthalten:
+
+- `index.html` (v86-basierter Browser-Emulator)
+- `floppy.img` (dein Boot-Image)
+
+So nutzt du es:
+1. In GitHub Actions den Workflow **Build Floppy Image** starten.
+2. Artifact `customos-browser-emulator` herunterladen und entpacken.
+3. Inhalte auf einen statischen Webhost laden (z. B. GitHub Pages, Netlify, Cloudflare Pages).
+4. `index.html` im Browser öffnen — die VM startet direkt vom Floppy-Image.
+
+Wenn du stattdessen cloudvm.app nutzen willst, lade dort einfach das erzeugte `floppy.img` hoch.
