@@ -1,0 +1,38 @@
+name: Build Floppy Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-floppy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build floppy artifact
+        run: .github/scripts/build-artifacts.sh
+
+      - name: Package browser emulator
+        run: .github/scripts/package-web-emulator.sh
+
+      - name: Upload floppy image
+        uses: actions/upload-artifact@v4
+        with:
+          name: customos-floppy
+          path: |
+            build/floppy.img
+            build/floppy.img.gz
+          if-no-files-found: error
+
+      - name: Upload browser emulator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: customos-browser-emulator
+          path: build/web
+          if-no-files-found: error

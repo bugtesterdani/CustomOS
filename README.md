@@ -73,3 +73,26 @@ To read the full name, use --wide as parameter.
 This was a really good sample, and there should be maybe a elf parser Python Script. I want to use Python, cause Python is a fast and good modifieable customizable script.
 
 This could be done by calling this, maybe like writing when needed for example: "stage2.print_hex_word". Then the Python Script would replace this string with this value: 0x81bc from the above sample.
+## GitHub Build Artifact (Floppy)
+
+A GitHub Actions workflow is available at `.github/workflows/build-floppy.yml`.
+You can run it manually via **Actions → Build Floppy Image → Run workflow**.
+After it finishes, download the artifact `customos-floppy` which contains:
+
+- `floppy.img` (raw floppy disk image for QEMU)
+- `floppy.img.gz` (compressed image)
+
+## Browser Emulator (wie cloudvm.app)
+Der Workflow erzeugt zusätzlich das Artifact `customos-browser-emulator`.
+Darin sind enthalten:
+
+- `index.html` (v86-basierter Browser-Emulator)
+- `floppy.img` (dein Boot-Image)
+
+So nutzt du es:
+1. In GitHub Actions den Workflow **Build Floppy Image** starten.
+2. Artifact `customos-browser-emulator` herunterladen und entpacken.
+3. Inhalte auf einen statischen Webhost laden (z. B. GitHub Pages, Netlify, Cloudflare Pages).
+4. `index.html` im Browser öffnen — die VM startet direkt vom Floppy-Image.
+
+Wenn du stattdessen cloudvm.app nutzen willst, lade dort einfach das erzeugte `floppy.img` hoch.
