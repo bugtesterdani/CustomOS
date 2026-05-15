@@ -27,8 +27,9 @@ docker cp tests/test.elf "$CONTAINER_NAME":/root/test.elf
 docker exec "$CONTAINER_NAME" /bin/bash /root/build.sh
 
 docker cp "$CONTAINER_NAME":/root/src/build/disk.img build/floppy.img
+docker cp "$CONTAINER_NAME":/root/src/build/customos.iso build/customos-cd.iso
 
 gzip -9 -c build/floppy.img > build/floppy.img.gz
 
 echo "Artifacts generated:"
-ls -lh build/floppy.img build/floppy.img.gz
+ls -lh build/floppy.img build/floppy.img.gz build/customos-cd.iso

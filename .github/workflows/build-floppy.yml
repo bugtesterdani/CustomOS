@@ -28,13 +28,14 @@ jobs:
       - name: Create browser emulator archive
         run: tar -czf build/customos-browser-emulator.tar.gz -C build web
 
-      - name: Upload floppy image
+      - name: Upload disk images
         uses: actions/upload-artifact@v4
         with:
-          name: customos-floppy
+          name: customos-images
           path: |
             build/floppy.img
             build/floppy.img.gz
+            build/customos-cd.iso
           if-no-files-found: error
 
       - name: Upload browser emulator artifact
@@ -55,6 +56,7 @@ jobs:
           artifacts: |
             build/floppy.img
             build/floppy.img.gz
+            build/customos-cd.iso
             build/customos-browser-emulator.tar.gz
           body: |
             Latest build artifacts are published under a single stable release tag: `build-artifacts`.
@@ -62,4 +64,5 @@ jobs:
             Download links:
             - [customos-floppy (raw image)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/floppy.img)
             - [customos-floppy (gzip)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/floppy.img.gz)
+            - [customos-cd (bootable ISO)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/customos-cd.iso)
             - [customos-browser-emulator (tar.gz)](https://github.com/${{ github.repository }}/releases/download/build-artifacts/customos-browser-emulator.tar.gz)

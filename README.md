@@ -77,10 +77,11 @@ This could be done by calling this, maybe like writing when needed for example: 
 
 A GitHub Actions workflow is available at `.github/workflows/build-floppy.yml`.
 You can run it manually via **Actions → Build Floppy Image → Run workflow**.
-After it finishes, download the artifact `customos-floppy` which contains:
+After it finishes, download the artifact `customos-images` which contains:
 
 - `floppy.img` (raw floppy disk image for QEMU)
 - `floppy.img.gz` (compressed image)
+- `customos-cd.iso` (bootable CD ISO image)
 
 ## Browser Emulator (wie cloudvm.app)
 Der Workflow erzeugt zusätzlich das Artifact `customos-browser-emulator`.
@@ -108,4 +109,5 @@ Release page:
 Direct download links (same tag each run):
 - `https://github.com/<owner>/<repo>/releases/download/build-artifacts/floppy.img`
 - `https://github.com/<owner>/<repo>/releases/download/build-artifacts/floppy.img.gz`
+- `https://github.com/<owner>/<repo>/releases/download/build-artifacts/customos-cd.iso`
 - `https://github.com/<owner>/<repo>/releases/download/build-artifacts/customos-browser-emulator.tar.gz`
