@@ -24,6 +24,7 @@ sudo docker exec -it compile_runner /bin/bash /root/build.sh
 
 mkdir -p build
 sudo docker cp compile_runner:/root/src/build/disk.img build/disk.img
+sudo docker cp compile_runner:/root/src/build/customos.iso build/customos.iso
 # sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.map build/stage3.map
 sudo docker cp compile_runner:/root/src/build/boot.bin build/stage1.bin
 sudo docker cp compile_runner:/root/src/build/stage2.bin build/stage2.bin
@@ -32,7 +33,7 @@ sudo docker cp compile_runner:/root/src/bootloader/stage3/build/stage3.bin build
 sudo docker cp compile_runner:/root/src/build/stage32.bin build/stage32.bin
 sudo docker cp compile_runner:/root/src/bootloader/stage4/build/stage4.elf build/stage4.elf
 sudo docker cp compile_runner:/root/src/user_Software/template/build/template.elf build/template.elf
-sudo chown $USER:$USER build/disk.img
+sudo chown $USER:$USER build/disk.img build/customos.iso
 
 # sudo docker exec -it compile_runner /bin/bash
 
@@ -46,7 +47,7 @@ vboxmanage convertfromraw --format VDI --uuid=220868a3-515d-4693-875f-491f7bf306
 chmod +w build/disk.vdi
 
 # Start debugging Instance
-qemu-system-x86_64 -s -S -m 2m -hda build/disk.img &
+qemu-system-x86_64 -s -S -m 2m -cdrom build/customos.iso -boot d &
 # qemu-system-i386 -s -S -hda build/disk.img &
 #gdb -ix "gdb_init_real_mode.txt" build/stage3.elf -ex "target remote localhost:1234" -ex "br *0x7c00" -ex "br *0x8000" -ex "br *0x8400" -ex "c"
 gdb -ix "gdb_init_test.txt" -ex "disassembly-flavor intel" -ex "target remote localhost:1234" -ex "apropos lx" -ex "br *0x0" -ex "c"

@@ -15,7 +15,7 @@ ARG PATH="${PREFIX}/bin:$PATH"
 
 COPY ${PathBuild}/sources.list /etc/apt/sources.list
 RUN apt-get update
-RUN apt-get install build-essential nasm mtools qemu-system-x86 -y
+RUN apt-get install build-essential nasm mtools qemu-system-x86 genisoimage -y
 RUN apt-get build-dep gcc-10 -y
 RUN mkdir -p /root/Toolchain
 COPY ${PathBuild}/gcc-${VersionGCC}.tar.gz /root/Toolchain/gcc.tar.gz
