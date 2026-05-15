@@ -67,3 +67,10 @@ mcopy -i disk.img ../bootloader/stage4/build/stage4.elf ::kernel.elf
 # mcopy -i disk.img stage4.bin ::
 mcopy -i disk.img ../user_Software/template/build/template.elf ::
 dd if=boot.bin of=disk.img conv=notrunc
+
+rm -f customos.iso
+mkdir -p iso_root
+cp disk.img iso_root/boot.img
+genisoimage -quiet -V CUSTOMOS -input-charset iso8859-1 -R -J \
+  -b boot.img -no-emul-boot -boot-load-size 4 -boot-info-table \
+  -o customos.iso iso_root
