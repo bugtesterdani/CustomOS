@@ -196,11 +196,11 @@ nop
 ; Somehow this Table has changed without any reason.
 ; So here the new one.
 
-OEM_ID                  dd "DANI-OS "
+OEM_ID                  db "DANI-OS "
 BytesPerSector          dw 0x0200
 SectorsPerCluster       db 0x08
-ReservedSectors         db 0x0020
-TotalFATs               dw 0x0200
+ReservedSectors         dw 0x0020
+TotalFATs               db 0x02
 MaxRootEntries          dw 0x0000
 NumberOfSectors         dw 0x0000
 MediaDescriptor         db 0xF8
@@ -251,7 +251,7 @@ TIMES 1 DB 0
 Signature		    TIMES 1 DB 0x29
 VolumeID		    dd 0x08029A05
 VolumeLabel	    	TIMES 1 DB "DANIPROG OS"
-SystemID		    dd "FAT32   "
+SystemID		    db "FAT32   "
 
 ; Define Variable ENDL as New Line (\r\n)
 %define ENDL 0x0D, 0x0A
@@ -581,13 +581,11 @@ times 446-($-$$) db 0
 ; This is also needed, so the FAT32 Format knows where the Root Table Starts, ...
 ; This needs to be Hardcoded and not modified by the bootloader.
 P1_BootFlag db 0x80
-P1_CHSBegin dw 0x000100
-times 1 db 0                            ; this is needed cause the last Bytes are ignored (0x00)
+P1_CHSBegin db 0x00, 0x01, 0x00
 P1_TypeCode db 0x0C
-P1_CHSEnd   dd 0xCABF1F
-P1_LBABegin dw 0x00000000
-P1_NumberOfSectors dd 0x15FEA000
-times 1 db 0                            ; this is needed cause the last Bytes are ignored (0x00)
+P1_CHSEnd   db 0x1F, 0xBF, 0xCA
+P1_LBABegin dd 0x00000000
+P1_NumberOfSectors dd 0x0015FEA0
 
 ; Partition 2 + 3
 file_32_zeros:          times 32 db 0
